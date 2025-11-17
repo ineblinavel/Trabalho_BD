@@ -1,12 +1,11 @@
-
-CREATE TABLE Medicos (
+CREATE TABLE IF NOT EXISTS Medicos (
   crm VARCHAR(9) PRIMARY KEY,
   nome_medico VARCHAR(255) NOT NULL,
   cpf VARCHAR(14) UNIQUE NOT NULL,
   salario DECIMAL(10,2) NOT NULL
 );
 
-CREATE TABLE AgendaMedico (
+CREATE TABLE IF NOT EXISTS AgendaMedico (
   id_agenda INT AUTO_INCREMENT PRIMARY KEY,
   crm_medico VARCHAR(9) NOT NULL,
   data DATE NOT NULL,
@@ -18,7 +17,7 @@ CREATE TABLE AgendaMedico (
     ON UPDATE CASCADE
 );
 
-CREATE TABLE Paciente (
+CREATE TABLE IF NOT EXISTS Paciente (
   id_paciente INT AUTO_INCREMENT PRIMARY KEY,
   cpf VARCHAR(14) UNIQUE NOT NULL,
   data_nascimento DATE NOT NULL,
@@ -26,7 +25,7 @@ CREATE TABLE Paciente (
   nome_paciente VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Consulta (
+CREATE TABLE IF NOT EXISTS Consulta (
   id_consulta INT AUTO_INCREMENT PRIMARY KEY,
   crm_medico VARCHAR(9),
   diagnostico TEXT,
@@ -42,14 +41,14 @@ CREATE TABLE Consulta (
     ON UPDATE CASCADE
 );
 
-CREATE TABLE TipoExame (
+CREATE TABLE IF NOT EXISTS TipoExame (
   id_tipo_exame INT AUTO_INCREMENT PRIMARY KEY,
   nome_do_exame VARCHAR(255) NOT NULL,
   descricao VARCHAR(45),
   preco DECIMAL(10,2) NOT NULL
 );
 
-CREATE TABLE Exame (
+CREATE TABLE IF NOT EXISTS Exame (
   id_exame INT AUTO_INCREMENT PRIMARY KEY,
   status VARCHAR(1) NOT NULL,
   crm_medico_responsavel VARCHAR(9) NOT NULL,
@@ -68,7 +67,7 @@ CREATE TABLE Exame (
     ON UPDATE CASCADE
 );
 
-CREATE TABLE ResultadoExame (
+CREATE TABLE IF NOT EXISTS ResultadoExame (
   id_resultado_exame INT AUTO_INCREMENT PRIMARY KEY,
   resultado_obtido TEXT,
   data_resultado DATE,
@@ -78,7 +77,7 @@ CREATE TABLE ResultadoExame (
     ON UPDATE CASCADE
 );
 
-CREATE TABLE Procedimento (
+CREATE TABLE IF NOT EXISTS Procedimento (
   id_procedimento INT AUTO_INCREMENT PRIMARY KEY,
   nome_procedimento VARCHAR(255),
   custo DECIMAL(10,2),
@@ -92,20 +91,20 @@ CREATE TABLE Procedimento (
     ON UPDATE CASCADE
 );
 
-CREATE TABLE Enfermeiro (
+CREATE TABLE IF NOT EXISTS Enfermeiro (
   corem VARCHAR(15) PRIMARY KEY,
   cpf VARCHAR(14) UNIQUE NOT NULL,
   nome_enfermeiro VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Quarto (
+CREATE TABLE IF NOT EXISTS Quarto (
   id_quarto INT PRIMARY KEY,
   num_quarto INT UNIQUE NOT NULL,
   tipo_de_quarto VARCHAR(20) NOT NULL,
   valor_diaria DECIMAL(10,2)
 );
 
-CREATE TABLE Internacao (
+CREATE TABLE IF NOT EXISTS Internacao (
   id_internacao INT AUTO_INCREMENT PRIMARY KEY,
   id_paciente INT NOT NULL,
   crm_medico VARCHAR(9) NOT NULL,
@@ -128,18 +127,18 @@ CREATE TABLE Internacao (
     ON UPDATE CASCADE
 );
 
-CREATE TABLE Medicamento (
+CREATE TABLE IF NOT EXISTS Medicamento (
   id_medicamento INT AUTO_INCREMENT PRIMARY KEY,
   fabricante VARCHAR(45),
   nome_comercial VARCHAR(45)
 );
 
-CREATE TABLE Fornecedor (
+CREATE TABLE IF NOT EXISTS Fornecedor (
   cnpj VARCHAR(18) PRIMARY KEY,
   nome_empresa VARCHAR(255)
 );
 
-CREATE TABLE EstoqueMedicamento (
+CREATE TABLE IF NOT EXISTS EstoqueMedicamento (
   id_estoque_medicamento INT AUTO_INCREMENT PRIMARY KEY,
   data_validade DATE NOT NULL,
   preco_unitario DECIMAL(10,2) NOT NULL,
@@ -154,7 +153,7 @@ CREATE TABLE EstoqueMedicamento (
     ON UPDATE CASCADE
 );
 
-CREATE TABLE TelefoneMedico (
+CREATE TABLE IF NOT EXISTS TelefoneMedico (
     id_telefone_medico INT AUTO_INCREMENT PRIMARY KEY,
     crm_medico VARCHAR(9) NOT NULL,
     numero_telefone VARCHAR(15) NOT NULL,
@@ -164,7 +163,7 @@ CREATE TABLE TelefoneMedico (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE TelefoneEnfermeiro (
+CREATE TABLE IF NOT EXISTS TelefoneEnfermeiro (
     id_telefone_enfermeiro INT AUTO_INCREMENT PRIMARY KEY,
     corem_enfermeiro VARCHAR(15) NOT NULL,
     numero_telefone VARCHAR(15) NOT NULL,
@@ -173,7 +172,8 @@ CREATE TABLE TelefoneEnfermeiro (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-CREATE TABLE TelefonePaciente (
+
+CREATE TABLE IF NOT EXISTS TelefonePaciente (
     id_telefone_paciente INT AUTO_INCREMENT PRIMARY KEY,
     id_paciente INT NOT NULL,
     numero_telefone VARCHAR(15) NOT NULL,
@@ -183,7 +183,8 @@ CREATE TABLE TelefonePaciente (
         ON DELETE CASCADE 
         ON UPDATE CASCADE
 );
-CREATE TABLE Prescricao (
+
+CREATE TABLE IF NOT EXISTS Prescricao (
     id_prescricao INT AUTO_INCREMENT PRIMARY KEY,
     id_consulta INT NOT NULL,
     id_medicamento INT NOT NULL,

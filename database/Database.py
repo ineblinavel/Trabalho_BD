@@ -1,41 +1,62 @@
 import mysql.connector
 from mysql.connector import Error
 from config.db_config import ConectorConfig
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler("database_queries.log"), logging.StreamHandler()]
+)
+
+logger = logging.getLogger(__name__)
+
+class DB:
+    def __init__(self):
+        self._connection = None
+
+    def get_connection(self):
+        if self._connection is not None and self._connection.is_connected():
+            return self._connection
+        try:
+            conn = mysql.connector.connect(**ConectorConfig)
+            self.connection = conn
+            return conn
+        except Error as e:
+            logger.error(f"Error connecting to database: {e}")
+            self.connection = None
+            return None
+        
+    def execute_query(self, query, params=None, fetch=False, commit = False):
+        conn = self.get_connection()
+        if not conn:
+            raise ConnectionError("Falha na conexão com o banco de dados. Verifique host/senha.")
+
+        cursor = conn.cursor(dictionary=True) 
+        result = None
+        
+        log_message = f"Executando query: {query.strip()[:100]}..."
+        if params:
+            log_message += f" com parâmetros: {params}"
+        logger.info(log_message)
+        try:
+            cursor.execute(query, params)
+            if fetch:
+                result = cursor.fetchall()
+            if commit:
+                conn.commit()
+                logger.info("Transação commitada.")
+            
+        except Error as e:
+            conn.rollback()
+            logger.error(f"Erro no comando SQL: {e}\nQuery: {query.strip()[:100]}...")
+            raise e 
+            
+        finally:
+            cursor.close()
+        return result
+    
+
+db_service = DB()
 def get_connection():
-    try:
-        conn = mysql.connector.connect(**ConectorConfig)
-        return conn
-    except Error as e:
-        print(f"Erro na conexão: {e}")
-        return None
-
-def setup_database(script_file):
-    conn = get_connection()
-    if not conn:
-        print("Falha na conexão. Verifique host/senha.")
-        return
-
-    cursor = conn.cursor()
-    
-    print("Lendo script SQL...")
-    with open(script_file, 'r', encoding='utf-8') as f:
-        sql_script = f.read()
-
-    commands = sql_script.split(';')
-    
-    for command in commands:
-        if command.strip():
-            try:
-                cursor.execute(command)
-                print(f"Executado: {command[:40]}...")
-            except Error as e:
-                print(f"Erro no comando: {e}")
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-    print("Banco de dados configurado com sucesso!")
-if __name__ == "__main__":
-    setup_database('./scripts/Script.sql')
-    setup_database('./scripts/Populate.sql')
+    return db_service.get_connection()

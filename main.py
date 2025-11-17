@@ -1,7 +1,13 @@
-from database.Setup_Database import setup_database
+from repositores.MedicoRepository import MedicoRepository
+
+medico_repo = MedicoRepository()
 
 def main():
-    setup_database()
+    print("\n--- LISTA DE MÉDICOS CADASTRADOS ---")
+    medicos = medico_repo.find_all()
+    for medico in medicos:
+        print(f"CRM: {medico['crm']}, Nome: {medico['nome_medico']}, CPF: {medico['cpf']}, Salário: {medico['salario']}")
+
 
 
 
