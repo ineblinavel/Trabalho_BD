@@ -11,3 +11,6 @@ ConectorConfig = {
     'database' : os.getenv('database'),
     'ssl_ca' : os.getenv('ssl_ca')
 }
+
+PUBLIC_KEY = os.getenv('PUBLIC_KEY')
+PRIVATE_KEY = os.getenv('PRIVATE_KEY')

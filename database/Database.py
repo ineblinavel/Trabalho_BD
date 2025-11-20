@@ -1,62 +1,63 @@
 import mysql.connector
-from mysql.connector import Error
 from config.db_config import ConectorConfig
-import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.FileHandler("database_queries.log"), logging.StreamHandler()]
-)
-
-logger = logging.getLogger(__name__)
 
 class DB:
     def __init__(self):
-        self._connection = None
+        self.connection = None
 
     def get_connection(self):
-        if self._connection is not None and self._connection.is_connected():
-            return self._connection
+        if self.connection and self.connection.is_connected():
+            return self.connection
         try:
-            conn = mysql.connector.connect(**ConectorConfig)
-            self.connection = conn
-            return conn
-        except Error as e:
-            logger.error(f"Error connecting to database: {e}")
-            self.connection = None
+            self.connection = mysql.connector.connect(**ConectorConfig)
+            return self.connection
+        except Exception as e:
+            print(f"Erro fatal ao conectar no banco: {e}")
             return None
-        
-    def execute_query(self, query, params=None, fetch=False, commit = False):
-        conn = self.get_connection()
-        if not conn:
-            raise ConnectionError("Falha na conexão com o banco de dados. Verifique host/senha.")
 
-        cursor = conn.cursor(dictionary=True) 
-        result = None
-        
-        log_message = f"Executando query: {query.strip()[:100]}..."
-        if params:
-            log_message += f" com parâmetros: {params}"
-        logger.info(log_message)
+    def select(self, query, params=None):
+        """
+        Use APENAS para ler dados (SELECT).
+        Retorna uma lista de dicionários ou lista vazia se der erro.
+        """
+        conn = self.get_connection()
+        if not conn: return []
+
+        cursor = conn.cursor(dictionary=True)
         try:
             cursor.execute(query, params)
-            if fetch:
-                result = cursor.fetchall()
-            if commit:
-                conn.commit()
-                logger.info("Transação commitada.")
-            
-        except Error as e:
-            conn.rollback()
-            logger.error(f"Erro no comando SQL: {e}\nQuery: {query.strip()[:100]}...")
-            raise e 
-            
+            return cursor.fetchall()
+        except Exception as e:
+            print(f"Erro no SELECT: {e}")
+            print(f"Query tentada: {query}")
+            return []
         finally:
             cursor.close()
-        return result
-    
+
+    def execute(self, query, params=None):
+        """
+        Use para INSERT, UPDATE, DELETE.
+        Faz o commit automático. 
+        RETORNA: O número de linhas afetadas (int) ou None se der erro.
+        """
+        conn = self.get_connection()
+        if not conn: return None 
+
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query, params)
+            
+            linhas_afetadas = cursor.rowcount 
+            
+            conn.commit() 
+            
+            return linhas_afetadas 
+            
+        except Exception as e:
+            conn.rollback() 
+            print(f"Erro no EXECUTE: {e}")
+            return None
+        finally:
+            cursor.close()
 
 db_service = DB()
-def get_connection():
-    return db_service.get_connection()
