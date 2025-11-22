@@ -1,16 +1,11 @@
 import os
-import dotenv
 
-dotenv.load_dotenv()
-
+# As variáveis de ambiente serão injetadas pelo Docker Compose.
+# Elas correspondem aos valores definidos no docker-compose.yml.
 ConectorConfig = {
-    'host' : os.getenv('host'),
-    'port' : int(os.getenv('port')),
-    'username' : os.getenv('username'),
-    'password' : os.getenv('password'),
-    'database' : os.getenv('database'),
-    'ssl_ca' : os.getenv('ssl_ca')
+    'host': os.getenv('MYSQL_HOST', 'db'),  # 'db' é o nome do serviço no docker-compose
+    'port': int(os.getenv('MYSQL_PORT', 3306)),
+    'user': os.getenv('MYSQL_USER', 'root'),
+    'password': os.getenv('MYSQL_ROOT_PASSWORD', 'root'),
+    'database': os.getenv('MYSQL_DATABASE', 'GerenciamentoHospital')
 }
-
-PUBLIC_KEY = os.getenv('PUBLIC_KEY')
-PRIVATE_KEY = os.getenv('PRIVATE_KEY')

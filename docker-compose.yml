@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: banco-hospital
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: GerenciamentoHospital
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      # Volume para persistência dos dados do MySQL
+      - mysql_data:/var/lib/mysql
+      # Volume para executar os scripts de inicialização do banco de dados
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: app-hospital
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=GerenciamentoHospital
+      - MYSQL_USER=root
+      - MYSQL_ROOT_PASSWORD=root
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+
+volumes:
+  mysql_data:
