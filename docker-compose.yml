@@ -23,24 +23,5 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
-    build: .
-    container_name: app-hospital
-    restart: always
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "5000:5000"
-    volumes:
-      - .:/app
-    environment:
-      - MYSQL_HOST=db
-      - MYSQL_DATABASE=GerenciamentoHospital
-      - MYSQL_USER=root
-      - MYSQL_ROOT_PASSWORD=root
-      - FLASK_APP=app.py
-      - FLASK_RUN_HOST=0.0.0.0
-
 volumes:
   mysql_data:
