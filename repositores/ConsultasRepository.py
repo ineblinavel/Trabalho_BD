@@ -1,112 +1,100 @@
-from database.Database import db_service
-from datetime import datetime
+from database.Database import Database
 
-class ConsultaRepository:
-    
-    def find_all(self):
-        """
-        Retorna todas as consultas cadastradas.
-        """
-        query = "SELECT * FROM Consulta;"
-        return db_service.select(query)
+class ConsultasRepository:
+    """
+    Classe responsável pela persistência de dados relacionados às consultas médicas.
+    """
 
-    def find_by(self, value, key="id_consulta"):
+    def __init__(self, db: Database):
         """
-        Método universal de busca.
-        Keys suportadas: 'id_consulta', 'crm_medico', 'id_paciente', 'cpf_paciente'.
-        
-        Retorno:
-        - Lista [] se a chave for 'crm_medico', 'id_paciente' ou 'cpf_paciente'.
-        - Objeto {} ou None se a chave for 'id_consulta' (única).
-        """
-        possible_keys = ["id_consulta", "crm_medico", "id_paciente", "cpf_paciente"]
-        
-        if key not in possible_keys:
-            print(f"Erro: Chave '{key}' inválida. Use: {possible_keys}")
-            return None
+        Inicializa uma instância de ConsultasRepository.
 
-        if key == "cpf_paciente":
-            query_paciente = "SELECT id_paciente FROM Paciente WHERE cpf = %s;"
-            paciente = db_service.select(query_paciente, params=(value,))
-            
-            if not paciente:
-                return [] 
-            
-            key = "id_paciente"
-            value = paciente[0]['id_paciente']
-
-        query = f"SELECT * FROM Consulta WHERE {key} = %s;"
-        results = db_service.select(query, params=(value,))
-
-        if key == "id_consulta":
-            return results[0] if results else None
-        else:
-            return results if results else []
-
-    def create(self, crm_medico, cpf_paciente, data_consulta, hora_consulta, valor):
+        Args:
+            db (Database): Instância da classe de conexão com o banco de dados.
         """
-        Cria uma nova consulta.
-        """
-        query_paciente = "SELECT id_paciente FROM Paciente WHERE cpf = %s;"
-        paciente = db_service.select(query_paciente, params=(cpf_paciente,))
-        
-        if not paciente:
-            print(f"Erro: Paciente com CPF {cpf_paciente} não encontrado.")
-            return False
-            
-        id_paciente = paciente[0]['id_paciente']
-        # Validação de Data/Hora
-        try:
-            data_hora_str = f"{data_consulta} {hora_consulta}"
-            datetime.strptime(data_hora_str, "%Y-%m-%d %H:%M:%S")
-        except ValueError:
-            print("Erro: Formato de data/hora inválido.")
-            return False
+        self.db = db
 
-        query = """
-        INSERT INTO Consulta (crm_medico, diagnostico, status, valor, data_hora_agendamento, id_paciente)
-        VALUES (%s, %s, %s, %s, %s, %s);
+    def create(self, crm: str, id_paciente: int, data_hora: str) -> dict:
         """
-        params = (crm_medico, "Sem Diagnóstico", "A", valor, data_hora_str, id_paciente)
-        
-        return db_service.execute(query, params=params) is not None
+        Agenda uma nova consulta médica utilizando a stored procedure SP_AgendarConsulta.
 
-    def update(self, id_consulta, status=None, diagnostico=None, data=None, hora=None):
+        Args:
+            crm (str): CRM do médico responsável.
+            id_paciente (int): ID do paciente.
+            data_hora (str): Data e hora da consulta no formato 'YYYY-MM-DD HH:MM:SS'.
+
+        Returns:
+            dict: Um dicionário com o resultado da operação.
         """
-        Atualiza dados da consulta (Status, Diagnóstico ou Reagendamento).
+        query = "CALL SP_AgendarConsulta(%s, %s, %s)"
+        params = (crm, id_paciente, data_hora)
+        self.db.execute_query(query, params)
+        return {"message": "Consulta agendada com sucesso."}
+
+    def get_all(self) -> list:
         """
-        fields = []
+        Busca todas as consultas agendadas.
+
+        Returns:
+            list: Uma lista de dicionários, onde cada dicionário representa uma consulta.
+        """
+        query = "SELECT * FROM Consultas"
+        return self.db.fetch_all(query)
+
+    def get_by_id(self, id_consulta: int) -> dict:
+        """
+        Busca uma consulta específica pelo seu ID.
+
+        Args:
+            id_consulta (int): O ID da consulta a ser buscada.
+
+        Returns:
+            dict: Um dicionário representando a consulta encontrada, ou None se não for encontrada.
+        """
+        query = "SELECT * FROM Consultas WHERE id_consulta = %s"
+        params = (id_consulta,)
+        return self.db.fetch_one(query, params)
+
+    def update(self, id_consulta: int, status: str = None, data_hora: str = None) -> dict:
+        """
+        Atualiza informações de uma consulta existente.
+
+        Args:
+            id_consulta (int): O ID da consulta a ser atualizada.
+            status (str, optional): O novo status da consulta.
+            data_hora (str, optional): A nova data e hora da consulta.
+
+        Returns:
+            dict: Um dicionário com o resultado da operação.
+        """
+        query = "UPDATE Consultas SET"
         params = []
         
-        if status is not None:
-            fields.append("status = %s")
+        if status:
+            query += " status_pagamento = %s,"
             params.append(status)
-        if diagnostico is not None:
-            fields.append("diagnostico = %s")
-            params.append(diagnostico)
-            
-        if data is not None and hora is not None:
-            try:
-                data_hora_str = f"{data} {hora}"
-                datetime.strptime(data_hora_str, "%Y-%m-%d %H:%M:%S")
-                fields.append("data_hora_agendamento = %s")
-                params.append(data_hora_str)
-            except ValueError:
-                print("Erro: Data/Hora inválidas para atualização.")
-                return False
         
-        if not fields:
-            return False
-        
-        params.append(id_consulta)
-        
-        query = f"UPDATE Consulta SET {', '.join(fields)} WHERE id_consulta = %s;"
-        return db_service.execute(query, params=params) is not None
+        if data_hora:
+            query += " data_hora = %s,"
+            params.append(data_hora)
 
-    def delete(self, id_consulta):
+        query = query.rstrip(',') + " WHERE id_consulta = %s"
+        params.append(id_consulta)
+
+        self.db.execute_query(query, tuple(params))
+        return {"message": "Consulta atualizada com sucesso."}
+
+    def delete(self, id_consulta: int) -> dict:
         """
-        Cancela a consulta.
+        Remove uma consulta do banco de dados.
+
+        Args:
+            id_consulta (int): O ID da consulta a ser removida.
+
+        Returns:
+            dict: Um dicionário com o resultado da operação.
         """
-        query = "DELETE FROM Consulta WHERE id_consulta = %s;"
-        linhas = db_service.execute(query, params=(id_consulta,))
-        return linhas is not None and linhas > 0
+        query = "DELETE FROM Consultas WHERE id_consulta = %s"
+        params = (id_consulta,)
+        self.db.execute_query(query, params)
+        return {"message": "Consulta removida com sucesso."}

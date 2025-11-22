@@ -1,125 +1,173 @@
-from database.Database import db_service
+from database.Database import Database
 
 class MedicoRepository:
-    def find_all(self):
-        """
-        Retorna todos os médicos ativos cadastrados no banco de dados.
-        """
-        query = "SELECT * FROM Medicos WHERE ativo = TRUE;"
-        results = db_service.select(query)
-        return results
+    """
+    Classe de repositório para gerenciar as operações de persistência
+    de dados dos médicos.
+    """
 
-    def find_by(self, value, key="crm", ativo = True):
+    def __init__(self, db: Database):
         """
-        Retorna um médico baseado em um campo específico (padrão é 'crm').
+        Inicializa o repositório de médicos.
+
+        Args:
+            db (Database): Instância da classe de conexão com o banco de dados.
+        """
+        self.db = db
+
+    def find_all(self, include_inactive: bool = False) -> list:
+        """
+        Busca todos os médicos cadastrados. Por padrão, busca apenas médicos ativos.
+
+        Args:
+            include_inactive (bool): Se True, inclui médicos inativos na busca.
+
+        Returns:
+            list: Uma lista de dicionários, cada um representando um médico.
+        """
+        query = "SELECT * FROM Medicos"
+        if not include_inactive:
+            query += " WHERE ativo = TRUE"
+        return self.db.fetch_all(query)
+
+    def find_by(self, value: str, key: str = "crm", active_only: bool = True) -> list | dict | None:
+        """
+        Busca médicos por um campo e valor específicos.
+
+        Args:
+            value (str): O valor a ser buscado.
+            key (str): O campo pelo qual buscar (e.g., "crm", "cpf", "nome_medico").
+            active_only (bool): Se True, busca apenas entre os médicos ativos.
+
+        Returns:
+            list | dict | None: Um dicionário se a busca for por 'crm' ou 'cpf', uma
+                                 lista para 'nome_medico', ou None se nada for encontrado.
         """
         possible_keys = ["crm", "nome_medico", "cpf"]
         if key not in possible_keys:
-            raise ValueError(f"Chave inválida. Use uma das seguintes: {possible_keys}")
+            raise ValueError(f"Chave de busca inválida. Use uma das seguintes: {possible_keys}")
         
-        query = f"SELECT * FROM Medicos WHERE {key} = %s AND ativo = %s;"
-        results = db_service.select(query, params=(value, ativo))
-        if key == "nome_medico":
-            return results if results else []
-        return results[0] if results else None
+        query = f"SELECT * FROM Medicos WHERE {key} = %s"
+        params = [value]
+        
+        if active_only:
+            query += " AND ativo = TRUE"
+
+        results = self.db.fetch_all(query, params=tuple(params))
+        
+        if key in ["crm", "cpf"]:
+            return results[0] if results else None
+        return results
     
-    def create(self, crm, nome_medico, cpf, salario):
+    def create(self, crm: str, nome_medico: str, cpf: str, salario: float) -> dict:
         """
-        Cria (INSERT) um novo médico.
-        Retorna True se a criação foi bem-sucedida, False caso contrário.
+        Cria um novo registro de médico, definindo-o como ativo.
+
+        Args:
+            crm (str): CRM do médico (identificador único).
+            nome_medico (str): Nome completo do médico.
+            cpf (str): CPF do médico.
+            salario (float): Salário do médico.
+
+        Returns:
+            dict: Dicionário com mensagem de sucesso.
         """
-        query = """
-        INSERT INTO Medicos (crm, nome_medico, cpf, salario, ativo)
-        VALUES (%s, %s, %s, %s, TRUE);
-        """
+        query = "INSERT INTO Medicos (crm, nome_medico, cpf, salario, ativo) VALUES (%s, %s, %s, %s, TRUE);"
         params = (crm, nome_medico, cpf, salario)
-        
-        result = db_service.execute(query, params=params)
-        return result is not None
-    def update(self, crm, nome_medico=None, cpf=None, salario=None):
+        self.db.execute_query(query, params=params)
+        return {"message": "Médico criado com sucesso."}
+
+    def update(self, crm: str, **kwargs) -> dict:
         """
-        Atualiza (UPDATE) os dados de um médico baseado no CRM.
-        Apenas os campos fornecidos serão atualizados.
-        Retorna True se a atualização foi bem-sucedida, False caso contrário.
+        Atualiza os dados de um médico existente.
+
+        Args:
+            crm (str): O CRM do médico a ser atualizado.
+            **kwargs: Campos a serem atualizados (e.g., salario=20000.00).
+
+        Returns:
+            dict: Dicionário com mensagem de sucesso ou aviso.
         """
         fields = []
         params = []
         
-        if nome_medico is not None:
-            fields.append("nome_medico = %s")
-            params.append(nome_medico)
-        if cpf is not None:
-            fields.append("cpf = %s")
-            params.append(cpf)
-        if salario is not None:
-            fields.append("salario = %s")
-            params.append(salario)
+        for key, value in kwargs.items():
+            if key in ["nome_medico", "cpf", "salario"]:
+                fields.append(f"{key} = %s")
+                params.append(value)
         
         if not fields:
-            return False  # Nenhum campo para atualizar
+            return {"message": "Nenhum dado fornecido para atualização."}
         
         params.append(crm)
         query = f"UPDATE Medicos SET {', '.join(fields)} WHERE crm = %s;"
-        
-        linhas = db_service.execute(query, params=params)
-        
-        return linhas is not None
+        self.db.execute_query(query, params=tuple(params))
+        return {"message": "Médico atualizado com sucesso."}
     
-    def delete(self, crm):
+    def find_by_crm_with_phones(self, crm: str) -> dict | None:
         """
-        Deleta (desativa) um médico pelo CRM.
-        Retorna True se um registro foi efetivamente alterado.
-        Retorna False se o médico não existia, já estava inativo ou houve erro.
+        Busca um médico pelo CRM e agrega seus telefones em uma lista.
+
+        Args:
+            crm (str): O CRM do médico a ser buscado.
+
+        Returns:
+            dict | None: Dicionário com os dados do médico e uma lista de telefones,
+                         ou None se não for encontrado.
         """
-        query = "UPDATE Medicos SET ativo = FALSE WHERE crm = %s;"
-        
-        linhas_afetadas = db_service.execute(query, params=(crm,))
-        
-        if linhas_afetadas is None:
-            return False
+        query = """
+            SELECT m.*, GROUP_CONCAT(tm.numero_telefone) as telefones
+            FROM Medicos m
+            LEFT JOIN TelefoneMedico tm ON m.crm = tm.crm_medico
+            WHERE m.crm = %s
+            GROUP BY m.crm;
+        """
+        result = self.db.fetch_one(query, params=(crm,))
+        if result and result.get('telefones'):
+            result['telefones'] = result['telefones'].split(',')
+        elif result:
+            result['telefones'] = []
             
-        if linhas_afetadas > 0:
-            return True
-        else:
-            print(f"Aviso: Nenhum médico ativo encontrado com o CRM {crm}.")
-            return False
-    def medico_historico(self):
+        return result
+
+    def deactivate(self, crm: str) -> dict:
         """
-        Retorna todos os médicos, incluindo os inativos.
+        Desativa um médico (soft delete) pelo seu CRM.
+
+        Args:
+            crm (str): O CRM do médico a ser desativado.
+
+        Returns:
+            dict: Dicionário com mensagem de sucesso.
         """
-        query = "SELECT * FROM Medicos"
-        results = db_service.select(query)
-        return results if results else None
-    def medicos_inativos(self):
-        """
-        Retorna todos os médicos inativos.
-        """
-        query = "SELECT * FROM Medicos WHERE ativo = FALSE;"
-        results = db_service.select(query)
-        return results if results else None
+        query = "UPDATE Medicos SET ativo = FALSE WHERE crm = %s AND ativo = TRUE;"
+        self.db.execute_query(query, params=(crm,))
+        return {"message": f"Médico com CRM {crm} desativado."}
     
-    def reactivate_medico(self, crm):
+    def reactivate(self, crm: str) -> dict:
         """
-        Reativa um médico pelo CRM.
-        Retorna True se um registro foi efetivamente alterado.
-        Retorna False se o médico não existia, já estava ativo ou houve erro.
+        Reativa um médico previamente desativado.
+
+        Args:
+            crm (str): O CRM do médico a ser reativado.
+
+        Returns:
+            dict: Dicionário com mensagem de sucesso.
         """
-        query = "UPDATE Medicos SET ativo = TRUE WHERE crm = %s;"
-        
-        linhas_afetadas = db_service.execute(query, params=(crm,))
-        
-        if linhas_afetadas is None:
-            return False
-            
-        if linhas_afetadas > 0:
-            return True
-        else:
-            print(f"Aviso: Nenhum médico inativo encontrado com o CRM {crm}.")
-            return False
-    def medicos_salario(self, piso = 0, teto = 1000000):
+        query = "UPDATE Medicos SET ativo = TRUE WHERE crm = %s AND ativo = FALSE;"
+        self.db.execute_query(query, params=(crm,))
+        return {"message": f"Médico com CRM {crm} reativado."}
+
+    def find_by_salary_range(self, min_salary: float = 0, max_salary: float = 1000000) -> list:
         """
-        Retorna todos os médicos com salário dentro de um intervalo especificado.
+        Busca médicos ativos com salário dentro de um intervalo específico.
+
+        Args:
+            min_salary (float): O piso salarial do intervalo.
+            max_salary (float): O teto salarial do intervalo.
+
+        Returns:
+            list: Lista de médicos encontrados.
         """
         query = "SELECT * FROM Medicos WHERE salario BETWEEN %s AND %s AND ativo = TRUE;"
-        results = db_service.select(query, params=(piso, teto))
-        return results
+        return self.db.fetch_all(query, params=(min_salary, max_salary))
