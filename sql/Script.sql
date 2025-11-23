@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS Enfermeiro (
 );
 
 CREATE TABLE IF NOT EXISTS Quarto (
-  id_quarto INT PRIMARY KEY,
+  id_quarto INT AUTO_INCREMENT PRIMARY KEY,
   num_quarto INT UNIQUE NOT NULL,
   tipo_de_quarto VARCHAR(20) NOT NULL,
   valor_diaria DECIMAL(10,2)
