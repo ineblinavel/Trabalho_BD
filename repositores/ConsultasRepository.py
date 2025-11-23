@@ -38,7 +38,7 @@ class ConsultasRepository:
         Returns:
             list: Uma lista de dicionários, onde cada dicionário representa uma consulta.
         """
-        query = "SELECT * FROM Consultas"
+        query = "SELECT * FROM Consulta"
         return self.db.fetch_all(query)
 
     def get_by_id(self, id_consulta: int) -> dict:
@@ -51,7 +51,7 @@ class ConsultasRepository:
         Returns:
             dict: Um dicionário representando a consulta encontrada, ou None se não for encontrada.
         """
-        query = "SELECT * FROM Consultas WHERE id_consulta = %s"
+        query = "SELECT * FROM Consulta WHERE id_consulta = %s"
         params = (id_consulta,)
         return self.db.fetch_one(query, params)
 
@@ -67,7 +67,7 @@ class ConsultasRepository:
         Returns:
             dict: Um dicionário com o resultado da operação.
         """
-        query = "UPDATE Consultas SET"
+        query = "UPDATE Consulta SET"
         params = []
         
         if status:
@@ -94,7 +94,7 @@ class ConsultasRepository:
         Returns:
             dict: Um dicionário com o resultado da operação.
         """
-        query = "DELETE FROM Consultas WHERE id_consulta = %s"
+        query = "DELETE FROM Consulta WHERE id_consulta = %s"
         params = (id_consulta,)
         self.db.execute_query(query, params)
         return {"message": "Consulta removida com sucesso."}

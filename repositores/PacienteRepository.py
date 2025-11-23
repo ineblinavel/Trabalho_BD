@@ -70,7 +70,7 @@ class PacienteRepository:
         Returns:
             list: Uma lista de dicionários, cada um representando um paciente.
         """
-        query = "SELECT id_paciente, nome, cpf, data_nascimento, endereco FROM Paciente"
+        query = "SELECT id_paciente, nome_paciente, cpf, data_nascimento, endereco FROM Paciente"
         return self.db.fetch_all(query)
 
     def get_by_id(self, id_paciente: int) -> dict:
@@ -84,7 +84,7 @@ class PacienteRepository:
             dict: Um dicionário com os dados do paciente ou None se não encontrado.
                   A foto não é incluída nesta busca por performance.
         """
-        query = "SELECT id_paciente, nome, cpf, data_nascimento, endereco FROM Paciente WHERE id_paciente = %s"
+        query = "SELECT id_paciente, nome_paciente, cpf, data_nascimento, endereco FROM Paciente WHERE id_paciente = %s"
         params = (id_paciente,)
         return self.db.fetch_one(query, params)
 
@@ -101,7 +101,7 @@ class PacienteRepository:
         Returns:
             dict: Um dicionário contendo o ID do paciente inserido.
         """
-        query = "INSERT INTO Paciente (nome, cpf, data_nascimento, endereco) VALUES (%s, %s, %s, %s)"
+        query = "INSERT INTO Paciente (nome_paciente, cpf, data_nascimento, endereco) VALUES (%s, %s, %s, %s)"
         params = (nome, cpf, data_nascimento, endereco)
         last_id = self.db.execute_query(query, params, fetch_last_id=True)
         return {"id_paciente": last_id}
