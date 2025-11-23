@@ -44,12 +44,3 @@ class PacienteService:
             raise ValueError(f"Paciente com ID {id_paciente} não encontrado.")
         return self.paciente_repo.update_foto(id_paciente, foto_data)
 
-    # Nota: Não há um método `update` no repositório de Paciente, nem `delete`.
-    # O `app.py` não importa um serviço de Paciente, o que sugere que o CRUD completo
-    # pode não ser uma prioridade inicial, mas podemos adicionar:
-
-    # def delete_paciente(self, id_paciente: int):
-    #     if not self.paciente_repo.get_by_id(id_paciente):
-    #         raise ValueError(f"Paciente com ID {id_paciente} não encontrado.")
-    #     # Assumindo que você adicionou um método `delete` no PacienteRepository:
-    #     return self.paciente_repo.delete(id_paciente)
