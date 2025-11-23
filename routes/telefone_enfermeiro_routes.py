@@ -2,18 +2,22 @@ from flask import Blueprint, request, jsonify
 from services.telefone_enfermeiro_service import TelefoneEnfermeiroService
 
 def init_telefone_enfermeiro_routes(service: TelefoneEnfermeiroService):
-    bp = Blueprint('telefone_enfermeiro_bp', __name__)
+    # Definindo o prefixo base /telefones/enfermeiros
+    bp = Blueprint('telefone_enfermeiro_bp', __name__, url_prefix='/telefones/enfermeiros')
 
-    @bp.route('/telefones/enfermeiros', methods=['GET'])
+    # Rota GET ALL corrigida
+    @bp.route('/', methods=['GET'])
     def get_all():
         return jsonify(service.get_all()), 200
 
-    @bp.route('/telefones/enfermeiros/<corem>', methods=['GET'])
+    # Rota GET BY COREM corrigida
+    @bp.route('/<corem>', methods=['GET'])
     def get_by_corem(corem):
         result = service.get_by_corem(corem)
         return jsonify(result if result else []), 200
 
-    @bp.route('/telefones/enfermeiros', methods=['POST'])
+    # Rota POST corrigida
+    @bp.route('/', methods=['POST'])
     def create():
         data = request.get_json()
         try:
@@ -22,12 +26,13 @@ def init_telefone_enfermeiro_routes(service: TelefoneEnfermeiroService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    @bp.route('/telefones/enfermeiros/<int:id_telefone>', methods=['PUT'])
+    # Rotas PUT e DELETE corrigidas
+    @bp.route('/<int:id_telefone>', methods=['PUT'])
     def update(id_telefone):
         data = request.get_json()
         return jsonify(service.update(id_telefone, data.get('numero_telefone'))), 200
 
-    @bp.route('/telefones/enfermeiros/<int:id_telefone>', methods=['DELETE'])
+    @bp.route('/<int:id_telefone>', methods=['DELETE'])
     def delete(id_telefone):
         return jsonify(service.delete(id_telefone)), 200
 

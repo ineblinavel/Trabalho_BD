@@ -46,7 +46,7 @@ from services.telefone_medico_service import TelefoneMedicoService
 from services.telefone_enfermeiro_service import TelefoneEnfermeiroService
 from services.telefone_paciente_service import TelefonePacienteService
 
-# IMPORTS DAS ROTAS 
+# IMPORTS DAS ROTAS
 from routes.medico_routes import init_medico_routes
 from routes.paciente_routes import init_paciente_routes # NOVO
 from routes.enfermeiro_routes import init_enfermeiro_routes # NOVO
@@ -102,86 +102,83 @@ internacao_repo = InternacaoRepository(db_connection)
 
 # Médicos
 medico_service = MedicoService(medico_repo)
-app.register_blueprint(init_medico_routes(medico_service), url_prefix='/')
+app.register_blueprint(init_medico_routes(medico_service))
 
 # Pacientes (NOVO)
 paciente_service = PacienteService(paciente_repo)
-app.register_blueprint(init_paciente_routes(paciente_service), url_prefix='/')
+app.register_blueprint(init_paciente_routes(paciente_service))
 
 # Enfermeiros (NOVO)
 enfermeiro_service = EnfermeiroService(enfermeiro_repo)
-app.register_blueprint(init_enfermeiro_routes(enfermeiro_service), url_prefix='/')
+app.register_blueprint(init_enfermeiro_routes(enfermeiro_service))
 
 # Medicamentos (NOVO)
 medicamento_service = MedicamentoService(medicamento_repo)
-app.register_blueprint(init_medicamento_routes(medicamento_service), url_prefix='/')
+app.register_blueprint(init_medicamento_routes(medicamento_service))
 
 # Fornecedores (NOVO)
 fornecedor_service = FornecedorService(fornecedor_repo)
-app.register_blueprint(init_fornecedor_routes(fornecedor_service), url_prefix='/')
-
+app.register_blueprint(init_fornecedor_routes(fornecedor_service))
 # Estoque de Medicamentos (NOVO)
 estoque_service = EstoqueMedicamentoService(estoque_repo, medicamento_repo, fornecedor_repo)
-app.register_blueprint(init_estoquemedicamento_routes(estoque_service), url_prefix='/')
+app.register_blueprint(init_estoquemedicamento_routes(estoque_service))
 
 # Agenda Médica (NOVO)
 agenda_service = AgendaMedicoService(agenda_repo, medico_repo)
-app.register_blueprint(init_agendamedico_routes(agenda_service), url_prefix='/')
+app.register_blueprint(init_agendamedico_routes(agenda_service))
 
 # Consultas (NOVO)
 consultas_service = ConsultasService(consultas_repo, medico_repo, paciente_repo)
-app.register_blueprint(init_consultas_routes(consultas_service), url_prefix='/')
+app.register_blueprint(init_consultas_routes(consultas_service))
 
 # Exames (NOVO)
 exame_service = ExameService(exame_repo, medico_repo, paciente_repo, tipo_exame_repo)
-app.register_blueprint(init_exame_routes(exame_service), url_prefix='/')
+app.register_blueprint(init_exame_routes(exame_service))
 
 # Internações (NOVO)
 internacao_service = InternacaoService(internacao_repo, medico_repo, paciente_repo, enfermeiro_repo, quarto_repo)
-app.register_blueprint(init_internacao_routes(internacao_service), url_prefix='/')
-
+app.register_blueprint(init_internacao_routes(internacao_service))
 
 # Prescrições
 # Depende de: PrescricaoRepo, ConsultaRepo, MedicamentoRepo
 prescricao_service = PrescricaoService(prescricao_repo, consultas_repo, medicamento_repo)
-app.register_blueprint(init_prescricao_routes(prescricao_service), url_prefix='/')
+app.register_blueprint(init_prescricao_routes(prescricao_service))
 
 # Procedimentos
 # Depende de: ProcedimentoRepo, MedicoRepo, PacienteRepo
 procedimento_service = ProcedimentoService(procedimento_repo, medico_repo, paciente_repo)
-app.register_blueprint(init_procedimento_routes(procedimento_service), url_prefix='/')
+app.register_blueprint(init_procedimento_routes(procedimento_service))
 
 # Quartos
 quarto_service = QuartoService(quarto_repo)
-app.register_blueprint(init_quarto_routes(quarto_service), url_prefix='/')
+app.register_blueprint(init_quarto_routes(quarto_service))
 
 # Tipos de Exame
 tipo_exame_service = TipoExameService(tipo_exame_repo)
-app.register_blueprint(init_tipo_exame_routes(tipo_exame_service), url_prefix='/')
-
+app.register_blueprint(init_tipo_exame_routes(tipo_exame_service))
 # Resultados de Exame
 # Depende de: ResultadoExameRepo, ExameRepo
 resultado_exame_service = ResultadoExameService(resultado_exame_repo, exame_repo)
-app.register_blueprint(init_resultado_exame_routes(resultado_exame_service), url_prefix='/')
+app.register_blueprint(init_resultado_exame_routes(resultado_exame_service))
 
 # Relatórios
 relatorios_service = RelatoriosService(relatorios_repo)
-app.register_blueprint(init_relatorios_routes(relatorios_service), url_prefix='/')
+app.register_blueprint(init_relatorios_routes(relatorios_service))
 
 # Telefones
 # Depende de: TelefoneMedicoRepo, MedicoRepo
 tel_medico_service = TelefoneMedicoService(tel_medico_repo, medico_repo)
-app.register_blueprint(init_telefone_medico_routes(tel_medico_service), url_prefix='/')
+app.register_blueprint(init_telefone_medico_routes(tel_medico_service))
 
 # Telefones (Enfermeiro)
 # Depende de: TelefoneEnfermeiroRepo, EnfermeiroRepo
 tel_enfermeiro_service = TelefoneEnfermeiroService(tel_enfermeiro_repo, enfermeiro_repo)
-app.register_blueprint(init_telefone_enfermeiro_routes(tel_enfermeiro_service), url_prefix='/')
+app.register_blueprint(init_telefone_enfermeiro_routes(tel_enfermeiro_service))
 
 # Telefones (Paciente)
 # Depende de: TelefonePacienteRepo, PacienteRepo
 tel_paciente_service = TelefonePacienteService(tel_paciente_repo, paciente_repo)
-app.register_blueprint(init_telefone_paciente_routes(tel_paciente_service), url_prefix='/')
+app.register_blueprint(init_telefone_paciente_routes(tel_paciente_service))
 
 
 if __name__ == '__main__':
