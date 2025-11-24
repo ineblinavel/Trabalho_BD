@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, render_template
 from services.medico_service import MedicoService
 
 def init_medico_routes(medico_service: MedicoService):
-    medico_bp = Blueprint('medico_bp', __name__, template_folder='templates', static_folder='static')
+    medico_bp = Blueprint('medico_bp', __name__, template_folder='templates', static_folder='static',url_prefix='/medicos')
 
     @medico_bp.route('/', methods=['GET'])
     def index():
@@ -38,5 +38,5 @@ def init_medico_routes(medico_service: MedicoService):
             return jsonify({"error": "Salario must be a valid number"}), 400
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-            
+
     return medico_bp
