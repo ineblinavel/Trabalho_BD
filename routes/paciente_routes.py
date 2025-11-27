@@ -81,12 +81,14 @@ def init_paciente_routes(paciente_service: PacienteService):
     @paciente_bp.route('/<int:id_paciente>/foto', methods=['GET'])
     def get_foto(id_paciente):
         try:
-            foto_bytes = paciente_service.paciente_repo.get_foto(id_paciente)
+            foto_bytes = paciente_service.get_foto(id_paciente)
             if not foto_bytes:
                 return jsonify({"message": "Foto não encontrada para este paciente"}), 404
 
             foto_base64 = base64.b64encode(foto_bytes).decode('utf-8')
             return jsonify({"foto_base64": foto_base64}), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 

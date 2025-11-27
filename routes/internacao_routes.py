@@ -20,7 +20,7 @@ def init_internacao_routes(internacao_service: InternacaoService):
     @internacao_bp.route('/ativas', methods=['GET'])
     def get_active_internacoes():
         try:
-            internacoes = internacao_service.internacao_repo.find_active()
+            internacoes = internacao_service.get_active_internacoes()
             # Converte objetos date para string para JSON
             for i in internacoes:
                 if i.get('data_admissao'): i['data_admissao'] = i['data_admissao'].strftime('%Y-%m-%d')

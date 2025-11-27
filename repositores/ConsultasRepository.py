@@ -69,11 +69,11 @@ class ConsultasRepository:
         """
         query = "UPDATE Consulta SET"
         params = []
-        
+
         if status:
-            query += " status_pagamento = %s,"
+            query += " status = %s,"
             params.append(status)
-        
+
         if data_hora:
             query += " data_hora = %s,"
             params.append(data_hora)

@@ -77,3 +77,7 @@ class InternacaoService:
         if not self.internacao_repo.find_by(id_internacao):
             raise ValueError(f"Internação com ID {id_internacao} não encontrada.")
         return self.internacao_repo.delete(id_internacao)
+
+    def get_active_internacoes(self):
+        """Retorna todas as internações ativas (sem data de alta efetiva)."""
+        return self.internacao_repo.find_active()   
