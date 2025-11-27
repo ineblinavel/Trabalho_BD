@@ -44,3 +44,11 @@ class PacienteService:
             raise ValueError(f"Paciente com ID {id_paciente} não encontrado.")
         return self.paciente_repo.update_foto(id_paciente, foto_data)
 
+    def get_foto(self, id_paciente: int):
+        """Busca a foto do paciente pelo ID."""
+        if not self.paciente_repo.get_by_id(id_paciente):
+            raise ValueError(f"Paciente com ID {id_paciente} não encontrado.")
+        foto = self.paciente_repo.get_foto(id_paciente)
+        return foto
+
+

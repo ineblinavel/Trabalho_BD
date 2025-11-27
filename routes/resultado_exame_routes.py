@@ -25,4 +25,27 @@ def init_resultado_exame_routes(service: ResultadoExameService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    # PUT para atualizar um resultado
+    @bp.route('/<int:id_resultado_exame>', methods=['PUT'])
+    def update(id_resultado_exame):
+        data = request.get_json()
+        try:
+            res = service.update(id_resultado_exame, data)
+            return jsonify(res), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404 # Tratamento de "não encontrado" (esperado do service)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # DELETE para deletar um resultado
+    @bp.route('/<int:id_resultado_exame>', methods=['DELETE'])
+    def delete(id_resultado_exame):
+        try:
+            res = service.delete(id_resultado_exame)
+            return jsonify(res), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404 # Tratamento de "não encontrado"
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     return bp
