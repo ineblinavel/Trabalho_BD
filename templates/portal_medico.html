@@ -1,0 +1,74 @@
+{% extends "base.html" %} {% block content %}
+<div class="mb-5">
+  <h1 class="h3 mb-1">Portal do Médico</h1>
+  <p class="text-muted">Área clínica e assistencial</p>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card border-0">
+      <div class="card-header bg-white border-0 py-4">
+        <h5 class="mb-0">
+          <i class="bi bi-calendar-event me-2 text-primary"></i> Minha Agenda
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="text-center py-5 bg-light rounded">
+          <i class="bi bi-calendar-check icon-lg text-muted mb-3 d-block"></i>
+          <p class="text-muted mb-3">
+            Selecione seu CRM para visualizar as consultas agendadas
+          </p>
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-arrow-clockwise me-2"></i> Carregar Agenda
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card border-0 mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Buscar Paciente</h5>
+        <p class="text-muted small mb-4">
+          Acesse histórico, exames e prescreva medicamentos
+        </p>
+        <a href="/ui/pacientes" class="btn btn-outline-primary w-100 mb-3">
+          <i class="bi bi-search me-2"></i> Buscar Paciente
+        </a>
+      </div>
+    </div>
+
+    <div class="card border-0">
+      <div class="card-body">
+        <h5 class="card-title mb-4">Ferramentas</h5>
+        <div class="list-group list-group-flush">
+          <a
+            href="/ui/estoque"
+            class="list-group-item list-group-item-action px-0 py-3"
+          >
+            <div class="d-flex justify-content-between align-items-center">
+              <span>
+                <i class="bi bi-capsule me-2 text-primary"></i> Medicamentos
+              </span>
+              <i class="bi bi-chevron-right text-muted"></i>
+            </div>
+          </a>
+          <a
+            href="#"
+            class="list-group-item list-group-item-action px-0 py-3 disabled"
+          >
+            <div class="d-flex justify-content-between align-items-center">
+              <span>
+                <i class="bi bi-file-earmark-medical me-2 text-primary"></i>
+                Exames
+              </span>
+              <i class="bi bi-chevron-right text-muted"></i>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

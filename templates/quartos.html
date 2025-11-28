@@ -1,0 +1,55 @@
+{% extends "base.html" %} {% block content %}
+<div class="mb-5">
+  <h1 class="h3 mb-1">Mapa de Leitos</h1>
+  <p class="text-muted">Status em tempo real da ocupação hospitalar</p>
+</div>
+
+<div class="row mb-4 g-3">
+  <div class="col-md-4">
+    <div class="kpi-box">
+      <div class="kpi-label">Total de Leitos</div>
+      <p class="kpi-value text-primary mb-0" id="kpi-total">-</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="kpi-box">
+      <div class="kpi-label">Leitos Livres</div>
+      <p class="kpi-value text-success mb-0" id="kpi-livres">-</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="kpi-box">
+      <div class="kpi-label">Leitos Ocupados</div>
+      <p class="kpi-value text-danger mb-0" id="kpi-ocupados">-</p>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4" id="grid-quartos">
+  <div class="col-12 text-center py-5">
+    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+    <p class="text-muted d-inline">Carregando mapa de leitos...</p>
+  </div>
+</div>
+
+<div class="mt-5 pt-4 border-top">
+  <div class="row g-4">
+    <div class="col-auto">
+      <span
+        class="d-inline-block rounded-circle me-2"
+        style="width: 12px; height: 12px; background-color: var(--accent-color)"
+      ></span>
+      <span class="small text-muted">Disponível</span>
+    </div>
+    <div class="col-auto">
+      <span
+        class="d-inline-block rounded-circle me-2"
+        style="width: 12px; height: 12px; background-color: var(--danger-color)"
+      ></span>
+      <span class="small text-muted">Ocupado</span>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="/static/js/quartos.js"></script>
+{% endblock %}

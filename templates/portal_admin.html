@@ -1,0 +1,79 @@
+{% extends "base.html" %} {% block content %}
+<div class="mb-5">
+  <h1 class="h3 mb-1">Painel Administrativo</h1>
+  <p class="text-muted">
+    Gestão de recursos humanos, materiais e infraestrutura
+  </p>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-4 col-md-6">
+    <div class="card border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-4">
+          <div class="icon-box primary me-3">
+            <i class="bi bi-person-badge"></i>
+          </div>
+          <h5 class="card-title mb-0">Corpo Clínico</h5>
+        </div>
+        <p class="card-text text-muted small mb-4">
+          Cadastrar médicos, gerenciar contratos e folha salarial
+        </p>
+        <div class="d-grid gap-2">
+          <a href="/ui/medicos" class="btn btn-light btn-sm">
+            <i class="bi bi-list-ul me-2"></i> Listar Médicos
+          </a>
+          <a href="/ui/medicos/novo" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle me-2"></i> Novo Médico
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 col-md-6">
+    <div class="card border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-4">
+          <div class="icon-box warning me-3">
+            <i class="bi bi-box-seam"></i>
+          </div>
+          <h5 class="card-title mb-0">Estoque & Farmácia</h5>
+        </div>
+        <p class="card-text text-muted small mb-4">
+          Controle de medicamentos, validade e fornecedores
+        </p>
+        <div class="d-grid gap-2">
+          <a href="/ui/estoque" class="btn btn-light btn-sm">
+            <i class="bi bi-boxes me-2"></i> Ver Inventário
+          </a>
+          <a href="/ui/estoque/novo" class="btn btn-warning btn-sm text-white">
+            <i class="bi bi-box-arrow-in-down me-2"></i> Registrar Entrada
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 col-md-6">
+    <div class="card border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-4">
+          <div class="icon-box success me-3">
+            <i class="bi bi-hospital"></i>
+          </div>
+          <h5 class="card-title mb-0">Infraestrutura</h5>
+        </div>
+        <p class="card-text text-muted small mb-4">
+          Mapa de ocupação de leitos e manutenção de quartos
+        </p>
+        <div class="d-grid gap-2">
+          <a href="/ui/quartos" class="btn btn-light btn-sm">
+            <i class="bi bi-grid-3x3 me-2"></i> Mapa de Leitos
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

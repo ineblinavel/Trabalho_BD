@@ -1,0 +1,112 @@
+{% extends "base.html" %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card border-0">
+      <div class="card-header bg-white border-0 py-4">
+        <div class="d-flex align-items-center">
+          <div class="icon-box success me-3">
+            <i class="bi bi-hospital"></i>
+          </div>
+          <div>
+            <h3 class="h5 mb-0">Nova Internação</h3>
+            <p class="text-muted small mb-0">
+              Alocar paciente em leito hospitalar
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <form id="form-internacao">
+          <div class="row g-4">
+            <div class="col-12">
+              <label class="form-label">Paciente</label>
+              <select
+                class="form-select"
+                name="id_paciente"
+                id="select-paciente"
+                required
+              >
+                <option value="" selected disabled>
+                  Selecione um paciente...
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Médico Responsável</label>
+              <select
+                class="form-select"
+                name="crm_medico"
+                id="select-medico"
+                required
+              >
+                <option value="" selected disabled>
+                  Selecione um médico...
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Enfermeiro Responsável</label>
+              <select
+                class="form-select"
+                name="corem_enfermeiro"
+                id="select-enfermeiro"
+                required
+              >
+                <option value="" selected disabled>
+                  Selecione um enfermeiro...
+                </option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Leito Disponível</label>
+              <select
+                class="form-select"
+                name="id_quarto"
+                id="select-quarto"
+                required
+              >
+                <option value="" selected disabled>
+                  Buscando leitos livres...
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Data de Admissão</label>
+              <input
+                type="date"
+                class="form-control"
+                name="data_admissao"
+                id="data_admissao"
+                required
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Previsão de Alta</label>
+              <input
+                type="date"
+                class="form-control"
+                name="data_alta_prevista"
+              />
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-3 mt-5 pt-4 border-top">
+            <a href="/ui/portal/enfermeiro" class="btn btn-light">Cancelar</a>
+            <button type="submit" class="btn btn-success px-5">
+              <i class="bi bi-check-circle me-2"></i> Confirmar Internação
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="/static/js/nova_internacao.js"></script>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %} {% block content %}
+<div class="mb-5">
+  <h1 class="h3 mb-1">Posto de Enfermagem</h1>
+  <p class="text-muted">Gestão de pacientes, triagem e internações</p>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card border-0 bg-success text-white">
+      <div class="card-body p-5">
+        <h3 class="h5 mb-4">
+          <i class="bi bi-door-open-fill me-2"></i> Admissão de Pacientes
+        </h3>
+        <p class="opacity-75 small mb-4">
+          Cadastre novos pacientes ou realize internação em leitos disponíveis
+        </p>
+        <div class="d-grid gap-3">
+          <a
+            href="/ui/pacientes/novo"
+            class="btn btn-light text-success fw-600 py-3"
+          >
+            <i class="bi bi-person-plus-fill me-2"></i> Cadastrar Novo Paciente
+          </a>
+          <a href="/ui/internacoes/nova" class="btn btn-outline-light py-3">
+            <i class="bi bi-hospital me-2"></i> Realizar Internação
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="row g-3">
+      <div class="col-12">
+        <a
+          href="/ui/pacientes"
+          class="card border-0 text-decoration-none h-100"
+        >
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="icon-box primary me-3">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-1 text-dark">Todos os Pacientes</h5>
+                <p class="card-text text-muted small mb-0">
+                  Consultar cadastros e históricos clínicos
+                </p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-12">
+        <a href="/ui/quartos" class="card border-0 text-decoration-none h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="icon-box warning me-3">
+                <i class="bi bi-hospital"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-1 text-dark">Ocupação de Leitos</h5>
+                <p class="card-text text-muted small mb-0">
+                  Verificar quartos disponíveis e dar altas
+                </p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0">
+  <div class="card-header bg-white border-0 py-4">
+    <h5 class="mb-0">
+      <i class="bi bi-box-seam me-2 text-primary"></i> Consultar Estoque
+    </h5>
+  </div>
+  <div class="card-body">
+    <p class="small text-muted mb-3">
+      Acesso rápido para consulta de medicamentos e materiais disponíveis
+    </p>
+    <a href="/ui/estoque" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-box-seam me-2"></i> Ir para Farmácia
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -17,13 +17,28 @@ class QuartoRepository:
 
     def get_mapa_leitos(self) -> list:
         """
-        Busca o status atual de todos os quartos (leitos) utilizando a view V_QuartosStatus.
-
-        Returns:
-            list: Uma lista de dicionários, onde cada dicionário representa o
-                  status detalhado de um quarto.
+        Busca o status atual de todos os quartos.
+        CORREÇÃO: Executa a query completa manualmente para garantir que
+        id_quarto e id_internacao sejam retornados, independentemente da versão da View no banco.
         """
-        query = "SELECT * FROM V_QuartosStatus"
+        query = """
+        SELECT
+            q.id_quarto,
+            q.num_quarto,
+            q.tipo_de_quarto,
+            q.valor_diaria,
+            CASE
+                WHEN i.id_internacao IS NOT NULL THEN 'Ocupado'
+                ELSE 'Livre'
+            END AS status_atual,
+            p.nome_paciente AS paciente_atual,
+            i.id_internacao -- Necessário para dar Alta
+        FROM Quarto q
+        LEFT JOIN Internacao i
+            ON q.id_quarto = i.id_quarto
+            AND i.data_alta_efetiva IS NULL -- Apenas internações ativas
+        LEFT JOIN Paciente p ON i.id_paciente = p.id_paciente;
+        """
         return self.db.fetch_all(query)
 
     def get_all(self) -> list:
@@ -49,7 +64,7 @@ class QuartoRepository:
         query = "SELECT * FROM Quarto WHERE num_quarto = %s"
         params = (num_quarto,)
         return self.db.fetch_one(query, params)
-    
+
     def create(self, num_quarto: int, tipo_de_quarto: str, valor_diaria: float) -> dict:
         """
         Cria um novo quarto no banco de dados.
@@ -85,16 +100,16 @@ class QuartoRepository:
         if tipo_de_quarto is not None:
             query += " tipo_de_quarto = %s,"
             params.append(tipo_de_quarto)
-        
+
         if valor_diaria is not None:
             query += " valor_diaria = %s,"
             params.append(valor_diaria)
-        
+
         query = query.rstrip(',') + " WHERE num_quarto = %s"
         params.append(num_quarto)
 
         if len(params) > 1:
             self.db.execute_query(query, tuple(params))
             return {"message": f"Quarto {num_quarto} atualizado com sucesso."}
-        
+
         return {"message": "Nenhum dado fornecido para atualização."}
