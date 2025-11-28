@@ -1,65 +1,67 @@
 {% extends "base.html" %} {% block content %}
-<div class="row mb-4">
-  <div class="col">
-    <h2 class="h4">Posto de Enfermagem</h2>
-    <p class="text-muted small">Gestão de pacientes e triagem</p>
-  </div>
+<div class="mb-5">
+  <h1 class="h3 mb-1">Posto de Enfermagem</h1>
+  <p class="text-muted">Gestão de pacientes, triagem e internações</p>
 </div>
 
-<div class="row g-4">
-  <div class="col-md-6">
-    <div class="card h-100 border-0 shadow-sm bg-success text-white">
-      <div class="card-body p-4">
-        <h3 class="h4 mb-3">
-          <i class="bi bi-person-plus-fill me-2"></i> Novo Paciente
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card border-0 bg-success text-white">
+      <div class="card-body p-5">
+        <h3 class="h5 mb-4">
+          <i class="bi bi-door-open-fill me-2"></i> Admissão de Pacientes
         </h3>
-        <p class="mb-4">
-          Cadastrar paciente na recepção ou emergência para iniciar o
-          atendimento.
+        <p class="opacity-75 small mb-4">
+          Cadastre novos pacientes ou realize internação em leitos disponíveis
         </p>
-        <a
-          href="/ui/pacientes/novo"
-          class="btn btn-light text-success fw-bold w-100 py-2"
-        >
-          Iniciar Cadastro
-        </a>
+        <div class="d-grid gap-3">
+          <a
+            href="/ui/pacientes/novo"
+            class="btn btn-light text-success fw-600 py-3"
+          >
+            <i class="bi bi-person-plus-fill me-2"></i> Cadastrar Novo Paciente
+          </a>
+          <a href="/ui/internacoes/nova" class="btn btn-outline-light py-3">
+            <i class="bi bi-hospital me-2"></i> Realizar Internação
+          </a>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="col-md-6">
+  <div class="col-lg-6">
     <div class="row g-3">
       <div class="col-12">
-        <a href="/ui/pacientes" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100 card-hover">
-            <div class="card-body d-flex align-items-center">
-              <div
-                class="bg-primary bg-opacity-10 p-3 rounded me-3 text-primary"
-              >
-                <i class="bi bi-people-fill fs-4"></i>
+        <a
+          href="/ui/pacientes"
+          class="card border-0 text-decoration-none h-100"
+        >
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="icon-box primary me-3">
+                <i class="bi bi-people-fill"></i>
               </div>
               <div>
                 <h5 class="card-title mb-1 text-dark">Todos os Pacientes</h5>
                 <p class="card-text text-muted small mb-0">
-                  Consultar cadastros e históricos
+                  Consultar cadastros e históricos clínicos
                 </p>
               </div>
             </div>
           </div>
         </a>
       </div>
-
       <div class="col-12">
-        <a href="/ui/quartos" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100 card-hover">
-            <div class="card-body d-flex align-items-center">
-              <div class="bg-info bg-opacity-10 p-3 rounded me-3 text-info">
-                <i class="bi bi-hospital fs-4"></i>
+        <a href="/ui/quartos" class="card border-0 text-decoration-none h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="icon-box warning me-3">
+                <i class="bi bi-hospital"></i>
               </div>
               <div>
                 <h5 class="card-title mb-1 text-dark">Ocupação de Leitos</h5>
                 <p class="card-text text-muted small mb-0">
-                  Verificar quartos disponíveis para internação
+                  Verificar quartos disponíveis e dar altas
                 </p>
               </div>
             </div>
@@ -70,21 +72,19 @@
   </div>
 </div>
 
-<div class="row mt-4">
-  <div class="col-12">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-white border-bottom">
-        <h5 class="mb-0 text-muted fs-6">Recursos Disponíveis</h5>
-      </div>
-      <div class="card-body">
-        <p class="small text-muted">
-          Acesso rápido para consulta de estoque de medicamentos.
-        </p>
-        <a href="/ui/estoque" class="btn btn-outline-secondary btn-sm">
-          <i class="bi bi-box-seam me-2"></i> Consultar Farmácia
-        </a>
-      </div>
-    </div>
+<div class="card border-0">
+  <div class="card-header bg-white border-0 py-4">
+    <h5 class="mb-0">
+      <i class="bi bi-box-seam me-2 text-primary"></i> Consultar Estoque
+    </h5>
+  </div>
+  <div class="card-body">
+    <p class="small text-muted mb-3">
+      Acesso rápido para consulta de medicamentos e materiais disponíveis
+    </p>
+    <a href="/ui/estoque" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-box-seam me-2"></i> Ir para Farmácia
+    </a>
   </div>
 </div>
 {% endblock %}

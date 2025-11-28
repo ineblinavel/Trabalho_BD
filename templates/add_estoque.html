@@ -1,15 +1,15 @@
 {% extends "base.html" %} {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-8">
-    <div class="card p-4 border-0 shadow-sm">
-      <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+    <div class="card p-5 border-0 shadow-sm">
+      <div class="d-flex align-items-center mb-5 border-bottom pb-4">
         <div
           class="bg-primary bg-opacity-10 p-3 rounded-circle me-3 text-primary"
         >
           <i class="bi bi-box-seam fs-4"></i>
         </div>
         <div>
-          <h2 class="h5 mb-0">Adicionar Lote ao Estoque</h2>
+          <h2 class="h5 mb-0 fw-semibold">Adicionar Lote ao Estoque</h2>
           <p class="text-muted small mb-0">
             Registre a entrada de novos medicamentos
           </p>
@@ -23,7 +23,7 @@
               >Medicamento</label
             >
             <select
-              class="form-select"
+              class="form-select form-select-sm"
               name="id_medicamento"
               id="select-medicamento"
               required
@@ -32,7 +32,7 @@
                 Carregando medicamentos...
               </option>
             </select>
-            <div class="form-text small">
+            <div class="form-text small text-muted">
               Selecione o produto que está entrando.
             </div>
           </div>
@@ -42,7 +42,7 @@
               >Fornecedor</label
             >
             <select
-              class="form-select"
+              class="form-select form-select-sm"
               name="cnpj_fornecedor"
               id="select-fornecedor"
               required
@@ -59,19 +59,22 @@
             >
             <input
               type="number"
-              class="form-control"
+              class="form-control form-control-sm"
               name="quantidade"
               min="1"
               placeholder="Ex: 100"
               required
             />
           </div>
+
           <div class="col-md-4">
             <label class="form-label text-muted small fw-bold"
               >Preço Unitário (R$)</label
             >
-            <div class="input-group">
-              <span class="input-group-text bg-light border-end-0">R$</span>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light border-end-0 text-muted"
+                >R$</span
+              >
               <input
                 type="number"
                 class="form-control border-start-0"
@@ -90,16 +93,18 @@
             >
             <input
               type="date"
-              class="form-control"
+              class="form-control form-control-sm"
               name="data_validade"
               required
             />
           </div>
         </div>
 
-        <div class="d-flex justify-content-end gap-2 mt-5">
-          <a href="/ui/estoque" class="btn btn-light text-muted">Cancelar</a>
-          <button type="submit" class="btn btn-primary px-4">
+        <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+          <a href="/ui/estoque" class="btn btn-sm btn-light text-muted"
+            >Cancelar</a
+          >
+          <button type="submit" class="btn btn-sm btn-primary px-4">
             Salvar Entrada
           </button>
         </div>

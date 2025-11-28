@@ -1,33 +1,38 @@
 {% extends "base.html" %} {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-5">
   <div>
-    <h2 class="h4 mb-0">Gestão de Pacientes</h2>
-    <span class="text-muted small">Administre os registros e prontuários</span>
+    <h1 class="h3 mb-1">Gestão de Pacientes</h1>
+    <p class="text-muted">Registros, prontuários e histórico clínico</p>
   </div>
-  <a href="/ui/pacientes/novo" class="btn btn-primary shadow-sm">
-    <i class="bi bi-person-plus"></i> + Novo Paciente
+  <a href="/ui/pacientes/novo" class="btn btn-primary">
+    <i class="bi bi-person-plus me-2"></i> Novo Paciente
   </a>
 </div>
 
-<div class="table-container">
-  <table class="table table-hover align-middle" id="tabela-pacientes">
-    <thead>
-      <tr>
-        <th width="5%">ID</th>
-        <th width="30%">Nome</th>
-        <th width="20%">CPF</th>
-        <th width="15%">Nascimento</th>
-        <th width="30%" class="text-end">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td colspan="5" class="text-center text-muted py-4">
-          Carregando pacientes...
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div class="card border-0">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="tabela-pacientes">
+        <thead>
+          <tr>
+            <th width="5%">ID</th>
+            <th width="30%">Nome</th>
+            <th width="20%">CPF</th>
+            <th width="15%">Nascimento</th>
+            <th width="30%" class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5" class="text-center py-4 text-muted">
+              <div class="spinner-border spinner-border-sm me-2"></div>
+              Carregando pacientes...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 {% endblock %} {% block scripts %}
 <script src="/static/js/pacientes.js"></script>

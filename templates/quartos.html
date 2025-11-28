@@ -1,54 +1,53 @@
 {% extends "base.html" %} {% block content %}
-<div class="row mb-4 align-items-end">
-  <div class="col-md-6">
-    <h2 class="h4 mb-1">Mapa de Leitos</h2>
-    <p class="text-muted small mb-0">
-      Status em tempo real da ocupação hospitalar
-    </p>
+<div class="mb-5">
+  <h1 class="h3 mb-1">Mapa de Leitos</h1>
+  <p class="text-muted">Status em tempo real da ocupação hospitalar</p>
+</div>
+
+<div class="row mb-4 g-3">
+  <div class="col-md-4">
+    <div class="kpi-box">
+      <div class="kpi-label">Total de Leitos</div>
+      <p class="kpi-value text-primary mb-0" id="kpi-total">-</p>
+    </div>
   </div>
-  <div class="col-md-6">
-    <div class="d-flex justify-content-end gap-3 text-center">
-      <div class="px-3 py-2 bg-white rounded shadow-sm border">
-        <span class="d-block text-muted small fw-bold">TOTAL</span>
-        <span class="h5 mb-0 text-primary" id="kpi-total">-</span>
-      </div>
-      <div
-        class="px-3 py-2 bg-white rounded shadow-sm border border-success border-opacity-25"
-      >
-        <span class="d-block text-success small fw-bold">LIVRES</span>
-        <span class="h5 mb-0 text-success" id="kpi-livres">-</span>
-      </div>
-      <div
-        class="px-3 py-2 bg-white rounded shadow-sm border border-danger border-opacity-25"
-      >
-        <span class="d-block text-danger small fw-bold">OCUPADOS</span>
-        <span class="h5 mb-0 text-danger" id="kpi-ocupados">-</span>
-      </div>
+  <div class="col-md-4">
+    <div class="kpi-box">
+      <div class="kpi-label">Leitos Livres</div>
+      <p class="kpi-value text-success mb-0" id="kpi-livres">-</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="kpi-box">
+      <div class="kpi-label">Leitos Ocupados</div>
+      <p class="kpi-value text-danger mb-0" id="kpi-ocupados">-</p>
     </div>
   </div>
 </div>
 
 <div class="row g-4" id="grid-quartos">
-  <div class="col-12 text-center py-5 text-muted">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2">Carregando mapa de leitos...</p>
+  <div class="col-12 text-center py-5">
+    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+    <p class="text-muted d-inline">Carregando mapa de leitos...</p>
   </div>
 </div>
 
-<div class="mt-5 pt-3 border-top d-flex gap-4 text-muted small">
-  <div class="d-flex align-items-center">
-    <span
-      class="d-inline-block bg-success rounded-circle me-2"
-      style="width: 10px; height: 10px"
-    ></span>
-    Disponível
-  </div>
-  <div class="d-flex align-items-center">
-    <span
-      class="d-inline-block bg-danger rounded-circle me-2"
-      style="width: 10px; height: 10px"
-    ></span>
-    Ocupado
+<div class="mt-5 pt-4 border-top">
+  <div class="row g-4">
+    <div class="col-auto">
+      <span
+        class="d-inline-block rounded-circle me-2"
+        style="width: 12px; height: 12px; background-color: var(--accent-color)"
+      ></span>
+      <span class="small text-muted">Disponível</span>
+    </div>
+    <div class="col-auto">
+      <span
+        class="d-inline-block rounded-circle me-2"
+        style="width: 12px; height: 12px; background-color: var(--danger-color)"
+      ></span>
+      <span class="small text-muted">Ocupado</span>
+    </div>
   </div>
 </div>
 {% endblock %} {% block scripts %}
