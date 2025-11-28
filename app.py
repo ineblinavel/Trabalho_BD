@@ -185,6 +185,18 @@ app.register_blueprint(init_telefone_paciente_routes(tel_paciente_service))
 def dashboard():
     return render_template('index.html')
 
+
+@app.route('/ui/portal/admin')
+def portal_admin():
+    return render_template('portal_admin.html')
+
+@app.route('/ui/portal/medico')
+def portal_medico():
+    return render_template('portal_medico.html')
+
+@app.route('/ui/portal/enfermeiro')
+def portal_enfermeiro():
+    return render_template('portal_enfermeiro.html')
 # Rotas para as interfaces (UI)
 # Use prefixos como /ui/ para diferenciar das rotas de dados se preferir
 @app.route('/ui/medicos')
@@ -215,6 +227,15 @@ def view_add_paciente():
 @app.route('/ui/estoque/novo')
 def view_add_estoque():
     return render_template('add_estoque.html')
+
+@app.route('/ui/internacoes/nova')
+def view_nova_internacao():
+    return render_template('nova_internacao.html')
+
+@app.route('/ui/pacientes/<int:id_paciente>/historico')
+def view_paciente_historico(id_paciente):
+    # O ID será pego pelo JavaScript via URL, mas a rota precisa existir
+    return render_template('paciente_historico.html', id_paciente=id_paciente)
 
 
 if __name__ == '__main__':

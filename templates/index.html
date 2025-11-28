@@ -1,77 +1,67 @@
 {% extends "base.html" %} {% block content %}
-<div class="row mb-4 align-items-center">
-  <div class="col">
-    <h1 class="h3">Visão Geral</h1>
-    <p class="text-muted">Bem-vindo ao painel de controle.</p>
-  </div>
-  <div class="col-auto">
-    <span class="badge bg-light text-dark border p-2" id="data-hoje">
-      Hospital System v1.0
-    </span>
-  </div>
-</div>
+<div class="text-center py-5">
+  <h1 class="display-5 fw-bold text-primary mb-3">HospitalGest</h1>
+  <p class="lead text-muted mb-5">
+    Selecione seu perfil de acesso para continuar
+  </p>
 
-<div
-  id="alerta-estoque"
-  class="alert alert-warning border-0 shadow-sm d-none"
-  role="alert"
->
-  <i class="bi bi-exclamation-triangle-fill"></i>
-  <strong>Atenção:</strong> Existem medicamentos vencidos no estoque!
-</div>
-
-<div class="row g-4">
-  <div class="col-md-4">
-    <div class="card h-100 p-3">
-      <div class="card-body">
-        <h5 class="card-title">Equipe Médica</h5>
-        <div class="d-flex align-items-baseline">
-          <span class="display-4 me-2" id="total-medicos">-</span>
-          <span class="text-muted">ativos</span>
+  <div class="row justify-content-center g-4">
+    <div class="col-md-3">
+      <div class="card h-100 border-0 shadow-sm hover-card">
+        <div class="card-body py-5">
+          <div
+            class="mb-3 text-primary bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block"
+          >
+            <i class="bi bi-heart-pulse fs-1"></i>
+          </div>
+          <h3 class="h5 mt-3">Médico</h3>
+          <p class="text-muted small">Consultas, Prontuários e Prescrições</p>
+          <a
+            href="/ui/portal/medico"
+            class="btn btn-outline-primary stretched-link"
+            >Acessar</a
+          >
         </div>
-        <a
-          href="/ui/medicos"
-          class="btn btn-sm btn-outline-primary mt-3 stretched-link"
-          >Gerenciar</a
-        >
       </div>
     </div>
-  </div>
 
-  <div class="col-md-4">
-    <div class="card h-100 p-3">
-      <div class="card-body">
-        <h5 class="card-title">Pacientes</h5>
-        <div class="d-flex align-items-baseline">
-          <span class="display-4 me-2" id="total-pacientes">-</span>
-          <span class="text-muted">registrados</span>
+    <div class="col-md-3">
+      <div class="card h-100 border-0 shadow-sm hover-card">
+        <div class="card-body py-5">
+          <div
+            class="mb-3 text-success bg-success bg-opacity-10 p-3 rounded-circle d-inline-block"
+          >
+            <i class="bi bi-clipboard2-pulse fs-1"></i>
+          </div>
+          <h3 class="h5 mt-3">Enfermeiro</h3>
+          <p class="text-muted small">Cadastro de Pacientes e Triagem</p>
+          <a
+            href="/ui/portal/enfermeiro"
+            class="btn btn-outline-success stretched-link"
+            >Acessar</a
+          >
         </div>
-        <a
-          href="/ui/pacientes"
-          class="btn btn-sm btn-outline-primary mt-3 stretched-link"
-          >Ver Lista</a
-        >
       </div>
     </div>
-  </div>
 
-  <div class="col-md-4">
-    <div class="card h-100 p-3">
-      <div class="card-body">
-        <h5 class="card-title">Internações Ativas</h5>
-        <div class="d-flex align-items-baseline">
-          <span class="display-4 me-2" id="total-internacoes">-</span>
-          <span class="text-muted">leitos em uso</span>
+    <div class="col-md-3">
+      <div class="card h-100 border-0 shadow-sm hover-card">
+        <div class="card-body py-5">
+          <div
+            class="mb-3 text-dark bg-secondary bg-opacity-10 p-3 rounded-circle d-inline-block"
+          >
+            <i class="bi bi-building-gear fs-1"></i>
+          </div>
+          <h3 class="h5 mt-3">Administração</h3>
+          <p class="text-muted small">
+            Gestão de Equipe, Estoque e Faturamento
+          </p>
+          <a href="/ui/portal/admin" class="btn btn-outline-dark stretched-link"
+            >Acessar</a
+          >
         </div>
-        <a
-          href="/ui/quartos"
-          class="btn btn-sm btn-outline-primary mt-3 stretched-link"
-          >Ver Mapa</a
-        >
       </div>
     </div>
   </div>
 </div>
-{% endblock %} {% block scripts %}
-<script src="/static/js/dashboard.js"></script>
 {% endblock %}

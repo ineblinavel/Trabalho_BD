@@ -1,0 +1,72 @@
+{% extends "base.html" %} {% block content %}
+<div class="row mb-4">
+  <div class="col">
+    <h2 class="h4">Portal do Médico</h2>
+    <p class="text-muted small">Área clínica e assistencial</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0">
+          <i class="bi bi-calendar-event me-2 text-primary"></i> Minha Agenda
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="text-center py-5 text-muted bg-light rounded">
+          <i class="bi bi-calendar-check fs-1 d-block mb-3"></i>
+          <p>Selecione seu CRM para visualizar as consultas agendadas.</p>
+          <button
+            class="btn btn-primary btn-sm"
+            onclick="alert('Funcionalidade de Agenda em desenvolvimento')"
+          >
+            Carregar Agenda
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Atendimento ao Paciente</h5>
+        <p class="small text-muted">
+          Acesse o histórico, exames e prescreva medicamentos.
+        </p>
+        <a href="/ui/pacientes" class="btn btn-outline-primary w-100 mb-2">
+          <i class="bi bi-search me-2"></i> Buscar Paciente
+        </a>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Ferramentas</h5>
+        <ul class="list-group list-group-flush">
+          <li
+            class="list-group-item px-0 d-flex justify-content-between align-items-center"
+          >
+            <span
+              ><i class="bi bi-capsule me-2 text-secondary"></i> Consultar
+              Medicamentos</span
+            >
+            <a href="/ui/estoque" class="btn btn-sm btn-light">Ver</a>
+          </li>
+          <li
+            class="list-group-item px-0 d-flex justify-content-between align-items-center"
+          >
+            <span
+              ><i class="bi bi-file-earmark-medical me-2 text-secondary"></i>
+              Ver Exames</span
+            >
+            <button class="btn btn-sm btn-light" disabled>Ver</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
