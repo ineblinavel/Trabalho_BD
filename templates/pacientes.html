@@ -1,0 +1,34 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="h4 mb-0">Gestão de Pacientes</h2>
+    <span class="text-muted small">Administre os registros e prontuários</span>
+  </div>
+  <a href="/ui/pacientes/novo" class="btn btn-primary shadow-sm">
+    <i class="bi bi-person-plus"></i> + Novo Paciente
+  </a>
+</div>
+
+<div class="table-container">
+  <table class="table table-hover align-middle" id="tabela-pacientes">
+    <thead>
+      <tr>
+        <th width="5%">ID</th>
+        <th width="30%">Nome</th>
+        <th width="20%">CPF</th>
+        <th width="15%">Nascimento</th>
+        <th width="30%" class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="5" class="text-center text-muted py-4">
+          Carregando pacientes...
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %} {% block scripts %}
+<script src="/static/js/pacientes.js"></script>
+{% endblock %}

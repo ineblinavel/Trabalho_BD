@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="h4 mb-0">Controle de Estoque</h2>
+    <span class="text-muted small"
+      >Gerencie lotes, validades e fornecedores</span
+    >
+  </div>
+  <a href="/ui/estoque/novo" class="btn btn-primary shadow-sm">
+    <i class="bi bi-box-seam"></i> + Novo Lote
+  </a>
+</div>
+
+<div id="alerta-vencidos-container"></div>
+
+<div class="table-container">
+  <table class="table table-hover align-middle" id="tabela-estoque">
+    <thead>
+      <tr>
+        <th width="5%">ID</th>
+        <th width="25%">Medicamento (ID)</th>
+        <th width="20%">Fornecedor (CNPJ)</th>
+        <th width="15%">Quantidade</th>
+        <th width="15%">Preço Un.</th>
+        <th width="15%">Validade</th>
+        <th width="5%"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="7" class="text-center text-muted py-4">
+          <div
+            class="spinner-border spinner-border-sm text-primary"
+            role="status"
+          ></div>
+          Carregando estoque...
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %} {% block scripts %}
+<script src="/static/js/estoque.js"></script>
+{% endblock %}

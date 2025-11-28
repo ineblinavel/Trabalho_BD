@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from database.Database import Database
 
 # IMPORTS DOS REPOSITÓRIOS BASE
@@ -179,6 +179,42 @@ app.register_blueprint(init_telefone_enfermeiro_routes(tel_enfermeiro_service))
 # Depende de: TelefonePacienteRepo, PacienteRepo
 tel_paciente_service = TelefonePacienteService(tel_paciente_repo, paciente_repo)
 app.register_blueprint(init_telefone_paciente_routes(tel_paciente_service))
+
+# Rota para o Dashboard
+@app.route('/')
+def dashboard():
+    return render_template('index.html')
+
+# Rotas para as interfaces (UI)
+# Use prefixos como /ui/ para diferenciar das rotas de dados se preferir
+@app.route('/ui/medicos')
+def view_medicos():
+    return render_template('medicos.html')
+
+@app.route('/ui/quartos')
+def view_quartos():
+    return render_template('quartos.html')
+
+@app.route('/ui/pacientes')
+def view_pacientes():
+    # Crie o templates/pacientes.html similar ao de médicos
+    return render_template('pacientes.html')
+
+@app.route('/ui/estoque')
+def view_estoque():
+    return render_template('estoque.html')
+
+@app.route('/ui/medicos/novo')
+def view_add_medico():
+    return render_template('add_medico.html')
+
+@app.route('/ui/pacientes/novo')
+def view_add_paciente():
+    return render_template('add_paciente.html')
+
+@app.route('/ui/estoque/novo')
+def view_add_estoque():
+    return render_template('add_estoque.html')
 
 
 if __name__ == '__main__':
