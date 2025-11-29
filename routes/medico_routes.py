@@ -39,4 +39,30 @@ def init_medico_routes(medico_service: MedicoService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @medico_bp.route('/<string:crm>', methods=['PUT'])
+    def update_medico(crm):
+        data = request.get_json()
+        try:
+            result = medico_service.update_medico(
+                crm,
+                nome_medico=data.get('nome_medico'),
+                cpf=data.get('cpf'),
+                salario=data.get('salario')
+            )
+            return jsonify(result), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @medico_bp.route('/<string:crm>', methods=['DELETE'])
+    def delete_medico(crm):
+        try:
+            result = medico_service.delete_medico(crm)
+            return jsonify(result), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     return medico_bp

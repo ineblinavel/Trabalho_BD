@@ -1,79 +1,288 @@
-{% extends "base.html" %} {% block content %}
-<div class="mb-5">
-  <h1 class="h3 mb-1">Painel Administrativo</h1>
-  <p class="text-muted">
-    Gestão de recursos humanos, materiais e infraestrutura
-  </p>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="h3 mb-1">Painel Administrativo</h1>
+    <p class="text-muted">Gestão de recursos humanos, materiais e infraestrutura</p>
 </div>
 
-<div class="row g-4">
-  <div class="col-lg-4 col-md-6">
-    <div class="card border-0 h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-4">
-          <div class="icon-box primary me-3">
-            <i class="bi bi-person-badge"></i>
-          </div>
-          <h5 class="card-title mb-0">Corpo Clínico</h5>
+<div class="row">
+    <!-- Sidebar Menu -->
+    <div class="col-md-3 mb-4">
+        <div class="list-group shadow-sm" id="list-tab" role="tablist">
+            <a class="list-group-item list-group-item-action active d-flex align-items-center py-3" 
+               id="list-pessoas-list" data-bs-toggle="list" href="#list-pessoas" role="tab">
+                <i class="bi bi-people fs-5 me-3 text-primary"></i>
+                <div>
+                    <div class="fw-bold">Gestão de Pessoas</div>
+                    <small class="text-muted">Médicos e Enfermeiros</small>
+                </div>
+            </a>
+            <a class="list-group-item list-group-item-action d-flex align-items-center py-3" 
+               id="list-estoque-list" data-bs-toggle="list" href="#list-estoque" role="tab">
+                <i class="bi bi-box-seam fs-5 me-3 text-warning"></i>
+                <div>
+                    <div class="fw-bold">Estoque & Farmácia</div>
+                    <small class="text-muted">Medicamentos e Fornecedores</small>
+                </div>
+            </a>
+            <a class="list-group-item list-group-item-action d-flex align-items-center py-3" 
+               id="list-infra-list" data-bs-toggle="list" href="#list-infra" role="tab">
+                <i class="bi bi-hospital fs-5 me-3 text-success"></i>
+                <div>
+                    <div class="fw-bold">Infraestrutura</div>
+                    <small class="text-muted">Leitos e Quartos</small>
+                </div>
+            </a>
+            <a class="list-group-item list-group-item-action d-flex align-items-center py-3" 
+               id="list-exames-list" data-bs-toggle="list" href="#list-exames" role="tab">
+                <i class="bi bi-clipboard-pulse fs-5 me-3 text-info"></i>
+                <div>
+                    <div class="fw-bold">Exames</div>
+                    <small class="text-muted">Catálogo de Procedimentos</small>
+                </div>
+            </a>
+            <a class="list-group-item list-group-item-action d-flex align-items-center py-3" 
+               id="list-relatorios-list" data-bs-toggle="list" href="#list-relatorios" role="tab">
+                <i class="bi bi-graph-up fs-5 me-3 text-danger"></i>
+                <div>
+                    <div class="fw-bold">Relatórios</div>
+                    <small class="text-muted">Financeiro e Auditoria</small>
+                </div>
+            </a>
         </div>
-        <p class="card-text text-muted small mb-4">
-          Cadastrar médicos, gerenciar contratos e folha salarial
-        </p>
-        <div class="d-grid gap-2">
-          <a href="/ui/medicos" class="btn btn-light btn-sm">
-            <i class="bi bi-list-ul me-2"></i> Listar Médicos
-          </a>
-          <a href="/ui/medicos/novo" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus-circle me-2"></i> Novo Médico
-          </a>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <div class="col-lg-4 col-md-6">
-    <div class="card border-0 h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-4">
-          <div class="icon-box warning me-3">
-            <i class="bi bi-box-seam"></i>
-          </div>
-          <h5 class="card-title mb-0">Estoque & Farmácia</h5>
-        </div>
-        <p class="card-text text-muted small mb-4">
-          Controle de medicamentos, validade e fornecedores
-        </p>
-        <div class="d-grid gap-2">
-          <a href="/ui/estoque" class="btn btn-light btn-sm">
-            <i class="bi bi-boxes me-2"></i> Ver Inventário
-          </a>
-          <a href="/ui/estoque/novo" class="btn btn-warning btn-sm text-white">
-            <i class="bi bi-box-arrow-in-down me-2"></i> Registrar Entrada
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+    <!-- Content Area -->
+    <div class="col-md-9">
+        <div class="tab-content" id="nav-tabContent">
+            
+            <!-- Gestão de Pessoas -->
+            <div class="tab-pane fade show active" id="list-pessoas" role="tabpanel">
+                <div class="row g-4">
+                    <!-- Médicos -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-box primary me-3">
+                                        <i class="bi bi-person-badge"></i>
+                                    </div>
+                                    <h5 class="card-title mb-0">Corpo Clínico</h5>
+                                </div>
+                                <p class="text-muted small">Gerenciar médicos, contratos e especialidades.</p>
+                                <div class="d-grid gap-2">
+                                    <a href="/ui/medicos" class="btn btn-light btn-sm text-start">
+                                        <i class="bi bi-list-ul me-2"></i> Listar Médicos
+                                    </a>
+                                    <a href="/ui/medicos/novo" class="btn btn-primary btn-sm text-start">
+                                        <i class="bi bi-plus-circle me-2"></i> Novo Médico
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Enfermeiros -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-box success me-3">
+                                        <i class="bi bi-person-plus"></i>
+                                    </div>
+                                    <h5 class="card-title mb-0">Enfermagem</h5>
+                                </div>
+                                <p class="text-muted small">Gerenciar enfermeiros e escalas de plantão.</p>
+                                <div class="d-grid gap-2">
+                                    <a href="/ui/enfermeiros" class="btn btn-light btn-sm text-start">
+                                        <i class="bi bi-list-ul me-2"></i> Listar Enfermeiros
+                                    </a>
+                                    <a href="/ui/enfermeiros/novo" class="btn btn-success btn-sm text-start">
+                                        <i class="bi bi-plus-circle me-2"></i> Novo Enfermeiro
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pacientes -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-box warning me-3">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+                                    <h5 class="card-title mb-0">Pacientes</h5>
+                                </div>
+                                <p class="text-muted small">Gerenciar cadastro e histórico de pacientes.</p>
+                                <div class="d-grid gap-2">
+                                    <a href="/ui/pacientes" class="btn btn-light btn-sm text-start">
+                                        <i class="bi bi-list-ul me-2"></i> Listar Pacientes
+                                    </a>
+                                    <a href="/ui/pacientes/novo" class="btn btn-warning btn-sm text-white text-start">
+                                        <i class="bi bi-person-plus me-2"></i> Novo Paciente
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  <div class="col-lg-4 col-md-6">
-    <div class="card border-0 h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-4">
-          <div class="icon-box success me-3">
-            <i class="bi bi-hospital"></i>
-          </div>
-          <h5 class="card-title mb-0">Infraestrutura</h5>
+            <!-- Estoque -->
+            <div class="tab-pane fade" id="list-estoque" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="icon-box warning me-3">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Estoque & Farmácia</h5>
+                                <p class="text-muted small mb-0">Controle de medicamentos e insumos</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="/ui/estoque" class="btn btn-light w-100 text-start p-3 h-100 d-flex align-items-center">
+                                    <i class="bi bi-boxes fs-4 me-3 text-warning"></i>
+                                    <div>
+                                        <div class="fw-bold">Ver Inventário</div>
+                                        <small class="text-muted">Consultar estoque atual</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/ui/estoque/novo" class="btn btn-light w-100 text-start p-3 h-100 d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-in-down fs-4 me-3 text-success"></i>
+                                    <div>
+                                        <div class="fw-bold">Registrar Entrada</div>
+                                        <small class="text-muted">Adicionar itens ao estoque</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/ui/admin/medicamentos" class="btn btn-light w-100 text-start p-3 h-100 d-flex align-items-center">
+                                    <i class="bi bi-capsule fs-4 me-3 text-primary"></i>
+                                    <div>
+                                        <div class="fw-bold">Catálogo de Medicamentos</div>
+                                        <small class="text-muted">Gerenciar tipos de remédios</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/ui/admin/fornecedores" class="btn btn-light w-100 text-start p-3 h-100 d-flex align-items-center">
+                                    <i class="bi bi-truck fs-4 me-3 text-secondary"></i>
+                                    <div>
+                                        <div class="fw-bold">Fornecedores</div>
+                                        <small class="text-muted">Gerenciar parceiros</small>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infraestrutura -->
+            <div class="tab-pane fade" id="list-infra" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="icon-box success me-3">
+                                <i class="bi bi-hospital"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Infraestrutura Hospitalar</h5>
+                                <p class="text-muted small mb-0">Gestão de leitos e manutenção</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="/ui/quartos" class="btn btn-light w-100 text-start p-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-grid-3x3 fs-3 me-3 text-success"></i>
+                                        <div>
+                                            <div class="fw-bold">Mapa de Leitos</div>
+                                            <small class="text-muted">Visualizar ocupação e status dos quartos</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exames -->
+            <div class="tab-pane fade" id="list-exames" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="icon-box info me-3">
+                                <i class="bi bi-clipboard-pulse"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Exames & Procedimentos</h5>
+                                <p class="text-muted small mb-0">Configuração de serviços médicos</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="/ui/admin/tipos-exame" class="btn btn-light w-100 text-start p-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-list-check fs-3 me-3 text-info"></i>
+                                        <div>
+                                            <div class="fw-bold">Tipos de Exame</div>
+                                            <small class="text-muted">Gerenciar catálogo de exames disponíveis</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relatórios -->
+            <div class="tab-pane fade" id="list-relatorios" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="icon-box danger me-3">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Relatórios & Auditoria</h5>
+                                <p class="text-muted small mb-0">Métricas e logs do sistema</p>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="/ui/relatorios" class="btn btn-light w-100 text-start p-3 h-100 d-flex align-items-center">
+                                    <i class="bi bi-pie-chart fs-4 me-3 text-primary"></i>
+                                    <div>
+                                        <div class="fw-bold">Relatórios Financeiros</div>
+                                        <small class="text-muted">Receitas e despesas</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/ui/admin/logs-salario" class="btn btn-light w-100 text-start p-3 h-100 d-flex align-items-center">
+                                    <i class="bi bi-clock-history fs-4 me-3 text-secondary"></i>
+                                    <div>
+                                        <div class="fw-bold">Histórico de Salários</div>
+                                        <small class="text-muted">Auditoria de alterações salariais</small>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <p class="card-text text-muted small mb-4">
-          Mapa de ocupação de leitos e manutenção de quartos
-        </p>
-        <div class="d-grid gap-2">
-          <a href="/ui/quartos" class="btn btn-light btn-sm">
-            <i class="bi bi-grid-3x3 me-2"></i> Mapa de Leitos
-          </a>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
 {% endblock %}

@@ -80,9 +80,18 @@ async function carregarMapaLeitos() {
         `;
       }
 
+      // Botão de Editar (Pequeno, no topo)
+      const editBtn = `
+        <button class="btn btn-sm btn-link text-muted p-0 position-absolute top-0 end-0 mt-2 me-2" 
+                onclick="abrirModalEditarQuarto(${quarto.num_quarto}, '${quarto.tipo_de_quarto}', ${quarto.valor_diaria})">
+            <i class="bi bi-pencil-square"></i>
+        </button>
+      `;
+
       const card = `
         <div class="col-xl-3 col-lg-4 col-md-6">
             <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden">
+                ${editBtn}
                 <div class="position-absolute top-0 start-0 bottom-0 bg-${statusColor}" style="width: 4px;"></div>
                 <div class="card-body ps-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -129,6 +138,59 @@ async function darAlta(idInternacao) {
       alert("Erro ao dar alta: " + error.message);
     }
   }
+}
+
+async function criarQuarto() {
+  const num_quarto = document.getElementById("num_quarto").value;
+  const tipo_de_quarto = document.getElementById("tipo_de_quarto").value;
+  const valor_diaria = document.getElementById("valor_diaria").value;
+  const isEdit = document.getElementById("is_edit_quarto").value === 'true';
+
+  if (!num_quarto || !tipo_de_quarto || !valor_diaria) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+  
+  if (parseInt(num_quarto) <= 0) return alert("Número do quarto inválido.");
+  if (parseFloat(valor_diaria) <= 0) return alert("Valor da diária deve ser positivo.");
+
+  try {
+    if (isEdit) {
+        await API.put(`/quartos/${num_quarto}`, {
+            tipo_de_quarto: tipo_de_quarto,
+            valor_diaria: valor_diaria,
+        });
+        alert("Quarto atualizado com sucesso!");
+    } else {
+        await API.post("/quartos/", {
+            num_quarto: num_quarto,
+            tipo_de_quarto: tipo_de_quarto,
+            valor_diaria: valor_diaria,
+        });
+        alert("Quarto criado com sucesso!");
+    }
+    
+    // Fechar modal e recarregar
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalNovoQuarto'));
+    modal.hide();
+    document.getElementById("formNovoQuarto").reset();
+    document.getElementById("is_edit_quarto").value = 'false';
+    document.getElementById("num_quarto").readOnly = false;
+    carregarMapaLeitos();
+  } catch (error) {
+    alert("Erro ao salvar quarto: " + error.message);
+  }
+}
+
+function abrirModalEditarQuarto(num, tipo, valor) {
+    document.getElementById("num_quarto").value = num;
+    document.getElementById("tipo_de_quarto").value = tipo;
+    document.getElementById("valor_diaria").value = valor;
+    document.getElementById("is_edit_quarto").value = 'true';
+    document.getElementById("num_quarto").readOnly = true;
+    
+    const modal = new bootstrap.Modal(document.getElementById('modalNovoQuarto'));
+    modal.show();
 }
 
 function atualizarKPIs(total, livres, ocupados) {

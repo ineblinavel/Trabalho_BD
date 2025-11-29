@@ -208,3 +208,11 @@ CREATE TABLE IF NOT EXISTS LogSalario (
     salario_novo DECIMAL(10,2),
     data_alteracao DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS Usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL, -- Em produção, usar hash!
+    role ENUM('admin', 'medico', 'enfermeiro') NOT NULL,
+    referencia_id VARCHAR(15) -- Pode ser CRM, COREM ou NULL (admin)
+);

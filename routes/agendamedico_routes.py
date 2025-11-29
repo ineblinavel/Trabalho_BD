@@ -96,4 +96,18 @@ def init_agendamedico_routes(agenda_service: AgendaMedicoService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @agenda_bp.route('/medico/<string:crm>', methods=['GET'])
+    def get_agendas_by_medico(crm):
+        try:
+            agendas = agenda_service.get_agendas_by_medico(crm)
+            result = []
+            for a in agendas:
+                a['data'] = a['data'].strftime('%Y-%m-%d')
+                a['inicio_platao'] = str(a['inicio_platao'])
+                a['fim_platao'] = str(a['fim_platao'])
+                result.append(a)
+            return jsonify(result), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     return agenda_bp

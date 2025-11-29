@@ -1,0 +1,105 @@
+{% extends "base.html" %} {% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+  <div>
+    <h1 class="h3 mb-1">Gestão de Exames</h1>
+    <p class="text-muted">Visualize solicitações e registre resultados</p>
+  </div>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSolicitarExame">
+    <i class="bi bi-plus-lg me-2"></i> Solicitar Exame
+  </button>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">ID</th>
+            <th>Paciente</th>
+            <th>Exame</th>
+            <th>Data Solicitação</th>
+            <th>Status</th>
+            <th class="text-end pe-4">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-exames">
+          <tr>
+            <td colspan="6" class="text-center py-4 text-muted">
+              <div class="spinner-border spinner-border-sm me-2"></div>
+              Carregando exames...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Registrar Resultado -->
+<div class="modal fade" id="modalRegistrarResultado" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar Resultado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-resultado">
+          <input type="hidden" id="id_exame_resultado" name="id_exame">
+          <div class="mb-3">
+            <label class="form-label">Data do Resultado</label>
+            <input type="date" class="form-control" name="data_resultado" id="data_resultado" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Resultado Obtido</label>
+            <textarea class="form-control" name="resultado_obtido" rows="4" required></textarea>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">Salvar Resultado</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Solicitar Exame (Simplificado) -->
+<div class="modal fade" id="modalSolicitarExame" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Solicitar Novo Exame</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="form-solicitar">
+            <div class="mb-3">
+                <label class="form-label">Paciente</label>
+                <select class="form-select" id="select-paciente" name="id_paciente" required></select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tipo de Exame</label>
+                <select class="form-select" id="select-tipo-exame" name="id_tipo_exame" required></select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Médico Responsável</label>
+                <select class="form-select" id="select-medico" name="crm_medico_responsavel" required></select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Data Solicitação</label>
+                <input type="date" class="form-control" name="data_solicitacao" id="data_solicitacao" required>
+            </div>
+            <input type="hidden" name="status" value="A"> <!-- A = Agendado -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Solicitar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %} {% block scripts %}
+<script src="/static/js/exames.js"></script>
+{% endblock %}

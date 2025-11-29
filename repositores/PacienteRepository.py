@@ -105,3 +105,18 @@ class PacienteRepository:
         params = (nome, cpf, data_nascimento, endereco)
         last_id = self.db.execute_query(query, params, fetch_last_id=True)
         return {"id_paciente": last_id}
+
+    def delete(self, id_paciente: int) -> dict:
+        """
+        Remove um paciente do banco de dados.
+
+        Args:
+            id_paciente (int): O ID do paciente a ser removido.
+
+        Returns:
+            dict: Um dicionário com a mensagem de resultado da operação.
+        """
+        query = "DELETE FROM Paciente WHERE id_paciente = %s"
+        params = (id_paciente,)
+        self.db.execute_query(query, params)
+        return {"message": "Paciente removido com sucesso."}

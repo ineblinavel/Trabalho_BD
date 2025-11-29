@@ -4,67 +4,56 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-document.getElementById('add-medico-form').addEventListener('submit', async function(event) {
+document.getElementById('add-enfermeiro-form').addEventListener('submit', async function(event) {
     event.preventDefault();
 
     const form = event.target;
-    const crm = form.crm.value.trim();
-    const nome_medico = form.nome_medico.value.trim();
+    const corem = form.corem.value.trim();
+    const nome_enfermeiro = form.nome_enfermeiro.value.trim();
     const cpf = form.cpf.value.trim();
-    const salario = parseFloat(form.salario.value);
     const messageDiv = document.getElementById('message');
 
     // Clear previous messages
     messageDiv.textContent = '';
     messageDiv.className = '';
 
-    // Validation
-    if (!crm) {
+    if (!corem || !nome_enfermeiro || !cpf) {
         messageDiv.className = 'alert alert-danger';
-        messageDiv.textContent = 'O CRM é obrigatório.';
+        messageDiv.textContent = 'Preencha todos os campos.';
         return;
     }
-    if (!nome_medico) {
-        messageDiv.className = 'alert alert-danger';
-        messageDiv.textContent = 'O Nome é obrigatório.';
-        return;
-    }
+
     if (!Validation.isValidCPF(cpf)) {
         messageDiv.className = 'alert alert-danger';
         messageDiv.textContent = 'CPF inválido.';
         return;
     }
-    if (isNaN(salario) || salario <= 0) {
-        messageDiv.className = 'alert alert-danger';
-        messageDiv.textContent = 'O salário deve ser um valor positivo.';
-        return;
-    }
 
     try {
-        const response = await fetch('/medicos', {
+        const response = await fetch('/enfermeiros', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ crm, nome_medico, cpf, salario })
+            body: JSON.stringify({ corem, nome_enfermeiro, cpf })
         });
 
         const result = await response.json();
 
         if (response.ok) {
             messageDiv.className = 'alert alert-success';
-            let msg = result.message || 'Médico adicionado com sucesso!';
+            let msg = result.message || 'Enfermeiro adicionado com sucesso!';
             if (result.senha_gerada) {
-                msg += `<br><strong>Usuário criado!</strong><br>Login: ${crm}<br>Senha: <code>${result.senha_gerada}</code>`;
+                msg += `<br><strong>Usuário criado!</strong><br>Login: ${corem}<br>Senha: <code>${result.senha_gerada}</code>`;
             }
             messageDiv.innerHTML = msg;
             form.reset();
         } else {
             messageDiv.className = 'alert alert-danger';
-            messageDiv.textContent = 'Erro: ' + (result.error || 'Ocorreu um problema ao adicionar o médico.');
+            messageDiv.textContent = 'Erro: ' + (result.error || 'Ocorreu um problema ao adicionar o enfermeiro.');
         }
     } catch (error) {
-        messageDiv.className = 'error';
+        messageDiv.className = 'alert alert-danger';
         messageDiv.textContent = 'Erro de conexão: ' + error.message;
     }
 });

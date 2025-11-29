@@ -59,3 +59,22 @@ class EstoqueMedicamentoService:
         if not self.estoque_repo.find_by(id_estoque):
             raise ValueError(f"Item de estoque com ID {id_estoque} não encontrado.")
         return self.estoque_repo.delete(id_estoque)
+
+    def consumir_estoque(self, id_estoque: int, quantidade_consumida: int):
+        # 1. Busca o item de estoque
+        item = self.estoque_repo.find_by(id_estoque)
+        if not item:
+            raise ValueError(f"Item de estoque com ID {id_estoque} não encontrado.")
+
+        quantidade_atual = item['quantidade']
+
+        # 2. Valida se há estoque suficiente
+        if quantidade_consumida <= 0:
+            raise ValueError("A quantidade a ser consumida deve ser maior que zero.")
+        
+        if quantidade_atual < quantidade_consumida:
+            raise ValueError(f"Estoque insuficiente. Disponível: {quantidade_atual}, Solicitado: {quantidade_consumida}.")
+
+        # 3. Atualiza a quantidade
+        nova_quantidade = quantidade_atual - quantidade_consumida
+        return self.estoque_repo.update(id_estoque, quantidade=nova_quantidade)

@@ -57,6 +57,13 @@ document
     data.preco_unitario = parseFloat(data.preco_unitario);
     data.id_medicamento = parseInt(data.id_medicamento);
 
+    // Validação
+    if (data.quantidade <= 0) return alert("Quantidade deve ser maior que zero.");
+    if (data.preco_unitario <= 0) return alert("Preço deve ser maior que zero.");
+    
+    const hoje = new Date().toISOString().split('T')[0];
+    if (data.data_validade <= hoje) return alert("A data de validade deve ser futura.");
+
     try {
       await API.post("/estoque/", data);
       alert("Item adicionado ao estoque com sucesso!");

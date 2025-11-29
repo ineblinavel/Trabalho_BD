@@ -26,6 +26,17 @@ def init_consultas_routes(consulta_service: ConsultasService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @consulta_bp.route('/medico/<string:crm>', methods=['GET'])
+    def get_consultas_medico(crm):
+        try:
+            consultas = consulta_service.get_consultas_by_medico(crm)
+            for c in consultas:
+                if c.get('data_hora_agendamento'):
+                    c['data_hora_agendamento'] = c['data_hora_agendamento'].strftime('%Y-%m-%d %H:%M:%S')
+            return jsonify(consultas), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     @consulta_bp.route('/', methods=['POST'])
     def create_consulta():
         data = request.get_json()

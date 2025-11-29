@@ -8,7 +8,10 @@ class ConsultasService:
         self.medico_repo = medico_repo
         self.paciente_repo = paciente_repo
 
-    def create_consulta(self, crm: str, id_paciente: int, data_hora: str):
+    def get_consultas_by_medico(self, crm: str) -> list:
+        return self.consulta_repo.get_by_medico(crm)
+
+    def create_consulta(self, crm: str, id_paciente: int, data_hora: str) -> dict:
         # 1. Validação de Existência de Médico e Paciente
         if not self.medico_repo.find_by(crm):
             raise ValueError(f"Médico com CRM {crm} não encontrado ou inativo.")

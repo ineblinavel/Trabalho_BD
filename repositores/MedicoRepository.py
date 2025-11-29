@@ -171,3 +171,18 @@ class MedicoRepository:
         """
         query = "SELECT * FROM Medicos WHERE salario BETWEEN %s AND %s AND ativo = TRUE;"
         return self.db.fetch_all(query, params=(min_salary, max_salary))
+
+    def delete(self, crm: str) -> dict:
+        """
+        Remove um médico do banco de dados.
+
+        Args:
+            crm (str): O CRM do médico a ser removido.
+
+        Returns:
+            dict: Um dicionário com a mensagem de resultado da operação.
+        """
+        query = "DELETE FROM Medicos WHERE crm = %s"
+        params = (crm,)
+        self.db.execute_query(query, params)
+        return {"message": "Médico removido com sucesso."}

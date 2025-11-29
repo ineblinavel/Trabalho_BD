@@ -59,3 +59,6 @@ class AgendaMedicoService:
             raise ValueError(f"Agenda com ID {id_agenda} não encontrada.")
 
         return self.agenda_repo.delete(id_agenda)
+
+    def get_agendas_by_medico(self, crm: str):
+        return self.agenda_repo.find_by(crm, key="crm_medico")

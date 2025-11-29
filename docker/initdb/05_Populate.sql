@@ -123,3 +123,8 @@ INSERT INTO Prescricao (id_consulta, id_medicamento, quantidade_prescrita, dosag
 (3, 3, 1, '250mg', '1x ao dia'),
 (4, 4, 1, '20mg', '1x ao dia'),
 (5, 5, 2, '1 comprimido', 'A cada 8h');
+
+INSERT INTO Usuarios (username, password, role, referencia_id) VALUES 
+('admin', 'admin123', 'admin', NULL),
+('medico1', 'medico123', 'medico', '123456'),
+('enfermeiro1', 'enf123', 'enfermeiro', 'COREM001');
