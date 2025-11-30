@@ -55,6 +55,25 @@ class ConsultasRepository:
         params = (id_consulta,)
         return self.db.fetch_one(query, params)
 
+    def get_by_medico(self, crm: str) -> list:
+        """
+        Busca todas as consultas de um médico específico.
+
+        Args:
+            crm (str): CRM do médico cujas consultas serão buscadas.
+
+        Returns:
+            list: Uma lista de dicionários, onde cada dicionário representa uma consulta do médico.
+        """
+        query = """
+            SELECT c.*, p.nome as nome_paciente 
+            FROM Consulta c
+            JOIN Paciente p ON c.id_paciente = p.id_paciente
+            WHERE c.crm_medico = %s
+            ORDER BY c.data_hora_agendamento DESC
+        """
+        return self.db.fetch_all(query, (crm,))
+
     def update(self, id_consulta: int, status: str = None, data_hora: str = None) -> dict:
         """
         Atualiza informações de uma consulta existente.

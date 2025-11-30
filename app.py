@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 from database.Database import Database
 
 # IMPORTS DOS REPOSITÓRIOS BASE
@@ -23,7 +23,8 @@ from repositores.RelatoriosRepository import RelatoriosRepository
 from repositores.TelefoneMedicoRepository import TelefoneMedicoRepository
 from repositores.TelefoneEnfermeiroRepository import TelefoneEnfermeiroRepository
 from repositores.TelefonePacienteRepository import TelefonePacienteRepository
-
+from repositores.UsuarioRepository import UsuarioRepository # NOVO
+from repositores.LogSalarioRepository import LogSalarioRepository # NOVO
 
 # IMPORTS DOS SERVIÇOS
 from services.medico_service import MedicoService
@@ -45,6 +46,8 @@ from services.relatorios_service import RelatoriosService
 from services.telefone_medico_service import TelefoneMedicoService
 from services.telefone_enfermeiro_service import TelefoneEnfermeiroService
 from services.telefone_paciente_service import TelefonePacienteService
+from services.auth_service import AuthService # NOVO
+from services.log_salario_service import LogSalarioService # NOVO
 
 # IMPORTS DAS ROTAS
 from routes.medico_routes import init_medico_routes
@@ -66,6 +69,8 @@ from routes.relatorios_routes import init_relatorios_routes
 from routes.telefone_medico_routes import init_telefone_medico_routes
 from routes.telefone_enfermeiro_routes import init_telefone_enfermeiro_routes
 from routes.telefone_paciente_routes import init_telefone_paciente_routes
+from routes.auth_routes import init_auth_routes # NOVO
+from routes.log_salario_routes import init_log_salario_routes # NOVO
 
 
 app = Flask(__name__)
@@ -90,18 +95,28 @@ relatorios_repo = RelatoriosRepository(db_connection)
 tel_medico_repo = TelefoneMedicoRepository(db_connection)
 tel_enfermeiro_repo = TelefoneEnfermeiroRepository(db_connection)
 tel_paciente_repo = TelefonePacienteRepository(db_connection)
+usuario_repo = UsuarioRepository(db_connection) # NOVO
 
 # Repositórios adicionados a partir dos novos arquivos
 agenda_repo = AgendaMedicoRepository(db_connection)
 fornecedor_repo = FornecedorRepository(db_connection)
 estoque_repo = EstoqueMedicamentoRepository(db_connection)
 internacao_repo = InternacaoRepository(db_connection)
+log_salario_repo = LogSalarioRepository(db_connection) # NOVO
 
 
 # REGISTRO DOS SERVIÇOS E ROTAS
 
+# Auth
+auth_service = AuthService(usuario_repo)
+app.register_blueprint(init_auth_routes(auth_service))
+
+# Logs Salario
+log_salario_service = LogSalarioService(log_salario_repo)
+app.register_blueprint(init_log_salario_routes(log_salario_service))
+
 # Médicos
-medico_service = MedicoService(medico_repo)
+medico_service = MedicoService(medico_repo, usuario_repo)
 app.register_blueprint(init_medico_routes(medico_service))
 
 # Pacientes (NOVO)
@@ -109,7 +124,7 @@ paciente_service = PacienteService(paciente_repo)
 app.register_blueprint(init_paciente_routes(paciente_service))
 
 # Enfermeiros (NOVO)
-enfermeiro_service = EnfermeiroService(enfermeiro_repo)
+enfermeiro_service = EnfermeiroService(enfermeiro_repo, usuario_repo)
 app.register_blueprint(init_enfermeiro_routes(enfermeiro_service))
 
 # Medicamentos (NOVO)
@@ -180,22 +195,40 @@ app.register_blueprint(init_telefone_enfermeiro_routes(tel_enfermeiro_service))
 tel_paciente_service = TelefonePacienteService(tel_paciente_repo, paciente_repo)
 app.register_blueprint(init_telefone_paciente_routes(tel_paciente_service))
 
+
 # Rota para o Dashboard
 @app.route('/')
 def dashboard():
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    role = session.get('role')
+    if role == 'admin':
+        return redirect('/ui/portal/admin')
+    elif role == 'medico':
+        return redirect('/ui/portal/medico')
+    elif role == 'enfermeiro':
+        return redirect('/ui/portal/enfermeiro')
+    
     return render_template('index.html')
 
 
 @app.route('/ui/portal/admin')
 def portal_admin():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
     return render_template('portal_admin.html')
 
 @app.route('/ui/portal/medico')
 def portal_medico():
+    if 'user_id' not in session or session.get('role') != 'medico':
+        return redirect('/login')
     return render_template('portal_medico.html')
 
 @app.route('/ui/portal/enfermeiro')
 def portal_enfermeiro():
+    if 'user_id' not in session or session.get('role') != 'enfermeiro':
+        return redirect('/login')
     return render_template('portal_enfermeiro.html')
 # Rotas para as interfaces (UI)
 # Use prefixos como /ui/ para diferenciar das rotas de dados se preferir
@@ -232,10 +265,64 @@ def view_add_estoque():
 def view_nova_internacao():
     return render_template('nova_internacao.html')
 
+@app.route('/ui/consultas/nova')
+def view_nova_consulta():
+    if 'user_id' not in session:
+        return redirect('/login')
+    return render_template('nova_consulta.html')
+
 @app.route('/ui/pacientes/<int:id_paciente>/historico')
 def view_paciente_historico(id_paciente):
     # O ID será pego pelo JavaScript via URL, mas a rota precisa existir
     return render_template('paciente_historico.html', id_paciente=id_paciente)
+
+@app.route('/ui/exames')
+def view_exames():
+    if 'user_id' not in session:
+        return redirect('/login')
+    return render_template('exames.html')
+
+@app.route('/ui/relatorios')
+def view_relatorios():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
+    return render_template('relatorios.html')
+
+@app.route('/ui/enfermeiros')
+def view_enfermeiros():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
+    return render_template('enfermeiros.html')
+
+@app.route('/ui/enfermeiros/novo')
+def view_add_enfermeiro():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
+    return render_template('add_enfermeiro.html')
+
+@app.route('/ui/admin/fornecedores')
+def view_admin_fornecedores():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
+    return render_template('admin/fornecedores.html')
+
+@app.route('/ui/admin/tipos-exame')
+def view_admin_tipos_exame():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
+    return render_template('admin/tipos_exame.html')
+
+@app.route('/ui/admin/medicamentos')
+def view_admin_medicamentos():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
+    return render_template('admin/medicamentos.html')
+
+@app.route('/ui/admin/logs-salario')
+def view_admin_logs_salario():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
+    return render_template('admin/logs_salario.html')
 
 
 if __name__ == '__main__':

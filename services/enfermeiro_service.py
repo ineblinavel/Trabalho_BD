@@ -1,8 +1,11 @@
 from repositores.EnfermeiroRepository import EnfermeiroRepository
+from repositores.UsuarioRepository import UsuarioRepository
+from utils.password_generator import generate_password
 
 class EnfermeiroService:
-    def __init__(self, enfermeiro_repo: EnfermeiroRepository):
+    def __init__(self, enfermeiro_repo: EnfermeiroRepository, usuario_repo: UsuarioRepository = None):
         self.enfermeiro_repo = enfermeiro_repo
+        self.usuario_repo = usuario_repo
 
     def create_enfermeiro(self, corem: str, cpf: str, nome_enfermeiro: str):
         # 1. Validação de Duplicidade (COREM)
@@ -13,7 +16,22 @@ class EnfermeiroService:
         if self.enfermeiro_repo.find_by(cpf, key="cpf"):
             raise ValueError(f"Enfermeiro com CPF {cpf} já cadastrado.")
 
-        return self.enfermeiro_repo.create(corem, cpf, nome_enfermeiro)
+        result = self.enfermeiro_repo.create(corem, cpf, nome_enfermeiro)
+
+        senha_gerada = None
+        if self.usuario_repo:
+            if not self.usuario_repo.get_by_username(corem):
+                senha_gerada = generate_password()
+                self.usuario_repo.create_user(
+                    username=corem,
+                    password=senha_gerada,
+                    role='enfermeiro',
+                    referencia_id=corem
+                )
+                result['senha_gerada'] = senha_gerada
+                result['message'] += f" Usuário criado. Senha: {senha_gerada}"
+
+        return result
 
     def get_all_enfermeiros(self):
         return self.enfermeiro_repo.find_all()

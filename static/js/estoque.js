@@ -49,6 +49,9 @@ async function carregarEstoque() {
                 <td>${precoFormatado}</td>
                 <td>${badgeValidade}</td>
                 <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary border-0 me-1" onclick="consumirItem(${item.id_estoque_medicamento})" title="Consumir Item">
+                        <i class="bi bi-box-arrow-down"></i>
+                    </button>
                     <button class="btn btn-sm btn-outline-danger border-0" onclick="deletarItem(${item.id_estoque_medicamento})" title="Excluir Lote">
                         <i class="bi bi-trash"></i>
                     </button>
@@ -82,6 +85,25 @@ async function verificarVencidos() {
     }
   } catch (e) {
     console.error("Erro ao verificar vencidos", e);
+  }
+}
+
+async function consumirItem(id) {
+  const quantidade = prompt("Quantas unidades deseja retirar do estoque?", "1");
+  if (quantidade === null) return;
+
+  const qtdNum = parseInt(quantidade);
+  if (isNaN(qtdNum) || qtdNum <= 0) {
+    alert("Por favor, insira uma quantidade válida.");
+    return;
+  }
+
+  try {
+    await API.post(`/estoque/${id}/consumir`, { quantidade: qtdNum });
+    alert("Saída de estoque registrada com sucesso!");
+    carregarEstoque();
+  } catch (error) {
+    alert("Erro ao registrar saída: " + error.message);
   }
 }
 

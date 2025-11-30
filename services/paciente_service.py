@@ -51,4 +51,9 @@ class PacienteService:
         foto = self.paciente_repo.get_foto(id_paciente)
         return foto
 
+    def delete_paciente(self, id_paciente: int):
+        if not self.paciente_repo.get_by_id(id_paciente):
+            raise ValueError(f"Paciente com ID {id_paciente} não encontrado.")
+        return self.paciente_repo.delete(id_paciente)
+
 

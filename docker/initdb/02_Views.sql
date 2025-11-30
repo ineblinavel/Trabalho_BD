@@ -48,6 +48,7 @@ LEFT JOIN ResultadoExame re ON e.id_exame = re.id_exame;
 
 CREATE OR REPLACE VIEW V_QuartosStatus AS
 SELECT 
+    q.id_quarto, -- Adicionado para permitir operações
     q.num_quarto,
     q.tipo_de_quarto,
     q.valor_diaria,
@@ -55,9 +56,10 @@ SELECT
         WHEN i.id_internacao IS NOT NULL THEN 'Ocupado'
         ELSE 'Livre'
     END AS status_atual,
-    p.nome_paciente AS paciente_atual
+    p.nome_paciente AS paciente_atual,
+    i.id_internacao 
 FROM Quarto q
 LEFT JOIN Internacao i 
     ON q.id_quarto = i.id_quarto 
-    AND i.data_alta_efetiva IS NULL -- Só pega internações ativas
+    AND i.data_alta_efetiva IS NULL 
 LEFT JOIN Paciente p ON i.id_paciente = p.id_paciente;

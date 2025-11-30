@@ -17,28 +17,9 @@ class QuartoRepository:
 
     def get_mapa_leitos(self) -> list:
         """
-        Busca o status atual de todos os quartos.
-        CORREÇÃO: Executa a query completa manualmente para garantir que
-        id_quarto e id_internacao sejam retornados, independentemente da versão da View no banco.
+        Busca o status atual de todos os quartos usando a View V_QuartosStatus.
         """
-        query = """
-        SELECT
-            q.id_quarto,
-            q.num_quarto,
-            q.tipo_de_quarto,
-            q.valor_diaria,
-            CASE
-                WHEN i.id_internacao IS NOT NULL THEN 'Ocupado'
-                ELSE 'Livre'
-            END AS status_atual,
-            p.nome_paciente AS paciente_atual,
-            i.id_internacao -- Necessário para dar Alta
-        FROM Quarto q
-        LEFT JOIN Internacao i
-            ON q.id_quarto = i.id_quarto
-            AND i.data_alta_efetiva IS NULL -- Apenas internações ativas
-        LEFT JOIN Paciente p ON i.id_paciente = p.id_paciente;
-        """
+        query = "SELECT * FROM V_QuartosStatus"
         return self.db.fetch_all(query)
 
     def get_all(self) -> list:

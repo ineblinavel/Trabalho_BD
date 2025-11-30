@@ -4,9 +4,46 @@
     <h1 class="h3 mb-1">Gestão de Médicos</h1>
     <p class="text-muted">Corpo clínico e contratos</p>
   </div>
-  <a href="/ui/medicos/novo" class="btn btn-primary">
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoMedico">
     <i class="bi bi-plus-circle me-2"></i> Novo Médico
-  </a>
+  </button>
+</div>
+
+<!-- Modal Novo/Editar Médico -->
+<div class="modal fade" id="modalNovoMedico" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cadastrar Médico</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMedico">
+          <input type="hidden" id="is_edit_medico" value="false">
+          <div class="mb-3">
+            <label class="form-label">CRM</label>
+            <input type="text" class="form-control" id="crm" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nome Completo</label>
+            <input type="text" class="form-control" id="nome_medico" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">CPF</label>
+            <input type="text" class="form-control" id="cpf" data-mask="cpf" maxlength="14" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Salário (R$)</label>
+            <input type="number" step="0.01" class="form-control" id="salario" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="salvarMedico()">Salvar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="card border-0">

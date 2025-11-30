@@ -95,4 +95,20 @@ def init_estoquemedicamento_routes(estoque_service: EstoqueMedicamentoService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @estoque_bp.route('/<int:id_estoque>/consumir', methods=['POST'])
+    def consumir_estoque(id_estoque):
+        data = request.get_json()
+        quantidade = data.get('quantidade')
+
+        if not quantidade:
+            return jsonify({"error": "Quantidade não informada"}), 400
+
+        try:
+            result = estoque_service.consumir_estoque(id_estoque, int(quantidade))
+            return jsonify(result), 200
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     return estoque_bp

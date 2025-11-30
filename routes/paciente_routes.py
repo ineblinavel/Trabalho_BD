@@ -92,4 +92,14 @@ def init_paciente_routes(paciente_service: PacienteService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @paciente_bp.route('/<int:id_paciente>', methods=['DELETE'])
+    def delete_paciente(id_paciente):
+        try:
+            result = paciente_service.delete_paciente(id_paciente)
+            return jsonify(result), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     return paciente_bp
