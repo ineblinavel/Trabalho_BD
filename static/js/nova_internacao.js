@@ -70,10 +70,21 @@ document
     const data = Object.fromEntries(formData.entries());
 
     try {
-      await API.post("/internacoes/", data);
+      // 1. Captura a resposta da API
+      const response = await API.post("/internacoes/", data);
+
+      // 2. Verifica se a resposta contém uma chave de erro (vinda do backend)
+      if (response.error) {
+        alert("Erro ao internar: " + response.error);
+        return; // Interrompe a execução para não redirecionar
+      }
+
+      // 3. Se não houve erro, prossegue com o sucesso
       alert("Internação realizada com sucesso!");
-      window.location.href = "/ui/quartos"; // Vai para o mapa ver o resultado
+      window.location.href = "/ui/quartos";
     } catch (error) {
-      alert("Erro ao internar: " + error.message);
+      // Captura erros de rede ou falhas inesperadas
+      console.error(error);
+      alert("Erro técnico ao processar solicitação.");
     }
   });

@@ -36,7 +36,13 @@ document
 
     try {
       // Envia para a API (Endpoint definido em paciente_routes.py)
-      await API.post("/pacientes/", data);
+      const response = await API.post("/pacientes/", data);
+
+      // VERIFICAÇÃO DE ERRO DO BACKEND
+      // Se a API retornar um erro (ex: data futura), lançamos para o catch
+      if (response.error) {
+        throw new Error(response.error);
+      }
 
       // Sucesso
       alert("Paciente cadastrado com sucesso!");
@@ -44,12 +50,14 @@ document
     } catch (error) {
       // Erro
       console.error("Erro ao cadastrar:", error);
+
+      // Exibe o alerta com a mensagem vinda do backend (response.error)
       alert(
         "Erro ao salvar paciente: " +
           (error.message || "Verifique os dados e tente novamente.")
       );
 
-      // Reabilita o botão em caso de erro
+      // Reabilita o botão em caso de erro (Código já existente)
       btnSubmit.disabled = false;
       btnSubmit.innerHTML = textoOriginal;
     }
