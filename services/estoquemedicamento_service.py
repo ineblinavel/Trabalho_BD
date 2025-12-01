@@ -71,10 +71,32 @@ class EstoqueMedicamentoService:
         # 2. Valida se há estoque suficiente
         if quantidade_consumida <= 0:
             raise ValueError("A quantidade a ser consumida deve ser maior que zero.")
-        
+
         if quantidade_atual < quantidade_consumida:
             raise ValueError(f"Estoque insuficiente. Disponível: {quantidade_atual}, Solicitado: {quantidade_consumida}.")
 
         # 3. Atualiza a quantidade
         nova_quantidade = quantidade_atual - quantidade_consumida
         return self.estoque_repo.update(id_estoque, quantidade=nova_quantidade)
+
+    def consumir_por_medicamento(self, id_medicamento: int, quantidade_total: int):
+        # 1. Busca lotes disponíveis (do que vence antes para o depois)
+        lotes = self.estoque_repo.find_batches_by_medicamento(id_medicamento)
+
+        # 2. Verifica se tem saldo total suficiente
+        estoque_total = sum(l['quantidade'] for l in lotes)
+        if estoque_total < quantidade_total:
+            raise ValueError(f"Estoque insuficiente. Disponível: {estoque_total}, Solicitado: {quantidade_total}")
+
+        # 3. Itera sobre os lotes e consome
+        restante = quantidade_total
+        for lote in lotes:
+            if restante <= 0:
+                break
+
+            qtd_para_tirar = min(lote['quantidade'], restante)
+
+            # Reusa o método consumir_estoque que já existe (ele faz o UPDATE)
+            self.consumir_estoque(lote['id_estoque_medicamento'], qtd_para_tirar)
+
+            restante -= qtd_para_tirar

@@ -1,15 +1,18 @@
 from repositores.PrescricaoRepository import PrescricaoRepository
 from repositores.ConsultasRepository import ConsultasRepository
 from repositores.MedicamentoRepository import MedicamentoRepository
+from services.estoquemedicamento_service import EstoqueMedicamentoService
 
 class PrescricaoService:
-    def __init__(self, 
+    def __init__(self,
                  prescricao_repo: PrescricaoRepository,
                  consulta_repo: ConsultasRepository,
-                 medicamento_repo: MedicamentoRepository):
+                 medicamento_repo: MedicamentoRepository,
+                 estoque_service: EstoqueMedicamentoService):
         self.prescricao_repo = prescricao_repo
         self.consulta_repo = consulta_repo
         self.medicamento_repo = medicamento_repo
+        self.estoque_service = estoque_service
 
     def get_all_prescricoes(self):
         return self.prescricao_repo.find_all()
@@ -21,7 +24,7 @@ class PrescricaoService:
         return self.prescricao_repo.find_by(id_consulta, key="id_consulta")
 
     def create_prescricao(self, id_consulta: int, id_medicamento: int, quantidade: int, dosagem: str, frequencia: str):
-        
+
         # Quantidade deve ser positiva
         if quantidade <= 0:
             raise ValueError("A quantidade prescrita deve ser maior que zero.")
@@ -38,15 +41,17 @@ class PrescricaoService:
 
         # Verificar duplicidade (Mesmo remédio na mesma consulta)
         prescricoes_existentes = self.prescricao_repo.find_by(id_consulta, key="id_consulta")
-        
+
         if prescricoes_existentes:
             if isinstance(prescricoes_existentes, dict):
                 prescricoes_existentes = [prescricoes_existentes]
-                
+
             for p in prescricoes_existentes:
                 if p['id_medicamento'] == id_medicamento:
                     nome_medicamento = medicamento.get('nome_comercial', 'Unknown')
                     raise ValueError(f"O medicamento '{nome_medicamento}' (ID {id_medicamento}) já foi prescrito nesta consulta.")
+
+        self.estoque_service.consumir_por_medicamento(id_medicamento, quantidade)
 
         return self.prescricao_repo.create(
             id_consulta=id_consulta,
