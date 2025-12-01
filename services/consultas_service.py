@@ -12,19 +12,11 @@ class ConsultasService:
         return self.consulta_repo.get_by_medico(crm)
 
     def create_consulta(self, crm: str, id_paciente: int, data_hora: str) -> dict:
-        # 1. Validação de Existência de Médico e Paciente
+        # validação de Existência de Médico e Paciente
         if not self.medico_repo.find_by(crm):
             raise ValueError(f"Médico com CRM {crm} não encontrado ou inativo.")
         if not self.paciente_repo.get_by_id(id_paciente):
             raise ValueError(f"Paciente com ID {id_paciente} não encontrado.")
-
-        # 2. Validação de Duplicidade (não estritamente duplicidade, mas disponibilidade de slot)
-        # O repositório já usa uma procedure SP_AgendarConsulta, que deve garantir a validade
-        # do agendamento (dentro do horário de plantão e não ocupado).
-
-        # Se a stored procedure não garantir a atomicidade e validação,
-        # poderíamos adicionar aqui uma verificação do slot na agenda do médico.
-        # Por enquanto, confiamos na procedure.
 
         return self.consulta_repo.create(crm, id_paciente, data_hora)
 
@@ -37,15 +29,14 @@ class ConsultasService:
             raise ValueError(f"Consulta com ID {id_consulta} não encontrada.")
         return consulta
 
-    def update_consulta(self, id_consulta: int, status: str = None, data_hora: str = None):
+    def update_consulta(self, id_consulta: int, status: str = None, data_hora: str = None, diagnostico: str = None): #
         if not self.consulta_repo.get_by_id(id_consulta):
             raise ValueError(f"Consulta com ID {id_consulta} não encontrada.")
 
-        # Validação do status
-        if status and status not in ['A', 'C', 'R']: # Exemplo: Agendada, Concluída, Remarcada
-            raise ValueError("Status inválido. Use 'A', 'C' ou 'R'.")
+        if status and status not in ['A', 'C', 'R']:
+            raise ValueError("Status inválido.")
 
-        return self.consulta_repo.update(id_consulta, status, data_hora)
+        return self.consulta_repo.update(id_consulta, status, data_hora, diagnostico)
 
     def delete_consulta(self, id_consulta: int):
         if not self.consulta_repo.get_by_id(id_consulta):

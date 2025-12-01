@@ -62,19 +62,21 @@ def init_consultas_routes(consulta_service: ConsultasService):
         data = request.get_json()
         status = data.get('status')
         data_hora = data.get('data_hora_agendamento')
+        diagnostico = data.get('diagnostico')
 
-        if not status and not data_hora:
+        if not any([status, data_hora, diagnostico]): # Verifica se pelo menos um foi enviado
             return jsonify({"error": "No data provided for update"}), 400
 
         try:
             result = consulta_service.update_consulta(
                 id_consulta=id_consulta,
                 status=status,
-                data_hora=data_hora
+                data_hora=data_hora,
+                diagnostico=diagnostico
             )
             return jsonify(result), 200
         except ValueError as e:
-            return jsonify({"error": str(e)}), 404 if "não encontrada" in str(e) else 400
+            return jsonify({"error": str(e)}), 404
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 

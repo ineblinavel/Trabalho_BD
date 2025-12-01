@@ -72,6 +72,13 @@ class AgendaMedicoRepository:
         if not all([crm, data, inicio_platao, fim_platao, duracao_slot_minutos]):
             return []
 
+        # CORREÇÃO: Converter timedelta (retorno do MySQL) para time, se necessário
+        if isinstance(inicio_platao, timedelta):
+            inicio_platao = (datetime.min + inicio_platao).time()
+        
+        if isinstance(fim_platao, timedelta):
+            fim_platao = (datetime.min + fim_platao).time()
+
         query = "SELECT data_hora_agendamento FROM Consulta WHERE crm_medico = %s AND DATE(data_hora_agendamento) = %s;"
         params = (crm, data.strftime('%Y-%m-%d'))
         consultas_do_dia = self.db.fetch_all(query, params)

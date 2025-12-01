@@ -66,7 +66,7 @@ class ConsultasRepository:
             list: Uma lista de dicionários, onde cada dicionário representa uma consulta do médico.
         """
         query = """
-            SELECT c.*, p.nome as nome_paciente 
+            SELECT c.*, p.nome_paciente as nome_paciente 
             FROM Consulta c
             JOIN Paciente p ON c.id_paciente = p.id_paciente
             WHERE c.crm_medico = %s
@@ -74,7 +74,7 @@ class ConsultasRepository:
         """
         return self.db.fetch_all(query, (crm,))
 
-    def update(self, id_consulta: int, status: str = None, data_hora: str = None) -> dict:
+    def update(self, id_consulta: int, status: str = None, data_hora: str = None, diagnostico: str = None) -> dict:
         """
         Atualiza informações de uma consulta existente.
 
@@ -94,8 +94,12 @@ class ConsultasRepository:
             params.append(status)
 
         if data_hora:
-            query += " data_hora = %s,"
+            query += " data_hora_agendamento = %s,"
             params.append(data_hora)
+            
+        if diagnostico:
+            query += " diagnostico = %s,"
+            params.append(diagnostico)
 
         query = query.rstrip(',') + " WHERE id_consulta = %s"
         params.append(id_consulta)
