@@ -1,38 +1,111 @@
 {% extends "base.html" %} {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-5">
+<div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h2 class="h4 mb-0 fw-semibold">Controle de Estoque</h2>
-    <span class="text-muted small"
-      >Gerencie lotes, validades e fornecedores</span
-    >
+    <h2 class="h4 mb-1 fw-semibold">Controle de Estoque</h2>
+    <p class="text-muted small mb-0">Gerenciamento de farmácia e insumos</p>
   </div>
-  <a href="/ui/estoque/novo" class="btn btn-sm btn-primary shadow-sm">
-    <i class="bi bi-box-seam me-2"></i>Novo Lote
+  <a href="/ui/estoque/novo" class="btn btn-primary shadow-sm">
+    <i class="bi bi-plus-lg me-2"></i>Nova Entrada
   </a>
 </div>
 
-<div id="alerta-vencidos-container" class="mb-3"></div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div
+      class="card border-0 shadow-sm border-start border-4 border-success h-100"
+    >
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div
+            class="bg-success bg-opacity-10 p-3 rounded-circle me-3 text-success"
+          >
+            <i class="bi bi-currency-dollar fs-4"></i>
+          </div>
+          <div>
+            <h6 class="card-title text-muted small mb-1">
+              Valor Total em Estoque
+            </h6>
+            <h4 class="mb-0 fw-bold" id="kpi-valor-total">R$ 0,00</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div
+      class="card border-0 shadow-sm border-start border-4 border-warning h-100"
+    >
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div
+            class="bg-warning bg-opacity-10 p-3 rounded-circle me-3 text-warning"
+          >
+            <i class="bi bi-exclamation-triangle fs-4"></i>
+          </div>
+          <div>
+            <h6 class="card-title text-muted small mb-1">
+              Estoque Baixo (< 15un)
+            </h6>
+            <h4 class="mb-0 fw-bold" id="kpi-estoque-baixo">0</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div
+      class="card border-0 shadow-sm border-start border-4 border-danger h-100"
+    >
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div
+            class="bg-danger bg-opacity-10 p-3 rounded-circle me-3 text-danger"
+          >
+            <i class="bi bi-x-octagon fs-4"></i>
+          </div>
+          <div>
+            <h6 class="card-title text-muted small mb-1">Itens Vencidos</h6>
+            <h4 class="mb-0 fw-bold" id="kpi-vencidos">0</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<div class="card border-0 shadow-sm overflow-hidden">
+<div id="alerta-vencidos-container"></div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white border-0 py-3">
+    <div class="input-group">
+      <span class="input-group-text bg-light border-end-0"
+        ><i class="bi bi-search text-muted"></i
+      ></span>
+      <input
+        type="text"
+        class="form-control border-start-0 bg-light"
+        id="input-busca"
+        placeholder="Buscar por medicamento, fabricante ou fornecedor..."
+      />
+    </div>
+  </div>
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0" id="tabela-estoque">
-      <thead class="bg-light">
+      <thead class="bg-light text-uppercase small text-muted">
         <tr>
-          <th class="text-muted small fw-bold">ID</th>
-          <th class="text-muted small fw-bold">Medicamento (ID)</th>
-          <th class="text-muted small fw-bold">Fornecedor (CNPJ)</th>
-          <th class="text-muted small fw-bold">Quantidade</th>
-          <th class="text-muted small fw-bold">Preço Un.</th>
-          <th class="text-muted small fw-bold">Validade</th>
-          <th class="text-muted small fw-bold text-center">Ações</th>
+          <th class="ps-4">Medicamento</th>
+          <th>Fornecedor</th>
+          <th>Validade</th>
+          <th>Qtd.</th>
+          <th>Valor Un.</th>
+          <th class="text-end pe-4">Ações</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td colspan="7" class="text-center text-muted py-5">
+          <td colspan="6" class="text-center text-muted py-5">
             <div
               class="spinner-border spinner-border-sm text-primary me-2"
-              role="status"
             ></div>
             Carregando estoque...
           </td>
@@ -41,6 +114,67 @@
     </table>
   </div>
 </div>
+
+<div class="modal fade" id="modalConsumir" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title h6">Registrar Saída</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-muted mb-3">
+          Quantas unidades deseja retirar deste lote?
+        </p>
+        <input type="hidden" id="id_consumo" />
+        <div class="input-group mb-3">
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            onclick="ajustarQtd(-1)"
+          >
+            -
+          </button>
+          <input
+            type="number"
+            class="form-control text-center"
+            id="qtd_consumo"
+            value="1"
+            min="1"
+          />
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            onclick="ajustarQtd(1)"
+          >
+            +
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-light btn-sm"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          onclick="confirmarConsumo()"
+        >
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %} {% block scripts %}
 <script src="/static/js/estoque.js"></script>
 {% endblock %}

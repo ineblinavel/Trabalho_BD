@@ -66,7 +66,7 @@ class ConsultasRepository:
             list: Uma lista de dicionários, onde cada dicionário representa uma consulta do médico.
         """
         query = """
-            SELECT c.*, p.nome_paciente
+            SELECT c.*, p.nome_paciente, p.cpf
             FROM Consulta c
             JOIN Paciente p ON c.id_paciente = p.id_paciente
             WHERE c.crm_medico = %s

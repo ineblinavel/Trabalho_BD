@@ -40,7 +40,7 @@ class EstoqueMedicamentoRepository:
         possible_keys = ["id_estoque_medicamento", "id_medicamento", "cnpj_fornecedor"]
         if key not in possible_keys:
             raise ValueError(f"Chave de busca inválida. Use uma das seguintes: {possible_keys}")
-        
+
         query = f"SELECT * FROM EstoqueMedicamento WHERE {key} = %s;"
         results = self.db.fetch_all(query, params=(value,))
 
@@ -84,7 +84,7 @@ class EstoqueMedicamentoRepository:
         """
         fields = []
         params = []
-        
+
         for key, value in kwargs.items():
             if key in ["data_validade", "preco_unitario", "quantidade", "id_medicamento", "cnpj_fornecedor"]:
                 if key == "data_validade" and value:
@@ -94,7 +94,7 @@ class EstoqueMedicamentoRepository:
 
         if not fields:
             return {"message": "Nenhum dado fornecido para atualização."}
-        
+
         params.append(id_estoque_medicamento)
         query = f"UPDATE EstoqueMedicamento SET {', '.join(fields)} WHERE id_estoque_medicamento = %s;"
         self.db.execute_query(query, params=tuple(params))
@@ -145,3 +145,14 @@ class EstoqueMedicamentoRepository:
                 datetime.strptime(date_string, '%Y-%m-%d')
         except (ValueError, TypeError):
             raise ValueError(f"Formato de data inválido: '{date_string}'. Use 'YYYY-MM-DD'.")
+
+    def find_batches_by_medicamento(self, id_medicamento: int) -> list:
+        """
+        Busca lotes de um medicamento com saldo positivo, ordenados pelo vencimento (mais antigo primeiro).
+        """
+        query = """
+            SELECT * FROM EstoqueMedicamento
+            WHERE id_medicamento = %s AND quantidade > 0
+            ORDER BY data_validade ASC
+        """
+        return self.db.fetch_all(query, params=(id_medicamento,))

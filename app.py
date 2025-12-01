@@ -161,7 +161,7 @@ app.register_blueprint(init_internacao_routes(internacao_service))
 
 # Prescrições
 # Depende de: PrescricaoRepo, ConsultaRepo, MedicamentoRepo
-prescricao_service = PrescricaoService(prescricao_repo, consultas_repo, medicamento_repo)
+prescricao_service = PrescricaoService(prescricao_repo, consultas_repo, medicamento_repo, estoque_service)
 app.register_blueprint(init_prescricao_routes(prescricao_service))
 
 # Procedimentos

@@ -1,13 +1,23 @@
+// Variável para controle de auto-save
+let autoSaveInterval;
+let listaPrescricao = [];
+
 document.addEventListener("DOMContentLoaded", async () => {
-  const crm = document.getElementById("medico-data").dataset.crm;
+  const dataElement = document.getElementById("medico-data");
+  if (!dataElement) return;
+
+  const crm = dataElement.dataset.crm;
 
   if (!crm || crm === "None") {
-    document.getElementById("agenda-container").innerHTML = `
+    const container = document.getElementById("agenda-container");
+    if (container) {
+      container.innerHTML = `
             <div class="text-center py-5">
                 <i class="bi bi-exclamation-circle text-warning icon-lg mb-3"></i>
                 <p class="text-muted">CRM não identificado na sessão. Por favor, faça login novamente.</p>
             </div>
         `;
+    }
     return;
   }
 
@@ -19,8 +29,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   carregarMedicosSelect();
 });
 
+/* ================== AGENDA MÉDICA ================== */
+
 async function carregarAgenda(crm) {
   const container = document.getElementById("agenda-container");
+  if (!container) return;
 
   try {
     const agendas = await API.get(`/agenda/medico/${crm}`);
@@ -121,8 +134,57 @@ async function verSlots(idAgenda) {
   }
 }
 
+// Handler do formulário de Criar Nova Agenda
+const formAgenda = document.getElementById("form-agenda");
+if (formAgenda) {
+  formAgenda.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Pega o CRM da sessão (que está no HTML)
+    const crm = document.getElementById("medico-data").dataset.crm;
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    // Monta o payload conforme esperado pelo AgendamedicoRoutes.py
+    const payload = {
+      crm_medico: crm,
+      data: data.data,
+      inicio_platao: data.inicio_platao + ":00", // Backend requer HH:MM:SS
+      fim_platao: data.fim_platao + ":00", // Backend requer HH:MM:SS
+      duracao_slot_minutos: parseInt(data.duracao_slot_minutos),
+    };
+
+    try {
+      // Chama a rota POST /agenda/
+      const response = await API.post("/agenda/", payload);
+
+      if (response.error) {
+        alert("Erro ao criar agenda: " + response.error);
+      } else {
+        alert("Plantão configurado com sucesso!");
+
+        // Fecha o modal
+        const modalEl = document.getElementById("modalNovoPlantao");
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        // Limpa e Recarrega
+        e.target.reset();
+        carregarAgenda(crm);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Erro técnico: " + error.message);
+    }
+  });
+}
+
+/* ================== CONSULTAS (FILA DE ESPERA) ================== */
+
 async function carregarConsultas(crm) {
   const container = document.getElementById("consultas-container");
+  if (!container) return;
+
   try {
     const consultas = await API.get(`/consultas/medico/${crm}`);
 
@@ -154,10 +216,13 @@ async function carregarConsultas(crm) {
 
       let buttons = "";
       if (c.status !== "C") {
+        // Passamos também o id_paciente para buscar histórico
         buttons += `
                     <button class="btn btn-sm btn-danger me-2" onclick="abrirModalAtendimento(${
                       c.id_consulta
-                    }, '${c.nome_paciente}', '${c.cpf || ""}')">
+                    }, '${c.nome_paciente}', '${c.cpf || ""}', ${
+          c.id_paciente
+        })">
                         <i class="bi bi-clipboard-pulse me-1"></i> Atender
                     </button>
                 `;
@@ -204,121 +269,115 @@ async function carregarConsultas(crm) {
   }
 }
 
-async function carregarTiposExame() {
-  try {
-    const tipos = await API.get("/tipos-exame/");
-    const select = document.getElementById("tipo_exame_select");
-    select.innerHTML =
-      '<option value="" selected disabled>Selecione um exame...</option>';
-    tipos.forEach((t) => {
-      select.innerHTML += `<option value="${t.id_tipo_exame}">${t.nome_do_exame}</option>`;
-    });
-  } catch (e) {
-    console.error("Erro ao carregar tipos de exame", e);
-  }
-}
+/* ================== ATENDIMENTO & PRESCRIÇÃO (MELHORADO) ================== */
 
-async function carregarPacientesSelect() {
-  try {
-    const pacientes = await API.get("/pacientes/");
-    const select = document.getElementById("solicitacao_paciente");
-    select.innerHTML =
-      '<option value="" selected disabled>Selecione um paciente...</option>';
-    pacientes.forEach((p) => {
-      select.innerHTML += `<option value="${p.id_paciente}">${p.nome_paciente} (CPF: ${p.cpf})</option>`;
-    });
-  } catch (e) {
-    console.error("Erro ao carregar pacientes", e);
-  }
-}
-
-async function carregarMedicosSelect() {
-  try {
-    const medicos = await API.get("/medicos/medicos");
-    const select = document.getElementById("solicitacao_medico");
-    const currentCrm = document.getElementById("medico-data").dataset.crm;
-
-    select.innerHTML =
-      '<option value="" selected disabled>Selecione um médico...</option>';
-    medicos.forEach((m) => {
-      const selected = m.crm === currentCrm ? "selected" : "";
-      select.innerHTML += `<option value="${m.crm}" ${selected}>${m.nome_medico}</option>`;
-    });
-  } catch (e) {
-    console.error("Erro ao carregar médicos", e);
-  }
-}
-
-function abrirModalExame(idConsulta = null, idPaciente = null) {
-  document.getElementById("id_consulta_exame").value = idConsulta || "";
-  document.getElementById("tipo_exame_select").value = "";
-  document.getElementById("solicitacao_data").valueAsDate = new Date();
-
-  const selectPac = document.getElementById("solicitacao_paciente");
-  if (idPaciente) {
-    selectPac.value = idPaciente;
-  } else {
-    selectPac.value = "";
-    selectPac.disabled = false;
-  }
-
-  new bootstrap.Modal(document.getElementById("modalSolicitarExame")).show();
-}
-
-async function confirmarSolicitacaoExame() {
-  const idPaciente = document.getElementById("solicitacao_paciente").value;
-  const idTipo = document.getElementById("tipo_exame_select").value;
-  const dataSolicitacao = document.getElementById("solicitacao_data").value;
-  const crm = document.getElementById("solicitacao_medico").value;
-
-  if (!idPaciente) return alert("Selecione um paciente.");
-  if (!idTipo) return alert("Selecione um tipo de exame.");
-  if (!crm) return alert("Selecione o médico responsável.");
-  if (!dataSolicitacao) return alert("Informe a data da solicitação.");
-
-  const payload = {
-    status: "A",
-    crm_medico_responsavel: crm,
-    data_solicitacao: dataSolicitacao,
-    id_paciente: parseInt(idPaciente),
-    id_tipo_exame: parseInt(idTipo),
-  };
-
-  try {
-    await API.post("/exames/", payload);
-    alert("Exame solicitado com sucesso!");
-
-    const modalEl = document.getElementById("modalSolicitarExame");
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-    modalInstance.hide();
-  } catch (error) {
-    console.error(error);
-    alert("Erro ao solicitar exame: " + (error.error || error.message));
-  }
-}
-
-/* ================== ATENDIMENTO & PRESCRIÇÃO ================== */
-
-let listaPrescricao = [];
-
-async function abrirModalAtendimento(idConsulta, nomePaciente, cpf) {
+// Abre o modal, carrega histórico e rascunho
+async function abrirModalAtendimento(
+  idConsulta,
+  nomePaciente,
+  cpf,
+  idPaciente
+) {
   document.getElementById("atend-id-consulta").value = idConsulta;
+  document.getElementById("atend-id-paciente").value = idPaciente;
   document.getElementById("atend-paciente-nome").textContent = nomePaciente;
   document.getElementById("atend-paciente-cpf").textContent = `CPF: ${
     cpf || "Não informado"
   }`;
-  document.getElementById("atend-diagnostico").value = "";
+
+  // Recupera rascunho (Auto-Save)
+  const rascunho = localStorage.getItem(`rascunho_consulta_${idConsulta}`);
+  if (rascunho) {
+    const dados = JSON.parse(rascunho);
+    document.getElementById("atend-queixa").value = dados.queixa || "";
+    document.getElementById("atend-diagnostico").value =
+      dados.diagnostico || "";
+  } else {
+    document.getElementById("atend-queixa").value = "";
+    document.getElementById("atend-diagnostico").value = "";
+  }
+
+  // Inicia Auto-Save a cada 10s
+  clearInterval(autoSaveInterval);
+  autoSaveInterval = setInterval(() => salvarRascunho(idConsulta), 10000);
 
   listaPrescricao = [];
   renderizarTabelaPrescricao();
+
   await carregarMedicamentosSelect();
+  carregarHistoricoRapido(idPaciente);
 
   new bootstrap.Modal(document.getElementById("modalAtendimento")).show();
 }
 
+function salvarRascunho(idConsulta) {
+  const dados = {
+    queixa: document.getElementById("atend-queixa").value,
+    diagnostico: document.getElementById("atend-diagnostico").value,
+  };
+  localStorage.setItem(
+    `rascunho_consulta_${idConsulta}`,
+    JSON.stringify(dados)
+  );
+}
+
+async function carregarHistoricoRapido(idPaciente) {
+  const container = document.getElementById("historico-rapido-container");
+  if (!container) return;
+
+  container.innerHTML =
+    '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
+
+  try {
+    const historico = await API.get(`/pacientes/${idPaciente}/historico`);
+
+    if (!historico || historico.length === 0) {
+      container.innerHTML =
+        '<div class="p-3 text-muted text-center">Nenhum registro anterior encontrado.</div>';
+      return;
+    }
+
+    let html = "";
+    // Mostra os 3 últimos eventos
+    historico.slice(0, 3).forEach((evento) => {
+      // Ajuste seguro de data
+      let dataTexto = "Data inválida";
+      if (evento.data_evento) {
+        const dataObj = new Date(evento.data_evento);
+        if (!isNaN(dataObj)) {
+          dataTexto = dataObj.toLocaleDateString("pt-BR");
+        }
+      }
+
+      const icon = evento.tipo === "Consulta" ? "bi-person-badge" : "bi-flask";
+
+      html += `
+                <div class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <small class="fw-bold text-primary"><i class="bi ${icon}"></i> ${
+        evento.tipo
+      }</small>
+                        <small class="text-muted">${dataTexto}</small>
+                    </div>
+                    <p class="mb-1 small text-truncate" title="${
+                      evento.descricao
+                    }">${evento.descricao || "Sem descrição"}</p>
+                    <small class="text-muted fst-italic">Dr(a). ${
+                      evento.responsavel
+                    }</small>
+                </div>
+            `;
+    });
+    container.innerHTML = html;
+  } catch (error) {
+    container.innerHTML =
+      '<div class="p-3 text-danger text-center small">Erro ao carregar histórico.</div>';
+  }
+}
+
 async function carregarMedicamentosSelect() {
   const select = document.getElementById("presc-medicamento");
-  if (select.options.length > 1) return;
+  if (!select || select.options.length > 1) return;
 
   try {
     const meds = await API.get("/medicamentos/");
@@ -364,21 +423,26 @@ function adicionarItemPrescricao() {
 
 function renderizarTabelaPrescricao() {
   const tbody = document.querySelector("#tabela-prescricao tbody");
+  if (!tbody) return;
+
   tbody.innerHTML = "";
 
   if (listaPrescricao.length === 0) {
     tbody.innerHTML =
       '<tr><td colspan="3" class="text-center text-muted small">Nenhum medicamento prescrito.</td></tr>';
+    // Atualiza contador no header do card se existir
+    const counter = document.getElementById("presc-count");
+    if (counter) counter.textContent = "0 itens";
     return;
   }
 
   listaPrescricao.forEach((item, index) => {
     tbody.innerHTML += `
             <tr>
-                <td>${item.nome}</td>
+                <td><small>${item.nome}</small></td>
                 <td>
                     <span class="badge bg-light text-dark border me-1">${item.quantidade_prescrita} un</span>
-                    ${item.frequencia_uso}
+                    <small>${item.frequencia_uso}</small>
                 </td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-link text-danger p-0" onclick="removerItemPrescricao(${index})">
@@ -388,6 +452,9 @@ function renderizarTabelaPrescricao() {
             </tr>
         `;
   });
+
+  const counter = document.getElementById("presc-count");
+  if (counter) counter.textContent = `${listaPrescricao.length} itens`;
 }
 
 function removerItemPrescricao(index) {
@@ -397,23 +464,36 @@ function removerItemPrescricao(index) {
 
 async function finalizarAtendimento() {
   const idConsulta = document.getElementById("atend-id-consulta").value;
-  const diagnostico = document.getElementById("atend-diagnostico").value.trim();
+  const queixa = document.getElementById("atend-queixa").value.trim();
+  const diag = document.getElementById("atend-diagnostico").value.trim();
 
-  if (!diagnostico)
+  if (!diag)
     return alert("Por favor, descreva o diagnóstico antes de finalizar.");
 
-  const btnSalvar = document.querySelector("#modalAtendimento .btn-danger");
-  const textoOriginal = btnSalvar.innerHTML;
-  btnSalvar.disabled = true;
-  btnSalvar.innerHTML =
-    '<span class="spinner-border spinner-border-sm"></span> Salvando...';
+  // Combina textos para salvar no campo único do banco
+  const diagnosticoCompleto = `[Queixa]: ${queixa} \n\n[Diagnóstico]: ${diag}`;
+
+  // Botão loading (seletor genérico para pegar o botão primário do footer do modal)
+  const btnSalvar = document.querySelector(
+    "#modalAtendimento .modal-footer .btn-primary"
+  );
+  let textoOriginal = "Concluir Atendimento";
+
+  if (btnSalvar) {
+    textoOriginal = btnSalvar.innerHTML;
+    btnSalvar.disabled = true;
+    btnSalvar.innerHTML =
+      '<span class="spinner-border spinner-border-sm"></span> Salvando...';
+  }
 
   try {
+    // 1. Atualiza Consulta
     await API.put(`/consultas/${idConsulta}`, {
-      diagnostico: diagnostico,
+      diagnostico: diagnosticoCompleto,
       status: "C",
     });
 
+    // 2. Salva Prescrições (Consumo de estoque é feito pelo Backend)
     for (const item of listaPrescricao) {
       await API.post("/prescricoes/", {
         id_consulta: parseInt(idConsulta),
@@ -424,58 +504,134 @@ async function finalizarAtendimento() {
       });
     }
 
+    // 3. Limpeza
+    localStorage.removeItem(`rascunho_consulta_${idConsulta}`);
+    clearInterval(autoSaveInterval);
+
     alert("Atendimento finalizado com sucesso!");
 
-    bootstrap.Modal.getInstance(
-      document.getElementById("modalAtendimento")
-    ).hide();
+    // Fecha modal e recarrega
+    const modalEl = document.getElementById("modalAtendimento");
+    if (modalEl) {
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+    }
     location.reload();
   } catch (e) {
     console.error(e);
-    alert("Erro ao finalizar atendimento: " + e.message);
-    btnSalvar.disabled = false;
-    btnSalvar.innerHTML = textoOriginal;
+    alert("Erro ao finalizar atendimento: " + (e.message || e.error));
+    if (btnSalvar) {
+      btnSalvar.disabled = false;
+      btnSalvar.innerHTML = textoOriginal;
+    }
   }
 }
 
-document.getElementById("form-agenda").addEventListener("submit", async (e) => {
-  e.preventDefault();
+/* ================== SOLICITAÇÃO DE EXAMES ================== */
 
-  // Pega o CRM que já está na página
-  const crm = document.getElementById("medico-data").dataset.crm;
+async function carregarTiposExame() {
+  const select = document.getElementById("tipo_exame_select");
+  if (!select) return;
 
-  const formData = new FormData(e.target);
-  const data = Object.fromEntries(formData.entries());
+  try {
+    const tipos = await API.get("/tipos-exame/");
+    select.innerHTML =
+      '<option value="" selected disabled>Selecione um exame...</option>';
+    tipos.forEach((t) => {
+      select.innerHTML += `<option value="${t.id_tipo_exame}">${t.nome_do_exame}</option>`;
+    });
+  } catch (e) {
+    console.error("Erro ao carregar tipos de exame", e);
+  }
+}
 
-  // Adiciona o CRM e formata os segundos para o backend (HH:MM:00)
+async function carregarPacientesSelect() {
+  const select = document.getElementById("solicitacao_paciente");
+  if (!select) return;
+
+  try {
+    const pacientes = await API.get("/pacientes/");
+    select.innerHTML =
+      '<option value="" selected disabled>Selecione um paciente...</option>';
+    pacientes.forEach((p) => {
+      select.innerHTML += `<option value="${p.id_paciente}">${p.nome_paciente} (CPF: ${p.cpf})</option>`;
+    });
+  } catch (e) {
+    console.error("Erro ao carregar pacientes", e);
+  }
+}
+
+async function carregarMedicosSelect() {
+  const select = document.getElementById("solicitacao_medico");
+  if (!select) return;
+
+  try {
+    const medicos = await API.get("/medicos/medicos");
+    const dataEl = document.getElementById("medico-data");
+    const currentCrm = dataEl ? dataEl.dataset.crm : null;
+
+    select.innerHTML =
+      '<option value="" selected disabled>Selecione um médico...</option>';
+    medicos.forEach((m) => {
+      const selected = m.crm === currentCrm ? "selected" : "";
+      select.innerHTML += `<option value="${m.crm}" ${selected}>${m.nome_medico}</option>`;
+    });
+  } catch (e) {
+    console.error("Erro ao carregar médicos", e);
+  }
+}
+
+function abrirModalExame(idConsulta = null, idPaciente = null) {
+  document.getElementById("id_consulta_exame").value = idConsulta || "";
+  const tipoSelect = document.getElementById("tipo_exame_select");
+  if (tipoSelect) tipoSelect.value = "";
+
+  const dataInput = document.getElementById("solicitacao_data");
+  if (dataInput) dataInput.valueAsDate = new Date();
+
+  const selectPac = document.getElementById("solicitacao_paciente");
+  if (selectPac) {
+    if (idPaciente) {
+      selectPac.value = idPaciente;
+      // Opcional: desabilitar se já veio preenchido
+      // selectPac.disabled = true;
+    } else {
+      selectPac.value = "";
+      selectPac.disabled = false;
+    }
+  }
+
+  new bootstrap.Modal(document.getElementById("modalSolicitarExame")).show();
+}
+
+async function confirmarSolicitacaoExame() {
+  const idPaciente = document.getElementById("solicitacao_paciente").value;
+  const idTipo = document.getElementById("tipo_exame_select").value;
+  const dataSolicitacao = document.getElementById("solicitacao_data").value;
+  const crm = document.getElementById("solicitacao_medico").value;
+
+  if (!idPaciente) return alert("Selecione um paciente.");
+  if (!idTipo) return alert("Selecione um tipo de exame.");
+  if (!crm) return alert("Selecione o médico responsável.");
+  if (!dataSolicitacao) return alert("Informe a data da solicitação.");
+
   const payload = {
-    crm_medico: crm,
-    data: data.data,
-    inicio_platao: data.inicio_platao + ":00", // Backend espera HH:MM:SS
-    fim_platao: data.fim_platao + ":00", // Backend espera HH:MM:SS
-    duracao_slot_minutos: parseInt(data.duracao_slot_minutos),
+    status: "A",
+    crm_medico_responsavel: crm,
+    data_solicitacao: dataSolicitacao,
+    id_paciente: parseInt(idPaciente),
+    id_tipo_exame: parseInt(idTipo),
   };
 
   try {
-    // Chama a rota POST definida em agendamedico_routes.py
-    const response = await API.post("/agenda/", payload);
+    await API.post("/exames/", payload);
+    alert("Exame solicitado com sucesso!");
 
-    if (response.error) {
-      alert("Erro: " + response.error);
-    } else {
-      alert("Plantão configurado com sucesso!");
-
-      // Fecha o modal
-      const modalElement = document.getElementById("modalNovoPlantao");
-      const modal = bootstrap.Modal.getInstance(modalElement);
-      modal.hide();
-
-      // Limpa o form e recarrega a lista
-      e.target.reset();
-      carregarAgenda(crm);
-    }
+    const modalEl = document.getElementById("modalSolicitarExame");
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    modalInstance.hide();
   } catch (error) {
     console.error(error);
-    alert("Erro ao salvar agenda. Verifique se já existe plantão nesta data.");
+    alert("Erro ao solicitar exame: " + (error.error || error.message));
   }
-});
+}
