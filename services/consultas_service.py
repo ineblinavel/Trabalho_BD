@@ -27,8 +27,6 @@ class ConsultasService:
 
         # 2. Validação de Agenda e Disponibilidade
         try:
-            # Converte string para objeto datetime. O formato esperado é 'YYYY-MM-DD HH:MM:SS'
-            # Ajuste se o seu front-end enviar com 'T' no meio
             dt_agendamento = datetime.strptime(data_hora.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
         except ValueError:
             raise ValueError("Formato de data inválido. Use AAAA-MM-DD HH:MM:SS.")
@@ -45,7 +43,6 @@ class ConsultasService:
         slots_disponiveis = self.agenda_repo.find_available_slots(agenda['id_agenda'])
 
         if hora_str not in slots_disponiveis:
-             # Tenta dar uma mensagem de erro mais útil
              inicio = str(agenda['inicio_platao'])
              fim = str(agenda['fim_platao'])
              if not (inicio <= hora_str < fim):
@@ -64,7 +61,7 @@ class ConsultasService:
             raise ValueError(f"Consulta com ID {id_consulta} não encontrada.")
         return consulta
 
-    def update_consulta(self, id_consulta: int, status: str = None, data_hora: str = None):
+    def update_consulta(self, id_consulta: int, status: str = None, data_hora: str = None, diagnostico: str = None):
         if not self.consulta_repo.get_by_id(id_consulta):
             raise ValueError(f"Consulta com ID {id_consulta} não encontrada.")
 
@@ -72,7 +69,8 @@ class ConsultasService:
         if status and status not in ['A', 'C', 'R']:
             raise ValueError("Status inválido. Use 'A', 'C' ou 'R'.")
 
-        return self.consulta_repo.update(id_consulta, status, data_hora)
+        # Passamos o diagnóstico para o repositório
+        return self.consulta_repo.update(id_consulta, status, data_hora, diagnostico)
 
     def delete_consulta(self, id_consulta: int):
         if not self.consulta_repo.get_by_id(id_consulta):
