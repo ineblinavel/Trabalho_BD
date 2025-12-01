@@ -10,10 +10,10 @@ from repositores.MedicamentoRepository import MedicamentoRepository
 from repositores.ExameRepository import ExameRepository
 
 # IMPORTS DOS REPOSITÓRIOS ESPECÍFICOS
-from repositores.AgendaMedicoRepository import AgendaMedicoRepository # NOVO
-from repositores.EstoqueMedicamentoRepository import EstoqueMedicamentoRepository # NOVO
-from repositores.FornecedorRepository import FornecedorRepository # NOVO
-from repositores.InternacaoRepository import InternacaoRepository # NOVO
+from repositores.AgendaMedicoRepository import AgendaMedicoRepository 
+from repositores.EstoqueMedicamentoRepository import EstoqueMedicamentoRepository 
+from repositores.FornecedorRepository import FornecedorRepository
+from repositores.InternacaoRepository import InternacaoRepository
 from repositores.QuartoRepository import QuartoRepository
 from repositores.TipoExameRepository import TipoExameRepository
 from repositores.ResultadoExameRepository import ResultadoExameRepository
@@ -23,20 +23,20 @@ from repositores.RelatoriosRepository import RelatoriosRepository
 from repositores.TelefoneMedicoRepository import TelefoneMedicoRepository
 from repositores.TelefoneEnfermeiroRepository import TelefoneEnfermeiroRepository
 from repositores.TelefonePacienteRepository import TelefonePacienteRepository
-from repositores.UsuarioRepository import UsuarioRepository # NOVO
-from repositores.LogSalarioRepository import LogSalarioRepository # NOVO
+from repositores.UsuarioRepository import UsuarioRepository
+from repositores.LogSalarioRepository import LogSalarioRepository
 
 # IMPORTS DOS SERVIÇOS
 from services.medico_service import MedicoService
-from services.paciente_service import PacienteService # NOVO
-from services.enfermeiro_service import EnfermeiroService # NOVO
-from services.consultas_service import ConsultasService # NOVO
-from services.medicamento_service import MedicamentoService # NOVO
-from services.exame_service import ExameService # NOVO
-from services.agendamedico_service import AgendaMedicoService # NOVO
-from services.fornecedor_service import FornecedorService # NOVO
-from services.estoquemedicamento_service import EstoqueMedicamentoService # NOVO
-from services.internacao_service import InternacaoService # NOVO
+from services.paciente_service import PacienteService
+from services.enfermeiro_service import EnfermeiroService
+from services.consultas_service import ConsultasService
+from services.medicamento_service import MedicamentoService
+from services.exame_service import ExameService
+from services.agendamedico_service import AgendaMedicoService
+from services.fornecedor_service import FornecedorService
+from services.estoquemedicamento_service import EstoqueMedicamentoService
+from services.internacao_service import InternacaoService
 from services.prescricao_service import PrescricaoService
 from services.procedimento_service import ProcedimentoService
 from services.quarto_service import QuartoService
@@ -46,20 +46,20 @@ from services.relatorios_service import RelatoriosService
 from services.telefone_medico_service import TelefoneMedicoService
 from services.telefone_enfermeiro_service import TelefoneEnfermeiroService
 from services.telefone_paciente_service import TelefonePacienteService
-from services.auth_service import AuthService # NOVO
-from services.log_salario_service import LogSalarioService # NOVO
+from services.auth_service import AuthService
+from services.log_salario_service import LogSalarioService
 
 # IMPORTS DAS ROTAS
 from routes.medico_routes import init_medico_routes
-from routes.paciente_routes import init_paciente_routes # NOVO
-from routes.enfermeiro_routes import init_enfermeiro_routes # NOVO
-from routes.consultas_routes import init_consultas_routes # NOVO
-from routes.medicamento_routes import init_medicamento_routes # NOVO
-from routes.exame_routes import init_exame_routes # NOVO
-from routes.agendamedico_routes import init_agendamedico_routes # NOVO
-from routes.fornecedor_routes import init_fornecedor_routes # NOVO
-from routes.estoquemedicamento_routes import init_estoquemedicamento_routes # NOVO
-from routes.internacao_routes import init_internacao_routes # NOVO
+from routes.paciente_routes import init_paciente_routes
+from routes.enfermeiro_routes import init_enfermeiro_routes
+from routes.consultas_routes import init_consultas_routes
+from routes.medicamento_routes import init_medicamento_routes
+from routes.exame_routes import init_exame_routes
+from routes.agendamedico_routes import init_agendamedico_routes
+from routes.fornecedor_routes import init_fornecedor_routes
+from routes.estoquemedicamento_routes import init_estoquemedicamento_routes
+from routes.internacao_routes import init_internacao_routes
 from routes.prescricao_routes import init_prescricao_routes
 from routes.procedimento_routes import init_procedimento_routes
 from routes.quarto_routes import init_quarto_routes
@@ -69,8 +69,8 @@ from routes.relatorios_routes import init_relatorios_routes
 from routes.telefone_medico_routes import init_telefone_medico_routes
 from routes.telefone_enfermeiro_routes import init_telefone_enfermeiro_routes
 from routes.telefone_paciente_routes import init_telefone_paciente_routes
-from routes.auth_routes import init_auth_routes # NOVO
-from routes.log_salario_routes import init_log_salario_routes # NOVO
+from routes.auth_routes import init_auth_routes
+from routes.log_salario_routes import init_log_salario_routes
 
 
 app = Flask(__name__)
@@ -95,14 +95,12 @@ relatorios_repo = RelatoriosRepository(db_connection)
 tel_medico_repo = TelefoneMedicoRepository(db_connection)
 tel_enfermeiro_repo = TelefoneEnfermeiroRepository(db_connection)
 tel_paciente_repo = TelefonePacienteRepository(db_connection)
-usuario_repo = UsuarioRepository(db_connection) # NOVO
-
-# Repositórios adicionados a partir dos novos arquivos
+usuario_repo = UsuarioRepository(db_connection)
 agenda_repo = AgendaMedicoRepository(db_connection)
 fornecedor_repo = FornecedorRepository(db_connection)
 estoque_repo = EstoqueMedicamentoRepository(db_connection)
 internacao_repo = InternacaoRepository(db_connection)
-log_salario_repo = LogSalarioRepository(db_connection) # NOVO
+log_salario_repo = LogSalarioRepository(db_connection)
 
 
 # REGISTRO DOS SERVIÇOS E ROTAS
@@ -119,38 +117,39 @@ app.register_blueprint(init_log_salario_routes(log_salario_service))
 medico_service = MedicoService(medico_repo, usuario_repo)
 app.register_blueprint(init_medico_routes(medico_service))
 
-# Pacientes (NOVO)
+# Pacientes
 paciente_service = PacienteService(paciente_repo)
 app.register_blueprint(init_paciente_routes(paciente_service))
 
-# Enfermeiros (NOVO)
+# Enfermeiros
 enfermeiro_service = EnfermeiroService(enfermeiro_repo, usuario_repo)
 app.register_blueprint(init_enfermeiro_routes(enfermeiro_service))
 
-# Medicamentos (NOVO)
+# Medicamentos
 medicamento_service = MedicamentoService(medicamento_repo)
 app.register_blueprint(init_medicamento_routes(medicamento_service))
 
-# Fornecedores (NOVO)
+# Fornecedores
 fornecedor_service = FornecedorService(fornecedor_repo)
 app.register_blueprint(init_fornecedor_routes(fornecedor_service))
-# Estoque de Medicamentos (NOVO)
+
+# Estoque de Medicamentos
 estoque_service = EstoqueMedicamentoService(estoque_repo, medicamento_repo, fornecedor_repo)
 app.register_blueprint(init_estoquemedicamento_routes(estoque_service))
 
-# Agenda Médica (NOVO)
+# Agenda Médica
 agenda_service = AgendaMedicoService(agenda_repo, medico_repo)
 app.register_blueprint(init_agendamedico_routes(agenda_service))
 
-# Consultas (NOVO)
+# Consultas
 consultas_service = ConsultasService(consultas_repo, medico_repo, paciente_repo)
 app.register_blueprint(init_consultas_routes(consultas_service))
 
-# Exames (NOVO)
+# Exames
 exame_service = ExameService(exame_repo, medico_repo, paciente_repo, tipo_exame_repo)
 app.register_blueprint(init_exame_routes(exame_service))
 
-# Internações (NOVO)
+# Internações
 internacao_service = InternacaoService(internacao_repo, medico_repo, paciente_repo, enfermeiro_repo, quarto_repo)
 app.register_blueprint(init_internacao_routes(internacao_service))
 
