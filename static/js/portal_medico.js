@@ -140,36 +140,41 @@ if (formAgenda) {
   formAgenda.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // Pega o CRM da sessão (que está no HTML)
     const crm = document.getElementById("medico-data").dataset.crm;
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
+    // Monta o payload conforme esperado pelo AgendamedicoRoutes.py
     const payload = {
       crm_medico: crm,
       data: data.data,
-      inicio_platao: data.inicio_platao + ":00",
-      fim_platao: data.fim_platao + ":00",
+      inicio_platao: data.inicio_platao + ":00", // Backend requer HH:MM:SS
+      fim_platao: data.fim_platao + ":00", // Backend requer HH:MM:SS
       duracao_slot_minutos: parseInt(data.duracao_slot_minutos),
     };
 
     try {
+      // Chama a rota POST /agenda/
       const response = await API.post("/agenda/", payload);
 
       if (response.error) {
-        alert("Erro: " + response.error);
+        alert("Erro ao criar agenda: " + response.error);
       } else {
         alert("Plantão configurado com sucesso!");
 
-        const modalElement = document.getElementById("modalNovoPlantao");
-        const modal = bootstrap.Modal.getInstance(modalElement);
+        // Fecha o modal
+        const modalEl = document.getElementById("modalNovoPlantao");
+        const modal = bootstrap.Modal.getInstance(modalEl);
         modal.hide();
 
+        // Limpa e Recarrega
         e.target.reset();
         carregarAgenda(crm);
       }
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar agenda: " + error.message);
+      alert("Erro técnico: " + error.message);
     }
   });
 }

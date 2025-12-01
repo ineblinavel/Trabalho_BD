@@ -82,7 +82,13 @@
                 </p>
               </div>
             </div>
-
+            <button
+              class="btn btn-sm btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#modalNovoPlantao"
+            >
+              <i class="bi bi-plus-lg me-2"></i> Novo Plantão
+            </button>
             <div
               id="agenda-container"
               class="text-center py-5 bg-light rounded border border-dashed"
@@ -496,6 +502,73 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalNovoPlantao" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Configurar Novo Plantão</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-agenda">
+          <div class="mb-3">
+            <label class="form-label fw-bold small text-muted"
+              >Data do Plantão</label
+            >
+            <input type="date" class="form-control" name="data" required />
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label fw-bold small text-muted">Início</label>
+              <input
+                type="time"
+                class="form-control"
+                name="inicio_platao"
+                required
+              />
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-bold small text-muted">Fim</label>
+              <input
+                type="time"
+                class="form-control"
+                name="fim_platao"
+                required
+              />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small text-muted"
+              >Duração da Consulta (minutos)</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              name="duracao_slot_minutos"
+              value="30"
+              min="10"
+              step="5"
+              required
+            />
+            <div class="form-text small">
+              Tempo médio de atendimento por paciente.
+            </div>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-2"></i> Salvar Agenda
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
