@@ -1,6 +1,6 @@
 from flask import Flask, render_template, session, redirect, url_for
 from database.Database import Database
-
+from datetime import timedelta
 # IMPORTS DOS REPOSITÓRIOS BASE
 from repositores.MedicoRepository import MedicoRepository
 from repositores.PacienteRepository import PacienteRepository
@@ -10,8 +10,8 @@ from repositores.MedicamentoRepository import MedicamentoRepository
 from repositores.ExameRepository import ExameRepository
 
 # IMPORTS DOS REPOSITÓRIOS ESPECÍFICOS
-from repositores.AgendaMedicoRepository import AgendaMedicoRepository 
-from repositores.EstoqueMedicamentoRepository import EstoqueMedicamentoRepository 
+from repositores.AgendaMedicoRepository import AgendaMedicoRepository
+from repositores.EstoqueMedicamentoRepository import EstoqueMedicamentoRepository
 from repositores.FornecedorRepository import FornecedorRepository
 from repositores.InternacaoRepository import InternacaoRepository
 from repositores.QuartoRepository import QuartoRepository
@@ -75,6 +75,12 @@ from routes.log_salario_routes import init_log_salario_routes
 
 app = Flask(__name__)
 app.secret_key = 'segredo_muito_basico'
+
+# Define um nome único para o cookie para evitar conflitos com outros apps em localhost
+app.config['SESSION_COOKIE_NAME'] = 'hospitalgest_session'
+# Define que a sessão deve durar por um tempo fixo (ex: 2 horas ou 7 dias)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
+app.config['SESSION_PERMANENT'] = True
 
 # Conexão com Banco de Dados
 db_connection = Database()
@@ -142,7 +148,7 @@ agenda_service = AgendaMedicoService(agenda_repo, medico_repo)
 app.register_blueprint(init_agendamedico_routes(agenda_service))
 
 # Consultas
-consultas_service = ConsultasService(consultas_repo, medico_repo, paciente_repo)
+consultas_service = ConsultasService(consultas_repo, medico_repo, paciente_repo, agenda_repo)
 app.register_blueprint(init_consultas_routes(consultas_service))
 
 # Exames
@@ -200,7 +206,7 @@ app.register_blueprint(init_telefone_paciente_routes(tel_paciente_service))
 def dashboard():
     if 'user_id' not in session:
         return redirect('/login')
-    
+
     role = session.get('role')
     if role == 'admin':
         return redirect('/ui/portal/admin')
@@ -208,7 +214,7 @@ def dashboard():
         return redirect('/ui/portal/medico')
     elif role == 'enfermeiro':
         return redirect('/ui/portal/enfermeiro')
-    
+
     return render_template('index.html')
 
 
