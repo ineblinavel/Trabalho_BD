@@ -37,7 +37,7 @@ class EnfermeiroService:
         return self.enfermeiro_repo.find_all()
 
     def get_enfermeiro_by_corem(self, corem: str):
-        enfermeiro = self.enfermeiro_repo.find_by(corem)
+        enfermeiro = self.enfermeiro_repo.find_by_corem_with_details(corem)
         if not enfermeiro:
             raise ValueError(f"Enfermeiro com COREM {corem} não encontrado.")
         return enfermeiro

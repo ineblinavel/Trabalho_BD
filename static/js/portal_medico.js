@@ -23,11 +23,41 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await carregarAgenda(crm);
   await carregarConsultas(crm);
+  await carregarExames(crm);
+  await carregarNomeMedico(crm);
 
   carregarTiposExame();
   carregarPacientesSelect();
   carregarMedicosSelect();
+
+  // Search Listener
+  const searchInput = document.getElementById('search-exames');
+  if (searchInput) {
+      searchInput.addEventListener('keyup', (e) => {
+          filtrarExames(e.target.value);
+      });
+  }
 });
+
+function formatarNomeMedico(nome) {
+    if (!nome) return '...';
+    if (nome.startsWith("Dr. ") || nome.startsWith("Dra. ")) {
+        return nome;
+    }
+    return `Dr(a). ${nome}`;
+}
+
+async function carregarNomeMedico(crm) {
+    try {
+        const medico = await API.get(`/medicos/${crm}`);
+        const headerTitle = document.querySelector('h1.h3.mb-1');
+        if (headerTitle && medico.nome_medico) {
+            headerTitle.textContent = `Portal Médico - ${formatarNomeMedico(medico.nome_medico)}`;
+        }
+    } catch (e) {
+        console.error("Erro ao carregar nome do médico", e);
+    }
+}
 
 /* ================== AGENDA MÉDICA ================== */
 
@@ -179,27 +209,64 @@ if (formAgenda) {
   });
 }
 
-/* ================== CONSULTAS (FILA DE ESPERA) ================== */
+/* ================== CONSULTAS (FILA DE ESPERA & HISTÓRICO) ================== */
 
 async function carregarConsultas(crm) {
-  const container = document.getElementById("consultas-container");
-  if (!container) return;
+  const containerFila = document.getElementById("consultas-container");
+  const containerHist = document.getElementById("historico-container");
+  
+  if (!containerFila && !containerHist) return;
 
   try {
     const consultas = await API.get(`/consultas/medico/${crm}`);
 
-    if (consultas.length === 0) {
-      container.innerHTML = `
+    // Separação: Fila (Agendada/Outros) vs Histórico (Concluída)
+    const fila = consultas.filter(c => c.status !== 'C');
+    const historico = consultas.filter(c => c.status === 'C');
+
+    // Renderiza Fila de Espera
+    if (containerFila) {
+        if (fila.length === 0) {
+            containerFila.innerHTML = `
                 <div class="text-center py-5">
                     <i class="bi bi-emoji-smile text-muted icon-lg mb-3"></i>
-                    <p class="text-muted">Nenhuma consulta agendada por enquanto.</p>
+                    <p class="text-muted">Nenhuma consulta pendente.</p>
                 </div>
             `;
-      return;
+            containerFila.classList.add("bg-light", "border", "border-dashed");
+        } else {
+            containerFila.innerHTML = renderizarListaConsultas(fila, true);
+            containerFila.classList.remove("text-center", "py-5", "bg-light", "border", "border-dashed");
+        }
     }
 
+    // Renderiza Histórico
+    if (containerHist) {
+        if (historico.length === 0) {
+            containerHist.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-clock-history text-muted icon-lg mb-3"></i>
+                    <p class="text-muted">Nenhum atendimento concluído.</p>
+                </div>
+            `;
+            containerHist.classList.add("bg-light", "border", "border-dashed");
+        } else {
+            containerHist.innerHTML = renderizarListaConsultas(historico, false);
+            containerHist.classList.remove("text-center", "py-5", "bg-light", "border", "border-dashed");
+        }
+    }
+
+  } catch (error) {
+    console.error(error);
+    const erroHtml = `<p class="text-danger text-center">Erro ao carregar consultas: ${error.message}</p>`;
+    if (containerFila) containerFila.innerHTML = erroHtml;
+    if (containerHist) containerHist.innerHTML = erroHtml;
+  }
+}
+
+function renderizarListaConsultas(lista, isFila) {
     let html = '<div class="list-group list-group-flush text-start">';
-    consultas.forEach((c) => {
+    lista.forEach((c) => {
       const dataObj = new Date(c.data_hora_agendamento);
       const data = dataObj.toLocaleDateString("pt-BR");
       const hora = dataObj.toLocaleTimeString("pt-BR", {
@@ -211,27 +278,25 @@ async function carregarConsultas(crm) {
       if (c.status === "C")
         statusBadge = '<span class="badge bg-success ms-2">Concluída</span>';
       else if (c.status === "A")
-        statusBadge =
-          '<span class="badge bg-warning text-dark ms-2">Agendada</span>';
+        statusBadge = '<span class="badge bg-warning text-dark ms-2">Agendada</span>';
 
       let buttons = "";
-      if (c.status !== "C") {
-        // Passamos também o id_paciente para buscar histórico
+      if (isFila) {
         buttons += `
-                    <button class="btn btn-sm btn-danger me-2" onclick="abrirModalAtendimento(${
-                      c.id_consulta
-                    }, '${c.nome_paciente}', '${c.cpf || ""}', ${
-          c.id_paciente
-        })">
-                        <i class="bi bi-clipboard-pulse me-1"></i> Atender
-                    </button>
-                `;
+            <button class="btn btn-sm btn-danger me-2" onclick="abrirModalAtendimento(${c.id_consulta}, '${c.nome_paciente}', '${c.cpf || ""}', ${c.id_paciente})">
+                <i class="bi bi-clipboard-pulse me-1"></i> Atender
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="abrirModalExame(${c.id_consulta}, ${c.id_paciente})">
+                <i class="bi bi-file-medical me-1"></i> Exame
+            </button>
+        `;
+      } else {
+          buttons += `
+            <button class="btn btn-sm btn-outline-secondary" disabled>
+                <i class="bi bi-check2-all me-1"></i> Finalizado
+            </button>
+          `;
       }
-      buttons += `
-                <button class="btn btn-sm btn-outline-primary" onclick="abrirModalExame(${c.id_consulta}, ${c.id_paciente})">
-                    <i class="bi bi-file-medical me-1"></i> Exame
-                </button>
-            `;
 
       html += `
                 <div class="list-group-item px-0 py-3">
@@ -254,19 +319,7 @@ async function carregarConsultas(crm) {
             `;
     });
     html += "</div>";
-
-    container.innerHTML = html;
-    container.classList.remove(
-      "text-center",
-      "py-5",
-      "bg-light",
-      "border",
-      "border-dashed"
-    );
-  } catch (error) {
-    console.error(error);
-    container.innerHTML = `<p class="text-danger text-center">Erro ao carregar consultas: ${error.message}</p>`;
-  }
+    return html;
 }
 
 /* ================== ATENDIMENTO & PRESCRIÇÃO (MELHORADO) ================== */
@@ -570,15 +623,245 @@ async function carregarMedicosSelect() {
     const dataEl = document.getElementById("medico-data");
     const currentCrm = dataEl ? dataEl.dataset.crm : null;
 
-    select.innerHTML =
-      '<option value="" selected disabled>Selecione um médico...</option>';
+    select.innerHTML = '';
+    // select.innerHTML = '<option value="" selected disabled>Selecione um médico...</option>'; // Removido para forçar seleção
+
+    let found = false;
     medicos.forEach((m) => {
-      const selected = m.crm === currentCrm ? "selected" : "";
-      select.innerHTML += `<option value="${m.crm}" ${selected}>${m.nome_medico}</option>`;
+      if (m.crm === currentCrm) {
+          select.innerHTML += `<option value="${m.crm}" selected>${m.nome_medico}</option>`;
+          found = true;
+      }
     });
+    
+    if (!found) {
+         select.innerHTML += `<option value="" selected disabled>Médico logado não encontrado na lista</option>`;
+    }
+
+    // Desabilita o select para impedir troca
+    select.disabled = true;
+
   } catch (e) {
     console.error("Erro ao carregar médicos", e);
+    select.innerHTML = '<option value="" disabled>Erro ao carregar</option>';
   }
+}
+
+/* ================== PLANTÃO RÁPIDO (AUTOMÁTICO) ================== */
+
+// Inicializa o input datetime-local com a data/hora atual
+document.addEventListener("DOMContentLoaded", () => {
+    const inputAuto = document.getElementById("auto-data-inicio");
+    if (inputAuto) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Ajuste fuso
+        inputAuto.value = now.toISOString().slice(0, 16);
+    }
+});
+
+async function criarPlantaoRapido(horasDuracao) {
+    const crm = document.getElementById("medico-data").dataset.crm;
+    const dataInicioInput = document.getElementById("auto-data-inicio").value;
+    const slotMinutos = document.getElementById("auto-slot").value;
+
+    if (!dataInicioInput) return alert("Selecione a data e hora de início.");
+    if (!slotMinutos || slotMinutos <= 0) return alert("Duração do slot inválida.");
+
+    const inicio = new Date(dataInicioInput);
+    const fimTotal = new Date(inicio.getTime() + horasDuracao * 60 * 60 * 1000);
+
+    // Lista de agendas a criar (quebradas por dia)
+    const agendasParaCriar = [];
+    
+    let cursor = new Date(inicio);
+
+    while (cursor < fimTotal) {
+        // Fim do dia atual (23:59:59)
+        let fimDoDia = new Date(cursor);
+        fimDoDia.setHours(23, 59, 59, 999);
+
+        // O fim deste segmento é o menor entre: fim do dia OU fim total do plantão
+        let fimSegmento = (fimTotal < fimDoDia) ? fimTotal : fimDoDia;
+
+        // Formata para o backend
+        const dataStr = cursor.toISOString().split('T')[0];
+        const horaInicioStr = cursor.toTimeString().split(' ')[0]; // HH:MM:SS
+        const horaFimStr = fimSegmento.toTimeString().split(' ')[0]; // HH:MM:SS
+
+        agendasParaCriar.push({
+            crm_medico: crm,
+            data: dataStr,
+            inicio_platao: horaInicioStr,
+            fim_platao: horaFimStr,
+            duracao_slot_minutos: parseInt(slotMinutos)
+        });
+
+        // Avança o cursor para o início do próximo dia (00:00:00)
+        cursor = new Date(fimDoDia.getTime() + 1000); // +1ms vira 00:00:00 do dia seguinte
+    }
+
+    if (!confirm(`Isso criará ${agendasParaCriar.length} registro(s) de agenda para cobrir as ${horasDuracao}h. Confirmar?`)) {
+        return;
+    }
+
+    // Envia requisições em sequência
+    let erros = 0;
+    for (const agenda of agendasParaCriar) {
+        try {
+            const response = await API.post("/agenda/", agenda);
+            if (response.error) throw new Error(response.error);
+        } catch (e) {
+            console.error(e);
+            erros++;
+        }
+    }
+
+    if (erros > 0) {
+        alert(`Processo finalizado com ${erros} erro(s). Verifique sua agenda.`);
+    } else {
+        alert("Plantão configurado com sucesso!");
+        
+        // Fecha modal
+        const modalEl = document.getElementById("modalNovoPlantao");
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        carregarAgenda(crm);
+    }
+}
+
+/* ================== EXAMES ================== */
+
+let todosExames = [];
+
+async function carregarExames(crm) {
+    const container = document.getElementById("exames-container");
+    if (!container) return;
+
+    try {
+        // Agora busca TODOS os exames, não apenas os do médico
+        const exames = await API.get(`/exames/`);
+        todosExames = exames; // Salva para filtro local
+
+        renderizarExames(exames);
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = `<p class="text-danger text-center">Erro ao carregar exames: ${error.message}</p>`;
+    }
+}
+
+function renderizarExames(exames) {
+    const container = document.getElementById("exames-container");
+    if (!container) return;
+
+    if (exames.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="bi bi-clipboard-x text-muted icon-lg mb-3"></i>
+                <p class="text-muted">Nenhum exame encontrado.</p>
+            </div>
+        `;
+        container.classList.add("bg-light", "border", "border-dashed");
+        return;
+    }
+
+    let html = '<div class="list-group list-group-flush text-start">';
+    exames.forEach(e => {
+        const dataSol = new Date(e.data_solicitacao).toLocaleDateString('pt-BR');
+        let statusBadge = '';
+        let statusText = '';
+        let actionButton = '';
+        let resultadoPreview = '';
+        
+        // Se tiver resultado, trata como 'R' mesmo que o status esteja desatualizado
+        let statusReal = e.status;
+        if (e.resultado_obtido && statusReal !== 'R') {
+            statusReal = 'R';
+        }
+
+        switch(statusReal) {
+            case 'A': 
+                statusBadge = 'bg-warning text-dark'; 
+                statusText = 'Agendado'; 
+                actionButton = `<button class="btn btn-sm btn-outline-primary" onclick="abrirModalResultado(${e.id_exame})">
+                                    <i class="bi bi-pencil-square me-1"></i> Registrar Resultado
+                                </button>`;
+                break;
+            case 'C': 
+                statusBadge = 'bg-info text-white'; 
+                statusText = 'Coletado'; 
+                actionButton = `<button class="btn btn-sm btn-outline-primary" onclick="abrirModalResultado(${e.id_exame})">
+                                    <i class="bi bi-pencil-square me-1"></i> Registrar Resultado
+                                </button>`;
+                break;
+            case 'R': 
+                statusBadge = 'bg-success'; 
+                statusText = 'Resultado Disponível'; 
+                actionButton = `<button class="btn btn-sm btn-outline-success" onclick="verResultado(${e.id_exame})">
+                                    <i class="bi bi-file-earmark-text me-1"></i> Ver Laudo
+                                </button>`;
+                break;
+            default: 
+                statusBadge = 'bg-secondary'; 
+                statusText = e.status;
+        }
+
+        if (e.resultado_obtido) {
+            resultadoPreview = `
+                <div class="mt-2 p-2 bg-light rounded border border-success bg-opacity-10">
+                    <small class="fw-bold text-success"><i class="bi bi-check-circle me-1"></i> Resultado:</small>
+                    <p class="mb-0 small text-muted text-truncate" style="max-width: 600px;">${e.resultado_obtido}</p>
+                </div>
+            `;
+        }
+
+        html += `
+            <div class="list-group-item px-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="d-flex align-items-center mb-1">
+                            <h6 class="mb-0 fw-bold">${e.nome_paciente}</h6>
+                            <span class="badge ${statusBadge} ms-2">${statusText}</span>
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-calendar3 me-1"></i> Solicitado em: ${dataSol}
+                            <span class="mx-2">•</span>
+                            <span class="fw-bold text-dark">${e.nome_do_exame}</span>
+                            <span class="mx-2">•</span>
+                            <span class="fst-italic">${formatarNomeMedico(e.nome_medico_responsavel)}</span>
+                        </small>
+                        ${resultadoPreview}
+                    </div>
+                    <div>
+                        ${actionButton}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    container.innerHTML = html;
+    container.classList.remove("text-center", "py-5", "bg-light", "border", "border-dashed");
+}
+
+function filtrarExames(termo) {
+    if (!termo) {
+        renderizarExames(todosExames);
+        return;
+    }
+    
+    const termoLower = termo.toLowerCase();
+    const filtrados = todosExames.filter(e => 
+        e.nome_paciente.toLowerCase().includes(termoLower) ||
+        e.nome_do_exame.toLowerCase().includes(termoLower) ||
+        (e.nome_medico_responsavel && e.nome_medico_responsavel.toLowerCase().includes(termoLower)) ||
+        (e.status === 'A' && 'agendado'.includes(termoLower)) ||
+        (e.status === 'C' && 'coletado'.includes(termoLower)) ||
+        ((e.status === 'R' || e.resultado_obtido) && 'resultado'.includes(termoLower))
+    );
+    
+    renderizarExames(filtrados);
 }
 
 function abrirModalExame(idConsulta = null, idPaciente = null) {
@@ -634,4 +917,67 @@ async function confirmarSolicitacaoExame() {
     console.error(error);
     alert("Erro ao solicitar exame: " + (error.error || error.message));
   }
+}
+
+async function verResultado(idExame) {
+    const modalEl = document.getElementById('modalVerResultado');
+    const modal = new bootstrap.Modal(modalEl);
+    
+    // Limpa campos anteriores
+    document.getElementById('res-nome-exame').textContent = 'Carregando...';
+    document.getElementById('res-data').textContent = '...';
+    document.getElementById('res-texto').textContent = 'Buscando resultado...';
+    
+    modal.show();
+
+    try {
+        const exame = await API.get(`/exames/${idExame}`);
+        
+        document.getElementById('res-nome-exame').textContent = exame.nome_do_exame || 'Exame';
+        
+        const dataRes = exame.data_resultado ? new Date(exame.data_resultado).toLocaleDateString('pt-BR') : 'Data não informada';
+        document.getElementById('res-data').textContent = dataRes;
+        
+        document.getElementById('res-texto').textContent = exame.resultado_obtido || 'Nenhum resultado registrado.';
+        
+    } catch (error) {
+        console.error(error);
+        document.getElementById('res-texto').innerHTML = `<span class="text-danger">Erro ao carregar resultado: ${error.message}</span>`;
+    }
+}
+
+function abrirModalResultado(idExame) {
+    document.getElementById("id_exame_resultado").value = idExame;
+    document.getElementById("data_resultado").valueAsDate = new Date();
+    document.querySelector("textarea[name='resultado_obtido']").value = "";
+    
+    const modal = new bootstrap.Modal(document.getElementById("modalRegistrarResultado"));
+    modal.show();
+}
+
+// Handler para salvar resultado
+const formResultado = document.getElementById("form-resultado");
+if (formResultado) {
+    formResultado.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            await API.post("/resultados-exame/", data);
+            alert("Resultado registrado com sucesso!");
+            
+            // Fecha modal
+            const modalEl = document.getElementById("modalRegistrarResultado");
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+            
+            // Recarrega lista
+            const crm = document.getElementById("medico-data").dataset.crm;
+            carregarExames(crm);
+            
+        } catch (error) {
+            alert("Erro ao registrar resultado: " + (error.message || error.error));
+        }
+    });
 }

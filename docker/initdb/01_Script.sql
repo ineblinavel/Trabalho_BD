@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS Medicos (
   cpf VARCHAR(14) UNIQUE NOT NULL,
   salario DECIMAL(10,2) NOT NULL,
   ativo BOOLEAN DEFAULT TRUE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS AgendaMedico (
   id_agenda INT AUTO_INCREMENT PRIMARY KEY,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS AgendaMedico (
   FOREIGN KEY (crm_medico) REFERENCES Medicos (crm)
 	ON DELETE CASCADE
     ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Paciente (
   id_paciente INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS Paciente (
   endereco VARCHAR(255),
   nome_paciente VARCHAR(255) NOT NULL,
   foto LONGBLOB
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Consulta (
   id_consulta INT AUTO_INCREMENT PRIMARY KEY,
@@ -41,14 +41,14 @@ CREATE TABLE IF NOT EXISTS Consulta (
   FOREIGN KEY (id_paciente) REFERENCES Paciente (id_paciente)
 	ON DELETE CASCADE
     ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS TipoExame (
   id_tipo_exame INT AUTO_INCREMENT PRIMARY KEY,
   nome_do_exame VARCHAR(255) NOT NULL,
   descricao VARCHAR(45),
   preco DECIMAL(10,2) NOT NULL
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Exame (
   id_exame INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS Exame (
   FOREIGN KEY (id_tipo_exame) REFERENCES TipoExame (id_tipo_exame)
 	ON DELETE RESTRICT
     ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS ResultadoExame (
   id_resultado_exame INT AUTO_INCREMENT PRIMARY KEY,
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS ResultadoExame (
   FOREIGN KEY (id_exame) REFERENCES Exame (id_exame)
 	ON DELETE CASCADE
     ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Procedimento (
   id_procedimento INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,20 +91,20 @@ CREATE TABLE IF NOT EXISTS Procedimento (
   FOREIGN KEY (id_paciente) REFERENCES Paciente (id_paciente)
 	ON DELETE CASCADE
     ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Enfermeiro (
   corem VARCHAR(15) PRIMARY KEY,
   cpf VARCHAR(14) UNIQUE NOT NULL,
   nome_enfermeiro VARCHAR(255) NOT NULL
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Quarto (
   id_quarto INT AUTO_INCREMENT PRIMARY KEY,
   num_quarto INT UNIQUE NOT NULL,
   tipo_de_quarto VARCHAR(20) NOT NULL,
   valor_diaria DECIMAL(10,2)
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Internacao (
   id_internacao INT AUTO_INCREMENT PRIMARY KEY,
@@ -127,18 +127,18 @@ CREATE TABLE IF NOT EXISTS Internacao (
   FOREIGN KEY (id_paciente) REFERENCES Paciente (id_paciente)
 	ON DELETE RESTRICT
     ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Medicamento (
   id_medicamento INT AUTO_INCREMENT PRIMARY KEY,
   fabricante VARCHAR(45),
   nome_comercial VARCHAR(45)
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Fornecedor (
   cnpj VARCHAR(18) PRIMARY KEY,
   nome_empresa VARCHAR(255)
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS EstoqueMedicamento (
   id_estoque_medicamento INT AUTO_INCREMENT PRIMARY KEY,
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS EstoqueMedicamento (
   FOREIGN KEY (cnpj_fornecedor) REFERENCES Fornecedor (cnpj)
 	ON DELETE CASCADE
     ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS TelefoneMedico (
     id_telefone_medico INT AUTO_INCREMENT PRIMARY KEY,
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS TelefoneMedico (
     FOREIGN KEY (crm_medico) REFERENCES Medicos (crm)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS TelefoneEnfermeiro (
     id_telefone_enfermeiro INT AUTO_INCREMENT PRIMARY KEY,
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS TelefoneEnfermeiro (
     FOREIGN KEY (corem_enfermeiro) REFERENCES Enfermeiro (corem)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS TelefonePaciente (
     id_telefone_paciente INT AUTO_INCREMENT PRIMARY KEY,
@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS TelefonePaciente (
     FOREIGN KEY (id_paciente) REFERENCES Paciente (id_paciente)
         ON DELETE CASCADE 
         ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Prescricao (
     id_prescricao INT AUTO_INCREMENT PRIMARY KEY,
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS Prescricao (
     FOREIGN KEY (id_medicamento) REFERENCES Medicamento (id_medicamento)
         ON DELETE RESTRICT 
         ON UPDATE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS LogSalario (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS LogSalario (
     salario_antigo DECIMAL(10,2),
     salario_novo DECIMAL(10,2),
     data_alteracao DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS Usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
@@ -215,4 +215,4 @@ CREATE TABLE IF NOT EXISTS Usuarios (
     password VARCHAR(255) NOT NULL, -- Em produção, usar hash!
     role ENUM('admin', 'medico', 'enfermeiro') NOT NULL,
     referencia_id VARCHAR(15) -- Pode ser CRM, COREM ou NULL (admin)
-);
+) DEFAULT CHARSET=utf8mb4;

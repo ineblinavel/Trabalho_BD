@@ -26,7 +26,7 @@ class ExameService:
         return self.exame_repo.create(status, crm_medico_responsavel, data_solicitacao, id_paciente, id_tipo_exame, data_coleta)
 
     def get_all_exames(self):
-        return self.exame_repo.find_all()
+        return self.exame_repo.find_all_with_details()
 
     def get_exame_details_by_id(self, id_exame: int):
         exame = self.exame_repo.find_with_details_by_id(id_exame)
@@ -41,6 +41,11 @@ class ExameService:
             raise ValueError("Status inválido. Use 'A', 'C' ou 'R'.")
 
         return self.exame_repo.find_by_paciente_and_status(id_paciente, status)
+
+    def get_exames_by_medico(self, crm: str):
+        if not self.medico_repo.find_by(crm):
+            raise ValueError(f"Médico com CRM {crm} não encontrado.")
+        return self.exame_repo.find_by_medico(crm)
 
     def update_exame(self, id_exame: int, **kwargs):
         if not self.exame_repo.find_by(id_exame):

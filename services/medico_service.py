@@ -27,8 +27,11 @@ class MedicoService:
         
         return result
 
-    def get_all_medicos(self):
-        return self.medico_repo.find_all()
+    def get_all_medicos(self, include_inactive: bool = False):
+        return self.medico_repo.find_all(include_inactive=include_inactive)
+
+    def get_medico_by_crm(self, crm: str):
+        return self.medico_repo.find_by_crm_with_phones(crm)
     
     def update_medico(self, crm: str, nome_medico: str = None, cpf: str = None, salario: float = None):
         if not self.medico_repo.find_by(crm):
@@ -42,6 +45,12 @@ class MedicoService:
         return self.medico_repo.update(crm, **update_data)
 
     def delete_medico(self, crm: str):
-        if not self.medico_repo.get_by_crm(crm):
-            raise ValueError(f"Médico com CRM {crm} não encontrado.")
-        return self.medico_repo.delete(crm)
+        # Soft delete (Desativar)
+        if not self.medico_repo.find_by(crm, active_only=False):
+             raise ValueError(f"Médico com CRM {crm} não encontrado.")
+        return self.medico_repo.deactivate(crm)
+
+    def reactivate_medico(self, crm: str):
+        if not self.medico_repo.find_by(crm, active_only=False):
+             raise ValueError(f"Médico com CRM {crm} não encontrado.")
+        return self.medico_repo.reactivate(crm)

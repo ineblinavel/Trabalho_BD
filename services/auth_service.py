@@ -6,6 +6,6 @@ class AuthService:
 
     def login(self, username, password):
         user = self.usuario_repo.get_by_username(username)
-        if user and user['password'] == password: # Em produção, usar check_password_hash
+        if user and user['password'] == password: 
             return user
         return None

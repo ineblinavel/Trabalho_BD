@@ -39,3 +39,12 @@ class QuartoService:
         return self.repo.update(num_quarto, 
                                 tipo_de_quarto=update_data.get('tipo_de_quarto'), 
                                 valor_diaria=update_data.get('valor_diaria'))
+
+    def delete(self, num_quarto: int):
+        if not self.repo.get_by_id(num_quarto):
+            raise ValueError(f"Quarto número {num_quarto} não encontrado.")
+        
+        # Opcional: Verificar se o quarto está ocupado antes de deletar
+        # Mas o banco deve barrar se houver FK (Internacao)
+        
+        return self.repo.delete(num_quarto)

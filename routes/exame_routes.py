@@ -12,6 +12,7 @@ def init_exame_routes(exame_service: ExameService):
             for e in exames:
                 if e.get('data_coleta'): e['data_coleta'] = e['data_coleta'].strftime('%Y-%m-%d')
                 e['data_solicitacao'] = e['data_solicitacao'].strftime('%Y-%m-%d')
+                if e.get('data_resultado'): e['data_resultado'] = e['data_resultado'].strftime('%Y-%m-%d')
             return jsonify(exames), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
@@ -40,6 +41,20 @@ def init_exame_routes(exame_service: ExameService):
             return jsonify(exames), 200
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @exame_bp.route('/medico/<string:crm>', methods=['GET'])
+    def get_exames_by_medico(crm):
+        try:
+            exames = exame_service.get_exames_by_medico(crm)
+            for e in exames:
+                if e.get('data_coleta'): e['data_coleta'] = e['data_coleta'].strftime('%Y-%m-%d')
+                e['data_solicitacao'] = e['data_solicitacao'].strftime('%Y-%m-%d')
+                if e.get('data_resultado'): e['data_resultado'] = e['data_resultado'].strftime('%Y-%m-%d')
+            return jsonify(exames), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 

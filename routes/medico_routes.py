@@ -11,11 +11,24 @@ def init_medico_routes(medico_service: MedicoService):
     @medico_bp.route('/medicos', methods=['GET'])
     def get_medicos():
         try:
-            medicos = medico_service.get_all_medicos()
+            include_inactive = request.args.get('include_inactive', 'false').lower() == 'true'
+            medicos = medico_service.get_all_medicos(include_inactive=include_inactive)
             return jsonify(medicos), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @medico_bp.route('/<string:crm>', methods=['GET'])
+    def get_medico(crm):
+        try:
+            medico = medico_service.get_medico_by_crm(crm)
+            if medico:
+                return jsonify(medico), 200
+            return jsonify({'error': 'Médico não encontrado'}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @medico_bp.route('', methods=['POST'])
+    @medico_bp.route('/', methods=['POST'])
     @medico_bp.route('/medicos', methods=['POST'])
     def create_medico():
         data = request.get_json()
@@ -59,6 +72,16 @@ def init_medico_routes(medico_service: MedicoService):
     def delete_medico(crm):
         try:
             result = medico_service.delete_medico(crm)
+            return jsonify(result), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @medico_bp.route('/<string:crm>/reactivate', methods=['POST'])
+    def reactivate_medico(crm):
+        try:
+            result = medico_service.reactivate_medico(crm)
             return jsonify(result), 200
         except ValueError as e:
             return jsonify({'error': str(e)}), 404

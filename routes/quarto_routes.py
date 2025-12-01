@@ -41,4 +41,14 @@ def init_quarto_routes(service: QuartoService):
     def update(num_quarto):
         return jsonify(service.update(num_quarto, request.get_json())), 200
 
+    # Rota DELETE
+    @bp.route('/<int:num_quarto>', methods=['DELETE'])
+    def delete(num_quarto):
+        try:
+            return jsonify(service.delete(num_quarto)), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     return bp

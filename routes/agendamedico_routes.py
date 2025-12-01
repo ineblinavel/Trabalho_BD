@@ -110,4 +110,29 @@ def init_agendamedico_routes(agenda_service: AgendaMedicoService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @agenda_bp.route('/medico/<string:crm>/data/<string:data>', methods=['GET'])
+    def get_agenda_by_medico_and_date(crm, data):
+        try:
+            agenda = agenda_service.get_agenda_by_medico_and_date(crm, data)
+            if agenda:
+                # Helper para converter para string de forma segura
+                def safe_str(val):
+                    if val is None: return ""
+                    return str(val)
+
+                # Trata data
+                if hasattr(agenda['data'], 'strftime'):
+                    agenda['data'] = agenda['data'].strftime('%Y-%m-%d')
+                else:
+                    agenda['data'] = safe_str(agenda['data'])
+
+                # Trata horários (timedelta ou time)
+                agenda['inicio_platao'] = safe_str(agenda['inicio_platao'])
+                agenda['fim_platao'] = safe_str(agenda['fim_platao'])
+                
+                return jsonify(agenda), 200
+            return jsonify({'error': 'Agenda não encontrada para esta data'}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     return agenda_bp

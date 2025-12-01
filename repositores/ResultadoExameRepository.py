@@ -50,8 +50,7 @@ class ResultadoExameRepository:
 
     def create(self, id_exame: int, resultado_obtido: str, data_resultado: str) -> dict:
         """
-        Cria um novo resultado de exame e atualiza o status do exame.
-        Utiliza a Stored Procedure SP_RegistrarResultadoExame.
+        Cria um novo resultado de exame chamando a Stored Procedure SP_RegistrarResultadoExame.
 
         Args:
             id_exame (int): ID do exame associado.
@@ -62,9 +61,12 @@ class ResultadoExameRepository:
             dict: Dicionário com mensagem de sucesso.
         """
         self._validate_date(data_resultado)
+        
+        # Chama a Procedure que faz o INSERT e o UPDATE do status
         query = "CALL SP_RegistrarResultadoExame(%s, %s, %s);"
         params = (id_exame, resultado_obtido, data_resultado)
         self.db.execute_query(query, params=params)
+        
         return {"message": "Resultado de exame registrado com sucesso."}
 
     def update(self, id_resultado_exame: int, **kwargs) -> dict:

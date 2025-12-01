@@ -107,6 +107,7 @@ class MedicoRepository:
     def find_by_crm_with_phones(self, crm: str) -> dict | None:
         """
         Busca um médico pelo CRM e agrega seus telefones em uma lista.
+        Também busca a senha do usuário associado.
 
         Args:
             crm (str): O CRM do médico a ser buscado.
@@ -116,11 +117,12 @@ class MedicoRepository:
                          ou None se não for encontrado.
         """
         query = """
-            SELECT m.*, GROUP_CONCAT(tm.numero_telefone) as telefones
+            SELECT m.*, u.password, GROUP_CONCAT(tm.numero_telefone) as telefones
             FROM Medicos m
             LEFT JOIN TelefoneMedico tm ON m.crm = tm.crm_medico
+            LEFT JOIN Usuarios u ON m.crm = u.referencia_id
             WHERE m.crm = %s
-            GROUP BY m.crm;
+            GROUP BY m.crm, u.password;
         """
         result = self.db.fetch_one(query, params=(crm,))
         if result and result.get('telefones'):

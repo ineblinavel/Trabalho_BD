@@ -13,10 +13,9 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      # Volume para persistência dos dados do MySQL
       - mysql_data:/var/lib/mysql
-      # Volume para executar os scripts de inicialização do banco de dados
       - ./docker/initdb:/docker-entrypoint-initdb.d
+      - ./docker/initdb/fotos:/var/lib/mysql-files
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
       interval: 10s

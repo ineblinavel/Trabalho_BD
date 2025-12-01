@@ -80,12 +80,18 @@ async function carregarMapaLeitos() {
         `;
       }
 
-      // Botão de Editar (Pequeno, no topo)
+      // Botão de Editar e Deletar (Pequenos, no topo)
       const editBtn = `
-        <button class="btn btn-sm btn-link text-muted p-0 position-absolute top-0 end-0 mt-2 me-2" 
-                onclick="abrirModalEditarQuarto(${quarto.num_quarto}, '${quarto.tipo_de_quarto}', ${quarto.valor_diaria})">
-            <i class="bi bi-pencil-square"></i>
-        </button>
+        <div class="position-absolute top-0 end-0 mt-2 me-2">
+            <button class="btn btn-sm btn-link text-muted p-0 me-1" 
+                    onclick="abrirModalEditarQuarto(${quarto.num_quarto}, '${quarto.tipo_de_quarto}', ${quarto.valor_diaria})">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn btn-sm btn-link text-danger p-0" 
+                    onclick="deletarQuarto(${quarto.num_quarto})">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
       `;
 
       const card = `
@@ -200,4 +206,16 @@ function atualizarKPIs(total, livres, ocupados) {
   if (elTotal) elTotal.textContent = total;
   if (elLivres) elLivres.textContent = livres;
   if (elOcupados) elOcupados.textContent = ocupados;
+}
+
+async function deletarQuarto(num_quarto) {
+    if (confirm(`Tem certeza que deseja excluir o quarto ${num_quarto}?`)) {
+        try {
+            await API.delete(`/quartos/${num_quarto}`);
+            alert("Quarto excluído com sucesso!");
+            carregarMapaLeitos();
+        } catch (error) {
+            alert("Erro ao excluir quarto: " + error.message);
+        }
+    }
 }

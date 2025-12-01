@@ -23,15 +23,17 @@
             </select>
           </div>
 
-          <div class="mb-4">
-            <label for="data_hora" class="form-label">Data e Hora</label>
-            <input
-              type="datetime-local"
-              class="form-control"
-              id="data_hora"
-              name="data_hora_agendamento"
-              required
-            />
+          <div class="row mb-4">
+            <div class="col-md-6">
+                <label for="data_consulta" class="form-label">Data</label>
+                <input type="date" class="form-control" id="data_consulta" required>
+            </div>
+            <div class="col-md-6">
+                <label for="hora_consulta" class="form-label">Horário Disponível</label>
+                <select class="form-select" id="hora_consulta" required disabled>
+                    <option value="" selected disabled>Selecione médico e data...</option>
+                </select>
+            </div>
           </div>
 
           <div class="d-grid gap-2 d-md-flex justify-content-md-end">

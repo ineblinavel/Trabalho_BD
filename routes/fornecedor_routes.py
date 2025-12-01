@@ -12,7 +12,7 @@ def init_fornecedor_routes(fornecedor_service: FornecedorService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    @fornecedor_bp.route('/<string:cnpj>', methods=['GET'])
+    @fornecedor_bp.route('/<path:cnpj>', methods=['GET'])
     def get_fornecedor(cnpj):
         try:
             fornecedor = fornecedor_service.get_fornecedor_by_cnpj(cnpj)
@@ -40,7 +40,7 @@ def init_fornecedor_routes(fornecedor_service: FornecedorService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    @fornecedor_bp.route('/<string:cnpj>', methods=['PUT'])
+    @fornecedor_bp.route('/<path:cnpj>', methods=['PUT'])
     def update_fornecedor(cnpj):
         data = request.get_json()
         nome_empresa = data.get('nome_empresa')
@@ -59,7 +59,7 @@ def init_fornecedor_routes(fornecedor_service: FornecedorService):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    @fornecedor_bp.route('/<string:cnpj>', methods=['DELETE'])
+    @fornecedor_bp.route('/<path:cnpj>', methods=['DELETE'])
     def delete_fornecedor(cnpj):
         try:
             result = fornecedor_service.delete_fornecedor(cnpj)

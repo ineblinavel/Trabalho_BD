@@ -24,7 +24,7 @@ async function carregarEnfermeiros() {
                 <td>${enf.cpf}</td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-outline-primary border-0 me-1" 
-                        onclick="abrirModalEditar('${enf.corem}', '${enf.nome_enfermeiro}', '${enf.cpf}')">
+                        onclick="abrirModalEditar('${enf.corem}')">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger border-0" onclick="deletarEnfermeiro('${enf.corem}')">
@@ -80,14 +80,22 @@ async function salvarEnfermeiro() {
     }
 }
 
-function abrirModalEditar(corem, nome, cpf) {
-    document.getElementById('corem').value = corem;
-    document.getElementById('nome_enfermeiro').value = nome;
-    document.getElementById('cpf').value = cpf;
-    document.getElementById('is_edit_enfermeiro').value = 'true';
-    document.getElementById('corem').readOnly = true;
-    
-    new bootstrap.Modal(document.getElementById('modalNovoEnfermeiro')).show();
+async function abrirModalEditar(corem) {
+    try {
+        const enf = await API.get(`/enfermeiros/${corem}`);
+        
+        document.getElementById('corem').value = enf.corem;
+        document.getElementById('nome_enfermeiro').value = enf.nome_enfermeiro;
+        document.getElementById('cpf').value = enf.cpf;
+        document.getElementById('password').value = enf.password || '********'; // Mostra a senha ou placeholder
+        
+        document.getElementById('is_edit_enfermeiro').value = 'true';
+        document.getElementById('corem').readOnly = true;
+        
+        new bootstrap.Modal(document.getElementById('modalNovoEnfermeiro')).show();
+    } catch (e) {
+        alert("Erro ao carregar dados do enfermeiro: " + e.message);
+    }
 }
 
 async function deletarEnfermeiro(corem) {

@@ -41,50 +41,85 @@ class AgendaMedicoRepository:
             return []
 
         crm = agenda_data.get("crm_medico")
-        data = agenda_data.get("data")
-
-        # --- CORREÇÃO DE TIPO (TIMEDELTA -> TIME) ---
-        def ensure_time(val):
-            # Se vier do banco como timedelta, converte para time
-            if isinstance(val, timedelta):
-                return (datetime.min + val).time()
-            return val
-
-        inicio_platao = ensure_time(agenda_data.get("inicio_platao"))
-        fim_platao = ensure_time(agenda_data.get("fim_platao"))
+        raw_data = agenda_data.get("data")
+        raw_inicio = agenda_data.get("inicio_platao")
+        raw_fim = agenda_data.get("fim_platao")
         duracao_slot_minutos = agenda_data.get("duracao_slot_minutos")
+
+        # Conversores robustos
+        data = self._ensure_date(raw_data)
+        inicio_platao = self._ensure_time(raw_inicio)
+        fim_platao = self._ensure_time(raw_fim)
 
         if not all([crm, data, inicio_platao, fim_platao, duracao_slot_minutos]):
             return []
 
         # Busca consultas JÁ MARCADAS no dia (exceto canceladas)
+        # Garante que data seja string para o SQL
+        data_str = data.strftime('%Y-%m-%d') if hasattr(data, 'strftime') else str(data)
+        
         query = "SELECT data_hora_agendamento FROM Consulta WHERE crm_medico = %s AND DATE(data_hora_agendamento) = %s AND status != 'C';"
-        params = (crm, data.strftime('%Y-%m-%d'))
+        params = (crm, data_str)
         consultas_do_dia = self.db.fetch_all(query, params)
 
         # Cria conjunto de horários ocupados para busca rápida
         horarios_agendados = set()
         for c in consultas_do_dia:
-            if c.get('data_hora_agendamento'):
-                # Extrai apenas HH:MM:SS
-                horarios_agendados.add(c.get('data_hora_agendamento').strftime('%H:%M:%S'))
+            val = c.get('data_hora_agendamento')
+            if val:
+                # Se for datetime, extrai time. Se for string, tenta parsear ou pegar substring
+                if isinstance(val, datetime):
+                    horarios_agendados.add(val.strftime('%H:%M:%S'))
+                elif isinstance(val, str):
+                    # Assume formato ISO ou HH:MM:SS
+                    if ' ' in val: # YYYY-MM-DD HH:MM:SS
+                        horarios_agendados.add(val.split(' ')[1])
+                    else:
+                        horarios_agendados.add(val)
 
         slots_disponiveis = []
 
-        # datetime.combine agora vai funcionar pois inicio_platao é garantidamente 'time'
-        horario_atual = datetime.combine(data, inicio_platao)
-        fim_platao_dt = datetime.combine(data, fim_platao)
+        # Loop de geração de slots
+        try:
+            horario_atual = datetime.combine(data, inicio_platao)
+            fim_platao_dt = datetime.combine(data, fim_platao)
 
-        while horario_atual < fim_platao_dt:
-            horario_str = horario_atual.strftime('%H:%M:%S')
+            while horario_atual < fim_platao_dt:
+                horario_str = horario_atual.strftime('%H:%M:%S')
 
-            # Se não houver colisão, adiciona à lista
-            if horario_str not in horarios_agendados:
-                slots_disponiveis.append(horario_str)
+                # Se não houver colisão, adiciona à lista
+                if horario_str not in horarios_agendados:
+                    slots_disponiveis.append(horario_str)
 
-            horario_atual += timedelta(minutes=duracao_slot_minutos)
+                horario_atual += timedelta(minutes=duracao_slot_minutos)
+        except Exception as e:
+            print(f"Erro ao gerar slots: {e}")
+            return []
 
         return slots_disponiveis
+
+    def _ensure_time(self, val):
+        if isinstance(val, timedelta):
+            return (datetime.min + val).time()
+        if isinstance(val, str):
+            try:
+                # Tenta HH:MM:SS
+                return datetime.strptime(val, "%H:%M:%S").time()
+            except ValueError:
+                try:
+                    # Tenta H:MM:SS (sem zero à esquerda)
+                    return datetime.strptime(val, "%H:%M:%S").time()
+                except ValueError:
+                    pass
+        return val
+
+    def _ensure_date(self, val):
+        if isinstance(val, str):
+            try:
+                return datetime.strptime(val, "%Y-%m-%d").date()
+            except ValueError:
+                pass
+        return val
 
     def create(self, crm: str, data: str, inicio: str, fim: str, duracao: int) -> dict:
         if not self._validar_dados(data, inicio, fim):

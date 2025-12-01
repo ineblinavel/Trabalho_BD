@@ -25,6 +25,22 @@ class ExameRepository:
         query = "SELECT * FROM Exame;"
         return self.db.fetch_all(query)
 
+    def find_all_with_details(self) -> list:
+        """
+        Busca todos os exames com detalhes (nomes).
+        """
+        query = """
+            SELECT e.*, p.nome_paciente, m.nome_medico as nome_medico_responsavel,
+                   te.nome_do_exame, re.resultado_obtido, re.data_resultado
+            FROM Exame e
+            JOIN Paciente p ON e.id_paciente = p.id_paciente
+            JOIN Medicos m ON e.crm_medico_responsavel = m.crm
+            JOIN TipoExame te ON e.id_tipo_exame = te.id_tipo_exame
+            LEFT JOIN ResultadoExame re ON e.id_exame = re.id_exame
+            ORDER BY e.data_solicitacao DESC;
+        """
+        return self.db.fetch_all(query)
+
     def find_by(self, value, key: str = "id_exame") -> list | dict | None:
         """
         Busca exames por um campo e valor específicos.
@@ -133,6 +149,27 @@ class ExameRepository:
         query = "SELECT * FROM Exame WHERE id_paciente = %s AND status = %s;"
         params = (id_paciente, status)
         return self.db.fetch_all(query, params=params)
+
+    def find_by_medico(self, crm: str) -> list:
+        """
+        Busca exames solicitados por um médico específico, incluindo detalhes.
+
+        Args:
+            crm (str): CRM do médico.
+
+        Returns:
+            list: Lista de exames encontrados com detalhes.
+        """
+        query = """
+            SELECT e.*, p.nome_paciente, te.nome_do_exame, re.resultado_obtido
+            FROM Exame e
+            JOIN Paciente p ON e.id_paciente = p.id_paciente
+            JOIN TipoExame te ON e.id_tipo_exame = te.id_tipo_exame
+            LEFT JOIN ResultadoExame re ON e.id_exame = re.id_exame
+            WHERE e.crm_medico_responsavel = %s
+            ORDER BY e.data_solicitacao DESC;
+        """
+        return self.db.fetch_all(query, params=(crm,))
 
     def find_with_details_by_id(self, id_exame: int) -> dict | None:
         """

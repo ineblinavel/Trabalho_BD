@@ -113,3 +113,21 @@ class EnfermeiroRepository:
         query = "DELETE FROM Enfermeiro WHERE corem = %s;"
         self.db.execute_query(query, params=(corem,))
         return {"message": "Enfermeiro deletado com sucesso."}
+
+    def find_by_corem_with_details(self, corem: str) -> dict | None:
+        """
+        Busca um enfermeiro pelo COREM, incluindo a senha do usuário.
+
+        Args:
+            corem (str): O COREM do enfermeiro.
+
+        Returns:
+            dict | None: Dados do enfermeiro com senha, ou None.
+        """
+        query = """
+            SELECT e.*, u.password
+            FROM Enfermeiro e
+            LEFT JOIN Usuarios u ON e.corem = u.referencia_id
+            WHERE e.corem = %s;
+        """
+        return self.db.fetch_one(query, params=(corem,))

@@ -94,3 +94,17 @@ class QuartoRepository:
             return {"message": f"Quarto {num_quarto} atualizado com sucesso."}
 
         return {"message": "Nenhum dado fornecido para atualização."}
+
+    def delete(self, num_quarto: int) -> dict:
+        """
+        Deleta um quarto pelo seu número.
+
+        Args:
+            num_quarto (int): O número do quarto a ser deletado.
+
+        Returns:
+            dict: Dicionário com mensagem de sucesso.
+        """
+        query = "DELETE FROM Quarto WHERE num_quarto = %s"
+        self.db.execute_query(query, params=(num_quarto,))
+        return {"message": f"Quarto {num_quarto} deletado com sucesso."}

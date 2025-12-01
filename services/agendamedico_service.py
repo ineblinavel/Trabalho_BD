@@ -62,3 +62,6 @@ class AgendaMedicoService:
 
     def get_agendas_by_medico(self, crm: str):
         return self.agenda_repo.find_by(crm, key="crm_medico")
+
+    def get_agenda_by_medico_and_date(self, crm: str, data: str):
+        return self.agenda_repo.find_by_medico_and_date(crm, data)
