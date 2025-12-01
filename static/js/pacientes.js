@@ -8,6 +8,7 @@ async function carregarPacientes() {
   const tbody = document.querySelector("#tabela-pacientes tbody");
 
   try {
+    // A API agora retorna 'foto_base64' (se o backend estiver correto)
     const pacientes = await API.get("/pacientes/");
 
     // Processar dados (calcular idade)
@@ -51,21 +52,37 @@ function renderizarTabela(lista) {
   lista.forEach((p) => {
     const tr = document.createElement("tr");
 
-    // Avatar com iniciais
+    // Calcula iniciais para o caso de não ter foto
     const iniciais = p.nome_paciente
       .split(" ")
       .map((n) => n[0])
       .slice(0, 2)
       .join("")
       .toUpperCase();
-    const corAvatar = "primary"; // Poderia ser randomizado
 
+    // 1. Lógica do Avatar (Foto ou Iniciais) - CORRIGIDA E UNIFICADA
+    let avatarHtml;
+    if (p.foto_base64) {
+      // Se tiver foto, usa a tag IMG com a Base64
+      avatarHtml = `
+            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 position-relative overflow-hidden"
+                 style="width: 40px; height: 40px; background-color: #e9ecef;">
+                <img src="data:image/jpeg;base64,${p.foto_base64}" alt="Foto" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>`;
+    } else {
+      // Se não tiver, usa as iniciais
+      avatarHtml = `
+            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold"
+                 style="width: 40px; height: 40px;">
+                ${iniciais}
+            </div>`;
+    }
+
+    // 2. Monta a linha completa
     tr.innerHTML = `
                 <td class="ps-4">
                     <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-${corAvatar} bg-opacity-10 text-${corAvatar} d-flex align-items-center justify-content-center me-3 fw-bold" style="width: 40px; height: 40px;">
-                            ${iniciais}
-                        </div>
+                        ${avatarHtml}
                         <div>
                             <div class="fw-bold text-dark">${
                               p.nome_paciente
@@ -91,14 +108,19 @@ function renderizarTabela(lista) {
                   p.endereco || "-"
                 }</span></td>
                 <td class="text-end pe-4">
+                    <button class="btn btn-sm btn-outline-secondary border-0 me-1" onclick="iniciarUploadFoto(${
+                      p.id_paciente
+                    })" title="Alterar Foto">
+                        <i class="bi bi-camera"></i>
+                    </button>
                     <button class="btn btn-sm btn-outline-info border-0 me-1" onclick="verHistorico(${
                       p.id_paciente
-                    })" title="Prontuário e Histórico">
+                    })" title="Prontuário">
                         <i class="bi bi-clipboard2-pulse"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger border-0" onclick="deletarPaciente(${
                       p.id_paciente
-                    })" title="Excluir Cadastro">
+                    })" title="Excluir">
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>
@@ -113,9 +135,13 @@ function atualizarKPIs(lista) {
   const menores = lista.filter((p) => p.idade < 18).length;
 
   // Atualiza com animação simples (apenas texto)
-  document.getElementById("kpi-total").textContent = total;
-  document.getElementById("kpi-idosos").textContent = idosos;
-  document.getElementById("kpi-menores").textContent = menores;
+  const elTotal = document.getElementById("kpi-total");
+  const elIdosos = document.getElementById("kpi-idosos");
+  const elMenores = document.getElementById("kpi-menores");
+
+  if (elTotal) elTotal.textContent = total;
+  if (elIdosos) elIdosos.textContent = idosos;
+  if (elMenores) elMenores.textContent = menores;
 }
 
 // Utilitário para calcular idade
@@ -133,14 +159,17 @@ function calcularIdade(dataString) {
 }
 
 // Filtro de Busca
-document.getElementById("input-busca").addEventListener("keyup", (e) => {
-  const termo = e.target.value.toLowerCase();
-  const filtrados = listaPacientesGlobal.filter(
-    (p) =>
-      p.nome_paciente.toLowerCase().includes(termo) || p.cpf.includes(termo)
-  );
-  renderizarTabela(filtrados);
-});
+const inputBusca = document.getElementById("input-busca");
+if (inputBusca) {
+  inputBusca.addEventListener("keyup", (e) => {
+    const termo = e.target.value.toLowerCase();
+    const filtrados = listaPacientesGlobal.filter(
+      (p) =>
+        p.nome_paciente.toLowerCase().includes(termo) || p.cpf.includes(termo)
+    );
+    renderizarTabela(filtrados);
+  });
+}
 
 // Ações
 async function deletarPaciente(id) {
@@ -166,4 +195,54 @@ async function deletarPaciente(id) {
 
 function verHistorico(id) {
   window.location.href = `/ui/pacientes/${id}/historico`;
+}
+
+// 1. Função chamada ao clicar no botão "Alterar Foto"
+function iniciarUploadFoto(idPaciente) {
+  const input = document.getElementById("input-foto-paciente");
+  const hiddenId = document.getElementById("id-paciente-foto");
+
+  if (input && hiddenId) {
+    hiddenId.value = idPaciente;
+    input.click(); // Simula clique no input invisível
+  } else {
+    console.error("Elementos de upload não encontrados no HTML");
+  }
+}
+
+// 2. Processa o arquivo selecionado
+async function processarUploadFoto() {
+  const input = document.getElementById("input-foto-paciente");
+  const idPaciente = document.getElementById("id-paciente-foto").value;
+
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+
+    // Converte para Base64
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+      // O resultado vem como "data:image/jpeg;base64,....."
+      const base64String = e.target.result.split(",")[1];
+
+      try {
+        const response = await API.post(`/pacientes/${idPaciente}/foto`, {
+          foto_base64: base64String,
+        });
+
+        // Verifica se houve erro no JSON retornado pelo backend (se o 500 não ocorreu)
+        if (response.error) {
+          throw new Error(response.error);
+        }
+
+        alert("Foto atualizada com sucesso!");
+        carregarPacientes(); // Recarrega a lista para mostrar a nova foto
+      } catch (error) {
+        console.error(error);
+        alert("Erro ao enviar foto: " + error.message);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+  // Limpa o input
+  input.value = "";
 }

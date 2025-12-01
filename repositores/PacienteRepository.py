@@ -70,7 +70,7 @@ class PacienteRepository:
         Returns:
             list: Uma lista de dicionários, cada um representando um paciente.
         """
-        query = "SELECT id_paciente, nome_paciente, cpf, data_nascimento, endereco FROM Paciente"
+        query = "SELECT id_paciente, nome_paciente, cpf, data_nascimento, endereco, foto FROM Paciente"
         return self.db.fetch_all(query)
 
     def get_by_id(self, id_paciente: int) -> dict:
