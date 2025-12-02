@@ -118,5 +118,12 @@ class PacienteRepository:
         """
         query = "DELETE FROM Paciente WHERE id_paciente = %s"
         params = (id_paciente,)
-        self.db.execute_query(query, params)
+        result = self.db.execute_query(query, params)
+
+        # Se ocorreu erro na execução (por exemplo violação de FK), execute_query retorna None
+        if result is None:
+            raise ValueError("Não foi possível deletar o paciente devido a restrição de integridade referencial.")
+        if result == 0:
+            raise ValueError("Paciente não encontrado ou já removido.")
+
         return {"message": "Paciente removido com sucesso."}

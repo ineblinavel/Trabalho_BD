@@ -40,16 +40,16 @@ class EnfermeiroRepository:
         possible_keys = ["corem", "cpf", "nome_enfermeiro"]
         if key not in possible_keys:
             raise ValueError(f"Chave de busca inválida. Use uma das seguintes: {possible_keys}")
-        
+
         query = f"SELECT * FROM Enfermeiro WHERE {key} = %s;"
         params = (value,)
-        
+
         if key == "nome_enfermeiro":
             query = f"SELECT * FROM Enfermeiro WHERE {key} LIKE %s;"
             params = (f"%{value}%",)
 
         results = self.db.fetch_all(query, params=params)
-        
+
         if key in ["corem", "cpf"]:
             return results[0] if results else None
         return results
@@ -84,19 +84,19 @@ class EnfermeiroRepository:
         """
         fields = []
         params = []
-        
+
         for key, value in kwargs.items():
             if key in ["cpf", "nome_enfermeiro"]:
                 fields.append(f"{key} = %s")
                 params.append(value)
-        
+
         if not fields:
             return {"message": "Nenhum dado fornecido para atualização."}
-        
+
         params.append(corem)
-        
+
         query = f"UPDATE Enfermeiro SET {', '.join(fields)} WHERE corem = %s;"
-        
+
         self.db.execute_query(query, params=tuple(params))
         return {"message": "Enfermeiro atualizado com sucesso."}
 
@@ -111,7 +111,15 @@ class EnfermeiroRepository:
             dict: Dicionário com mensagem de sucesso.
         """
         query = "DELETE FROM Enfermeiro WHERE corem = %s;"
-        self.db.execute_query(query, params=(corem,))
+        result = self.db.execute_query(query, params=(corem,))
+
+        # Se ocorrer erro na execução (por exemplo, violação de FK), o método
+        # execute_query retorna None. Se nenhuma linha foi afetada, result pode ser 0.
+        if result is None:
+            raise ValueError("Não foi possível deletar o enfermeiro devido a restrição de integridade referencial.")
+        if result == 0:
+            raise ValueError("Enfermeiro não encontrado ou já removido.")
+
         return {"message": "Enfermeiro deletado com sucesso."}
 
     def find_by_corem_with_details(self, corem: str) -> dict | None:

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from services.telefone_enfermeiro_service import TelefoneEnfermeiroService
 
 def init_telefone_enfermeiro_routes(service: TelefoneEnfermeiroService):
@@ -21,6 +21,11 @@ def init_telefone_enfermeiro_routes(service: TelefoneEnfermeiroService):
     def create():
         data = request.get_json()
         try:
+            caller = session.get('referencia_id')
+            role = session.get('role')
+            if role != 'admin' and caller != data.get('corem_enfermeiro'):
+                return jsonify({'error': 'Operação não autorizada'}), 403
+
             res = service.create(data['corem_enfermeiro'], data['numero_telefone'])
             return jsonify(res), 201
         except Exception as e:
@@ -30,10 +35,26 @@ def init_telefone_enfermeiro_routes(service: TelefoneEnfermeiroService):
     @bp.route('/<int:id_telefone>', methods=['PUT'])
     def update(id_telefone):
         data = request.get_json()
+        registro = service.get_by_id(id_telefone)
+        if not registro:
+            return jsonify({'error': 'Registro não encontrado'}), 404
+        caller = session.get('referencia_id')
+        role = session.get('role')
+        if role != 'admin' and caller != registro.get('corem_enfermeiro'):
+            return jsonify({'error': 'Operação não autorizada'}), 403
+
         return jsonify(service.update(id_telefone, data.get('numero_telefone'))), 200
 
     @bp.route('/<int:id_telefone>', methods=['DELETE'])
     def delete(id_telefone):
+        registro = service.get_by_id(id_telefone)
+        if not registro:
+            return jsonify({'error': 'Registro não encontrado'}), 404
+        caller = session.get('referencia_id')
+        role = session.get('role')
+        if role != 'admin' and caller != registro.get('corem_enfermeiro'):
+            return jsonify({'error': 'Operação não autorizada'}), 403
+
         return jsonify(service.delete(id_telefone)), 200
 
     return bp

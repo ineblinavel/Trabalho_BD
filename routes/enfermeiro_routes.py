@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from services.enfermeiro_service import EnfermeiroService
 
 def init_enfermeiro_routes(enfermeiro_service: EnfermeiroService):
@@ -64,11 +64,15 @@ def init_enfermeiro_routes(enfermeiro_service: EnfermeiroService):
 
     @enfermeiro_bp.route('/<string:corem>', methods=['DELETE'])
     def delete_enfermeiro(corem):
+        # Apenas admins podem deletar enfermeiros via API
+        if session.get('role') != 'admin':
+            return jsonify({'error': 'Operação não autorizada'}), 403
         try:
             result = enfermeiro_service.delete_enfermeiro(corem)
             return jsonify(result), 200
         except ValueError as e:
-            return jsonify({'error': str(e)}), 404
+            # Erros de validação ou integridade referencial são retornados como 409 (Conflict)
+            return jsonify({'error': str(e)}), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 

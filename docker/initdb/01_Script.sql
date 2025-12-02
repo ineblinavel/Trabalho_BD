@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS Exame (
 	ON DELETE RESTRICT
     ON UPDATE CASCADE,
   FOREIGN KEY (id_paciente) REFERENCES Paciente (id_paciente)
-	ON DELETE RESTRICT
+	ON DELETE CASCADE
     ON UPDATE CASCADE,
   FOREIGN KEY (id_tipo_exame) REFERENCES TipoExame (id_tipo_exame)
 	ON DELETE RESTRICT
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS Internacao (
   id_internacao INT AUTO_INCREMENT PRIMARY KEY,
   id_paciente INT NOT NULL,
   crm_medico VARCHAR(9) NOT NULL,
-  corem_enfermeiro VARCHAR(15) NOT NULL,
+  corem_enfermeiro VARCHAR(15),
   id_quarto INT,
   data_admissao DATE,
   data_alta_efetiva DATE,
@@ -119,13 +119,13 @@ CREATE TABLE IF NOT EXISTS Internacao (
 	ON DELETE RESTRICT
     ON UPDATE CASCADE,
   FOREIGN KEY (corem_enfermeiro) REFERENCES Enfermeiro (corem)
-	ON DELETE RESTRICT
+    ON DELETE SET NULL
     ON UPDATE CASCADE,
   FOREIGN KEY (id_quarto) REFERENCES Quarto (id_quarto)
 	ON DELETE SET NULL
     ON UPDATE CASCADE,
   FOREIGN KEY (id_paciente) REFERENCES Paciente (id_paciente)
-	ON DELETE RESTRICT
+	ON DELETE CASCADE
     ON UPDATE CASCADE
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS TelefoneMedico (
     id_telefone_medico INT AUTO_INCREMENT PRIMARY KEY,
     crm_medico VARCHAR(9) NOT NULL,
     numero_telefone VARCHAR(15) NOT NULL,
-    UNIQUE KEY uk_medico_telefone (crm_medico, numero_telefone), 
+    UNIQUE KEY uk_medico_telefone (crm_medico, numero_telefone),
     FOREIGN KEY (crm_medico) REFERENCES Medicos (crm)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS TelefonePaciente (
     numero_telefone VARCHAR(15) NOT NULL,
     UNIQUE KEY uk_paciente_telefone (id_paciente, numero_telefone),
     FOREIGN KEY (id_paciente) REFERENCES Paciente (id_paciente)
-        ON DELETE CASCADE 
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -192,12 +192,12 @@ CREATE TABLE IF NOT EXISTS Prescricao (
     quantidade_prescrita INT NOT NULL,
     dosagem VARCHAR(50),
     frequencia_uso VARCHAR(100),
-    UNIQUE KEY uk_prescricao (id_consulta, id_medicamento), 
+    UNIQUE KEY uk_prescricao (id_consulta, id_medicamento),
     FOREIGN KEY (id_consulta) REFERENCES Consulta (id_consulta)
-        ON DELETE CASCADE 
+        ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (id_medicamento) REFERENCES Medicamento (id_medicamento)
-        ON DELETE RESTRICT 
+        ON DELETE RESTRICT
         ON UPDATE CASCADE
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -212,7 +212,8 @@ CREATE TABLE IF NOT EXISTS LogSalario (
 CREATE TABLE IF NOT EXISTS Usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL, -- Em produção, usar hash!
-    role ENUM('admin', 'medico', 'enfermeiro') NOT NULL,
-    referencia_id VARCHAR(15) -- Pode ser CRM, COREM ou NULL (admin)
+  password VARCHAR(255) NOT NULL,
+  role ENUM('admin', 'medico', 'enfermeiro') NOT NULL,
+  referencia_id VARCHAR(15),
+  ativo BOOLEAN DEFAULT TRUE
 ) DEFAULT CHARSET=utf8mb4;

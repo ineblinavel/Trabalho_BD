@@ -12,6 +12,32 @@ END$$
 
 DELIMITER ;
 
+DELIMITER $$
+
+CREATE TRIGGER TRG_SyncMedicoUsuario_Ativo
+AFTER UPDATE ON Medicos
+FOR EACH ROW
+BEGIN
+    IF OLD.ativo IS NOT NULL AND NEW.ativo IS NOT NULL AND OLD.ativo <> NEW.ativo THEN
+        UPDATE Usuarios
+        SET ativo = NEW.ativo
+        WHERE referencia_id = NEW.crm AND role = 'medico';
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER TRG_DeleteEnfermeiro_DeleteUsuario
+AFTER DELETE ON Enfermeiro
+FOR EACH ROW
+BEGIN
+    DELETE FROM Usuarios WHERE referencia_id = OLD.corem AND role = 'enfermeiro';
+END$$
+
+DELIMITER ;
+
 
 DELIMITER $$
 
