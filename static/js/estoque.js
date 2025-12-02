@@ -113,11 +113,12 @@ function renderizarTabela(lista) {
                     })" title="Registrar Saída">
                         <i class="bi bi-box-arrow-down-left"></i>
                     </button>
+                    ${USER_ROLE !== 'enfermeiro' ? `
                     <button class="btn btn-sm btn-outline-danger border-0" onclick="deletarItem(${
                       item.id_estoque_medicamento
                     })" title="Excluir Lote">
                         <i class="bi bi-trash"></i>
-                    </button>
+                    </button>` : ''}
                 </td>
             `;
     tbody.appendChild(tr);
@@ -195,7 +196,7 @@ async function confirmarConsumo() {
   const id = document.getElementById("id_consumo").value;
   const qtd = parseInt(document.getElementById("qtd_consumo").value);
 
-  if (qtd <= 0) return alert("Quantidade inválida.");
+  if (qtd <= 0) return Swal.fire('Atenção', "Quantidade inválida.", 'warning');
 
   try {
     await API.post(`/estoque/${id}/consumir`, { quantidade: qtd });
@@ -206,24 +207,32 @@ async function confirmarConsumo() {
     ).hide();
 
     // Feedback visual e recarga
-    alert("Saída registrada com sucesso!");
+    Swal.fire('Sucesso', "Saída registrada com sucesso!", 'success');
     carregarEstoque();
   } catch (error) {
-    alert("Erro ao registrar saída: " + error.message);
+    Swal.fire('Erro', "Erro ao registrar saída: " + error.message, 'error');
   }
 }
 
 async function deletarItem(id) {
-  if (
-    confirm(
-      "Tem certeza que deseja remover este lote do estoque permanentemente?"
-    )
-  ) {
+  const result = await Swal.fire({
+      title: 'Tem certeza?',
+      text: "Deseja remover este lote do estoque permanentemente?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sim, remover!',
+      cancelButtonText: 'Cancelar'
+  });
+
+  if (result.isConfirmed) {
     try {
       await API.delete(`/estoque/${id}`);
       carregarEstoque();
+      Swal.fire('Removido!', 'O lote foi removido do estoque.', 'success');
     } catch (error) {
-      alert("Erro ao deletar: " + error.message);
+      Swal.fire('Erro', "Erro ao deletar: " + error.message, 'error');
     }
   }
 }

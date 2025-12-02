@@ -42,8 +42,8 @@ async function salvarTipo() {
     const preco = parseFloat(precoVal);
     const descricao = document.getElementById('descricao').value.trim();
     
-    if(!nome || !precoVal) return alert("Preencha os campos obrigatórios");
-    if(preco <= 0) return alert("O preço deve ser maior que zero.");
+    if(!nome || !precoVal) return Swal.fire('Atenção', "Preencha os campos obrigatórios", 'warning');
+    if(preco <= 0) return Swal.fire('Atenção', "O preço deve ser maior que zero.", 'warning');
 
     try {
         if (id) {
@@ -52,14 +52,14 @@ async function salvarTipo() {
                 preco: parseFloat(preco),
                 descricao: descricao 
             });
-            alert("Tipo de exame atualizado!");
+            Swal.fire('Sucesso', "Tipo de exame atualizado!", 'success');
         } else {
             await API.post('/tipos-exame/', { 
                 nome_do_exame: nome, 
                 preco: parseFloat(preco),
                 descricao: descricao 
             });
-            alert("Tipo de exame cadastrado!");
+            Swal.fire('Sucesso', "Tipo de exame cadastrado!", 'success');
         }
         
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalNovoTipo'));
@@ -68,7 +68,7 @@ async function salvarTipo() {
         document.getElementById('id_tipo_exame').value = '';
         carregarTipos();
     } catch (e) {
-        alert("Erro: " + e.message);
+        Swal.fire('Erro', "Erro: " + e.message, 'error');
     }
 }
 
@@ -83,12 +83,24 @@ function abrirModalEditar(id, nome, preco, descricao) {
 }
 
 async function deletarTipo(id) {
-    if(confirm("Remover este tipo de exame?")) {
+    const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Deseja remover este tipo de exame?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, remover!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if(result.isConfirmed) {
         try {
             await API.delete(`/tipos-exame/${id}`);
             carregarTipos();
+            Swal.fire('Removido!', 'Tipo de exame removido com sucesso.', 'success');
         } catch (e) {
-            alert("Erro: " + e.message);
+            Swal.fire('Erro', "Erro: " + e.message, 'error');
         }
     }
 }

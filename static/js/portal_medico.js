@@ -295,6 +295,8 @@ function renderizarListaConsultas(lista, isFila) {
         '<span class="badge bg-warning text-dark ms-2">Agendada</span>';
 
     let buttons = "";
+    let prescricoesHtml = "";
+
     if (isFila) {
       buttons += `
             <button class="btn btn-sm btn-danger me-2" onclick="abrirModalAtendimento(${
@@ -314,6 +316,23 @@ function renderizarListaConsultas(lista, isFila) {
                 <i class="bi bi-check2-all me-1"></i> Finalizado
             </button>
           `;
+      
+      // Renderiza prescrições se houver
+      if (c.prescricoes && c.prescricoes.length > 0) {
+          prescricoesHtml = `
+            <div class="mt-2 pt-2 border-top">
+                <small class="fw-bold text-muted"><i class="bi bi-capsule me-1"></i> Prescrição:</small>
+                <ul class="list-unstyled mb-0 ms-3 small text-muted">
+          `;
+          c.prescricoes.forEach(p => {
+              prescricoesHtml += `
+                <li>
+                    • <strong>${p.nome_comercial}</strong> 
+                    <span class="fst-italic">(${p.dosagem || 's/d'})</span> - ${p.frequencia_uso || 's/f'}
+                </li>`;
+          });
+          prescricoesHtml += `</ul></div>`;
+      }
     }
 
     html += `
@@ -328,6 +347,7 @@ function renderizarListaConsultas(lista, isFila) {
                                 <i class="bi bi-calendar3 me-1"></i>${data}
                                 <i class="bi bi-clock ms-2 me-1"></i>${hora}
                             </small>
+                            ${prescricoesHtml}
                         </div>
                         <div class="d-flex">
                             ${buttons}

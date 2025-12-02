@@ -2,6 +2,7 @@ from repositores.ConsultasRepository import ConsultasRepository
 from repositores.MedicoRepository import MedicoRepository
 from repositores.PacienteRepository import PacienteRepository
 from repositores.AgendaMedicoRepository import AgendaMedicoRepository
+from repositores.PrescricaoRepository import PrescricaoRepository
 from datetime import datetime
 
 class ConsultasService:
@@ -9,14 +10,20 @@ class ConsultasService:
                  consulta_repo: ConsultasRepository,
                  medico_repo: MedicoRepository,
                  paciente_repo: PacienteRepository,
-                 agenda_repo: AgendaMedicoRepository):
+                 agenda_repo: AgendaMedicoRepository,
+                 prescricao_repo: PrescricaoRepository = None):
         self.consulta_repo = consulta_repo
         self.medico_repo = medico_repo
         self.paciente_repo = paciente_repo
         self.agenda_repo = agenda_repo
+        self.prescricao_repo = prescricao_repo
 
     def get_consultas_by_medico(self, crm: str) -> list:
-        return self.consulta_repo.get_by_medico(crm)
+        consultas = self.consulta_repo.get_by_medico(crm)
+        if self.prescricao_repo:
+            for consulta in consultas:
+                consulta['prescricoes'] = self.prescricao_repo.find_by_consulta_with_details(consulta['id_consulta'])
+        return consultas
 
     def create_consulta(self, crm: str, id_paciente: int, data_hora: str) -> dict:
         # 1. Validação de Existência de Médico e Paciente

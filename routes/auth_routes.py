@@ -24,6 +24,9 @@ def init_auth_routes(auth_service: AuthService):
                     session['username'] = user['username']
                     session['role'] = user['role']
                     session['referencia_id'] = user.get('referencia_id')
+                    
+                    
+                    session['real_name'] = user.get('real_name', user['username'])
 
                     if user['role'] == 'admin':
                         return redirect('/ui/portal/admin')

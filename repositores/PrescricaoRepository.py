@@ -126,3 +126,15 @@ class PrescricaoRepository:
         params = (id_consulta, id_medicamento)
         self.db.execute_query(query, params=params)
         return {"message": "Prescrição específica deletada com sucesso."}
+
+    def find_by_consulta_with_details(self, id_consulta: int) -> list:
+        """
+        Busca prescrições de uma consulta com detalhes do medicamento.
+        """
+        query = """
+            SELECT p.*, m.nome_comercial, m.fabricante
+            FROM Prescricao p
+            JOIN Medicamentos m ON p.id_medicamento = m.id_medicamento
+            WHERE p.id_consulta = %s
+        """
+        return self.db.fetch_all(query, (id_consulta,))

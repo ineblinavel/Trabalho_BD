@@ -41,16 +41,24 @@ async function carregarEnfermeiros() {
   }
 }
 
+function abrirModalNovo() {
+    document.getElementById('formEnfermeiro').reset();
+    document.getElementById('is_edit_enfermeiro').value = 'false';
+    document.getElementById('corem').readOnly = false;
+    document.getElementById('containerSenhaEnfermeiro').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('modalNovoEnfermeiro')).show();
+}
+
 async function salvarEnfermeiro() {
     const corem = document.getElementById('corem').value.trim();
     const nome = document.getElementById('nome_enfermeiro').value.trim();
     const cpf = document.getElementById('cpf').value.trim();
     const isEdit = document.getElementById('is_edit_enfermeiro').value === 'true';
 
-    if (!corem || !nome || !cpf) return alert("Preencha todos os campos!");
+    if (!corem || !nome || !cpf) return Swal.fire('Atenção', "Preencha todos os campos!", 'warning');
 
     if (!Validation.isValidCPF(cpf)) {
-        return alert("CPF inválido!");
+        return Swal.fire('Erro', "CPF inválido!", 'error');
     }
 
     try {
@@ -59,14 +67,14 @@ async function salvarEnfermeiro() {
                 nome_enfermeiro: nome,
                 cpf: cpf
             });
-            alert("Enfermeiro atualizado!");
+            Swal.fire('Sucesso', "Enfermeiro atualizado!", 'success');
         } else {
             const res = await API.post('/enfermeiros/', {
                 corem: corem,
                 nome_enfermeiro: nome,
                 cpf: cpf
             });
-            alert(res.message || "Enfermeiro cadastrado!");
+            Swal.fire('Sucesso', res.message || "Enfermeiro cadastrado!", 'success');
         }
         
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalNovoEnfermeiro'));
@@ -76,7 +84,7 @@ async function salvarEnfermeiro() {
         document.getElementById('corem').readOnly = false;
         carregarEnfermeiros();
     } catch (e) {
-        alert("Erro: " + e.message);
+        Swal.fire('Erro', "Erro: " + e.message, 'error');
     }
 }
 
@@ -87,24 +95,37 @@ async function abrirModalEditar(corem) {
         document.getElementById('corem').value = enf.corem;
         document.getElementById('nome_enfermeiro').value = enf.nome_enfermeiro;
         document.getElementById('cpf').value = enf.cpf;
-        document.getElementById('password').value = enf.password || '********'; // Mostra a senha ou placeholder
+        document.getElementById('password').value = enf.password || '********'; 
         
         document.getElementById('is_edit_enfermeiro').value = 'true';
         document.getElementById('corem').readOnly = true;
+        document.getElementById('containerSenhaEnfermeiro').style.display = 'block';
         
         new bootstrap.Modal(document.getElementById('modalNovoEnfermeiro')).show();
     } catch (e) {
-        alert("Erro ao carregar dados do enfermeiro: " + e.message);
+        Swal.fire('Erro', "Erro ao carregar dados do enfermeiro: " + e.message, 'error');
     }
 }
 
 async function deletarEnfermeiro(corem) {
-  if (confirm("Tem certeza que deseja excluir este enfermeiro?")) {
+  const result = await Swal.fire({
+      title: 'Tem certeza?',
+      text: "Deseja excluir este enfermeiro?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sim, excluir!',
+      cancelButtonText: 'Cancelar'
+  });
+
+  if (result.isConfirmed) {
     try {
         await API.delete(`/enfermeiros/${corem}`);
         carregarEnfermeiros();
+        Swal.fire('Excluído!', 'O enfermeiro foi excluído.', 'success');
     } catch (error) {
-        alert("Erro ao deletar: " + error.message);
+        Swal.fire('Erro', "Erro ao deletar: " + error.message, 'error');
     }
   }
 }

@@ -42,17 +42,17 @@ async function salvarFornecedor() {
     const nome = document.getElementById('nome_empresa').value.trim();
     const isEdit = document.getElementById('is_edit').value === 'true';
     
-    if(!cnpj) return alert("CNPJ é obrigatório");
-    if(!nome) return alert("Nome da empresa é obrigatório");
-    if(!Validation.isValidCNPJ(cnpj)) return alert("CNPJ inválido (deve ter 14 dígitos)");
+    if(!cnpj) return Swal.fire('Atenção', "CNPJ é obrigatório", 'warning');
+    if(!nome) return Swal.fire('Atenção', "Nome da empresa é obrigatório", 'warning');
+    if(!Validation.isValidCNPJ(cnpj)) return Swal.fire('Erro', "CNPJ inválido (deve ter 14 dígitos)", 'error');
 
     try {
         if (isEdit) {
             await API.put(`/fornecedores/${cnpj}`, { nome_empresa: nome });
-            alert("Fornecedor atualizado!");
+            Swal.fire('Sucesso', "Fornecedor atualizado!", 'success');
         } else {
             await API.post('/fornecedores/', { cnpj, nome_empresa: nome });
-            alert("Fornecedor cadastrado!");
+            Swal.fire('Sucesso', "Fornecedor cadastrado!", 'success');
         }
         
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalNovoFornecedor'));
@@ -62,7 +62,7 @@ async function salvarFornecedor() {
         document.getElementById('cnpj').readOnly = false;
         carregarFornecedores();
     } catch (e) {
-        alert("Erro: " + e.message);
+        Swal.fire('Erro', "Erro: " + e.message, 'error');
     }
 }
 
@@ -77,12 +77,24 @@ function abrirModalEditar(cnpj, nome) {
 }
 
 async function deletarFornecedor(cnpj) {
-    if(confirm("Remover fornecedor?")) {
+    const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Deseja remover este fornecedor?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, remover!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if(result.isConfirmed) {
         try {
             await API.delete(`/fornecedores/${cnpj}`);
             carregarFornecedores();
+            Swal.fire('Removido!', 'Fornecedor removido com sucesso.', 'success');
         } catch (e) {
-            alert("Erro: " + e.message);
+            Swal.fire('Erro', "Erro: " + e.message, 'error');
         }
     }
 }

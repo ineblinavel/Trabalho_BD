@@ -118,11 +118,12 @@ function renderizarTabela(lista) {
                     })" title="Prontuário">
                         <i class="bi bi-clipboard2-pulse"></i>
                     </button>
+                    ${USER_ROLE !== 'enfermeiro' ? `
                     <button class="btn btn-sm btn-outline-danger border-0" onclick="deletarPaciente(${
                       p.id_paciente
                     })" title="Excluir">
                         <i class="bi bi-trash"></i>
-                    </button>
+                    </button>` : ''}
                 </td>
             `;
     tbody.appendChild(tr);
@@ -173,22 +174,61 @@ if (inputBusca) {
 
 // Ações
 async function deletarPaciente(id) {
-  if (
-    confirm(
-      "ATENÇÃO: Deseja realmente excluir este paciente? Isso pode afetar históricos de consultas e internações."
-    )
-  ) {
-    try {
-      await API.delete(`/pacientes/${id}`);
-      // Remove da lista global e re-renderiza sem precisar chamar API de novo
-      listaPacientesGlobal = listaPacientesGlobal.filter(
-        (p) => p.id_paciente !== id
-      );
-      renderizarTabela(listaPacientesGlobal);
-      atualizarKPIs(listaPacientesGlobal);
-      alert("Paciente removido com sucesso!");
-    } catch (error) {
-      alert("Erro ao deletar paciente: " + error.message);
+  // Passo 1: Confirmação inicial
+  const result1 = await Swal.fire({
+    title: 'Tem certeza?',
+    text: "Deseja iniciar o processo de exclusão deste paciente?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Sim, continuar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (result1.isConfirmed) {
+    // Passo 2: Confirmação crítica (Dupla confirmação)
+    const result2 = await Swal.fire({
+      title: 'Atenção Crítica!',
+      html: "Ao apagar este paciente, <b>TODOS</b> os registros vinculados a ele serão perdidos permanentemente:<br><br>" +
+            "<ul style='text-align: left;'>" +
+            "<li>Histórico de Consultas</li>" +
+            "<li>Registros de Internações</li>" +
+            "<li>Prescrições e Exames</li>" +
+            "</ul>" +
+            "Essa ação <b>NÃO</b> pode ser desfeita.",
+      icon: 'error',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sim, apagar tudo!',
+      cancelButtonText: 'Cancelar',
+      focusCancel: true // Foca no cancelar por segurança
+    });
+
+    if (result2.isConfirmed) {
+      try {
+        await API.delete(`/pacientes/${id}`);
+        
+        // Remove da lista global e re-renderiza
+        listaPacientesGlobal = listaPacientesGlobal.filter(
+          (p) => p.id_paciente !== id
+        );
+        renderizarTabela(listaPacientesGlobal);
+        atualizarKPIs(listaPacientesGlobal);
+        
+        Swal.fire(
+          'Excluído!',
+          'O paciente e todos os seus registros foram removidos.',
+          'success'
+        );
+      } catch (error) {
+        Swal.fire(
+          'Erro!',
+          'Erro ao deletar paciente: ' + error.message,
+          'error'
+        );
+      }
     }
   }
 }

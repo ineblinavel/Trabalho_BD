@@ -4,7 +4,7 @@
     <h1 class="h3 mb-1">Gestão de Médicos</h1>
     <p class="text-muted">Corpo clínico e contratos</p>
   </div>
-  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoMedico">
+  <button class="btn btn-primary" onclick="abrirModalNovo()">
     <i class="bi bi-plus-circle me-2"></i> Novo Médico
   </button>
 </div>
@@ -36,9 +36,13 @@
             <label class="form-label">Salário (R$)</label>
             <input type="number" step="0.01" class="form-control" id="salario" required>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Senha (Apenas Leitura)</label>
-            <input type="text" class="form-control" id="password" readonly>
+          <div class="mb-3" id="containerSenha" style="display: none;">
+            <label class="form-label">Senha</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="bi bi-lock-fill"></i></span>
+                <input type="text" class="form-control bg-light text-muted" id="password" readonly style="cursor: default;" title="Apenas leitura">
+            </div>
+            <div class="form-text text-muted"><small><i class="bi bi-info-circle me-1"></i>A senha é gerada automaticamente e não pode ser alterada.</small></div>
           </div>
         </form>
       </div>

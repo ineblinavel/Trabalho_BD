@@ -81,7 +81,9 @@ async function carregarMapaLeitos() {
       }
 
       // Botão de Editar e Deletar (Pequenos, no topo)
-      const editBtn = `
+      let editBtn = '';
+      if (USER_ROLE !== 'enfermeiro') {
+        editBtn = `
         <div class="position-absolute top-0 end-0 mt-2 me-2">
             <button class="btn btn-sm btn-link text-muted p-0 me-1" 
                     onclick="abrirModalEditarQuarto(${quarto.num_quarto}, '${quarto.tipo_de_quarto}', ${quarto.valor_diaria})">
@@ -93,6 +95,7 @@ async function carregarMapaLeitos() {
             </button>
         </div>
       `;
+      }
 
       const card = `
         <div class="col-xl-3 col-lg-4 col-md-6">
@@ -125,7 +128,18 @@ async function carregarMapaLeitos() {
 }
 
 async function darAlta(idInternacao) {
-  if (confirm("Confirmar alta médica? O quarto será liberado.")) {
+  const result = await Swal.fire({
+      title: 'Confirmar Alta?',
+      text: "O quarto será liberado e a internação encerrada.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, confirmar alta!',
+      cancelButtonText: 'Cancelar'
+  });
+
+  if (result.isConfirmed) {
     try {
       // Usa data local YYYY-MM-DD para evitar problemas de fuso horário
       const hoje = new Date();
@@ -138,10 +152,10 @@ async function darAlta(idInternacao) {
         data_alta_efetiva: dataHoje,
       });
 
-      alert("Alta registrada com sucesso!");
+      Swal.fire('Sucesso', "Alta registrada com sucesso!", 'success');
       carregarMapaLeitos();
     } catch (error) {
-      alert("Erro ao dar alta: " + error.message);
+      Swal.fire('Erro', "Erro ao dar alta: " + error.message, 'error');
     }
   }
 }
@@ -153,12 +167,12 @@ async function criarQuarto() {
   const isEdit = document.getElementById("is_edit_quarto").value === 'true';
 
   if (!num_quarto || !tipo_de_quarto || !valor_diaria) {
-    alert("Preencha todos os campos!");
+    Swal.fire('Atenção', "Preencha todos os campos!", 'warning');
     return;
   }
   
-  if (parseInt(num_quarto) <= 0) return alert("Número do quarto inválido.");
-  if (parseFloat(valor_diaria) <= 0) return alert("Valor da diária deve ser positivo.");
+  if (parseInt(num_quarto) <= 0) return Swal.fire('Atenção', "Número do quarto inválido.", 'warning');
+  if (parseFloat(valor_diaria) <= 0) return Swal.fire('Atenção', "Valor da diária deve ser positivo.", 'warning');
 
   try {
     if (isEdit) {
@@ -166,14 +180,14 @@ async function criarQuarto() {
             tipo_de_quarto: tipo_de_quarto,
             valor_diaria: valor_diaria,
         });
-        alert("Quarto atualizado com sucesso!");
+        Swal.fire('Sucesso', "Quarto atualizado com sucesso!", 'success');
     } else {
         await API.post("/quartos/", {
             num_quarto: num_quarto,
             tipo_de_quarto: tipo_de_quarto,
             valor_diaria: valor_diaria,
         });
-        alert("Quarto criado com sucesso!");
+        Swal.fire('Sucesso', "Quarto criado com sucesso!", 'success');
     }
     
     // Fechar modal e recarregar
@@ -184,7 +198,7 @@ async function criarQuarto() {
     document.getElementById("num_quarto").readOnly = false;
     carregarMapaLeitos();
   } catch (error) {
-    alert("Erro ao salvar quarto: " + error.message);
+    Swal.fire('Erro', "Erro ao salvar quarto: " + error.message, 'error');
   }
 }
 
@@ -209,13 +223,24 @@ function atualizarKPIs(total, livres, ocupados) {
 }
 
 async function deletarQuarto(num_quarto) {
-    if (confirm(`Tem certeza que deseja excluir o quarto ${num_quarto}?`)) {
+    const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: `Deseja excluir o quarto ${num_quarto}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
         try {
             await API.delete(`/quartos/${num_quarto}`);
-            alert("Quarto excluído com sucesso!");
+            Swal.fire('Excluído!', "Quarto excluído com sucesso!", 'success');
             carregarMapaLeitos();
         } catch (error) {
-            alert("Erro ao excluir quarto: " + error.message);
+            Swal.fire('Erro', "Erro ao excluir quarto: " + error.message, 'error');
         }
     }
 }

@@ -112,7 +112,7 @@ log_salario_repo = LogSalarioRepository(db_connection)
 # REGISTRO DOS SERVIÇOS E ROTAS
 
 # Auth
-auth_service = AuthService(usuario_repo)
+auth_service = AuthService(usuario_repo, enfermeiro_repo, medico_repo)
 app.register_blueprint(init_auth_routes(auth_service))
 
 # Logs Salario
@@ -148,7 +148,7 @@ agenda_service = AgendaMedicoService(agenda_repo, medico_repo)
 app.register_blueprint(init_agendamedico_routes(agenda_service))
 
 # Consultas
-consultas_service = ConsultasService(consultas_repo, medico_repo, paciente_repo, agenda_repo)
+consultas_service = ConsultasService(consultas_repo, medico_repo, paciente_repo, agenda_repo, prescricao_repo)
 app.register_blueprint(init_consultas_routes(consultas_service))
 
 # Exames

@@ -38,8 +38,8 @@ async function salvarMedicamento() {
     const nome = document.getElementById('nome_comercial').value.trim();
     const fabricante = document.getElementById('fabricante').value.trim();
     
-    if(!nome) return alert("Nome comercial é obrigatório");
-    if(nome.length < 3) return alert("Nome comercial muito curto.");
+    if(!nome) return Swal.fire('Atenção', "Nome comercial é obrigatório", 'warning');
+    if(nome.length < 3) return Swal.fire('Atenção', "Nome comercial muito curto.", 'warning');
 
     try {
         if (id) {
@@ -47,13 +47,13 @@ async function salvarMedicamento() {
                 nome_comercial: nome, 
                 fabricante: fabricante 
             });
-            alert("Medicamento atualizado!");
+            Swal.fire('Sucesso', "Medicamento atualizado!", 'success');
         } else {
             await API.post('/medicamentos/', { 
                 nome_comercial: nome, 
                 fabricante: fabricante 
             });
-            alert("Medicamento cadastrado!");
+            Swal.fire('Sucesso', "Medicamento cadastrado!", 'success');
         }
         
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalNovoMedicamento'));
@@ -62,7 +62,7 @@ async function salvarMedicamento() {
         document.getElementById('id_medicamento').value = '';
         carregarMedicamentos();
     } catch (e) {
-        alert("Erro: " + e.message);
+        Swal.fire('Erro', "Erro: " + e.message, 'error');
     }
 }
 
@@ -76,12 +76,24 @@ function abrirModalEditar(id, nome, fabricante) {
 }
 
 async function deletarMedicamento(id) {
-    if(confirm("Remover este medicamento?")) {
+    const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Deseja remover este medicamento?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, remover!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if(result.isConfirmed) {
         try {
             await API.delete(`/medicamentos/${id}`);
             carregarMedicamentos();
+            Swal.fire('Removido!', 'Medicamento removido com sucesso.', 'success');
         } catch (e) {
-            alert("Erro: " + e.message);
+            Swal.fire('Erro', "Erro: " + e.message, 'error');
         }
     }
 }
