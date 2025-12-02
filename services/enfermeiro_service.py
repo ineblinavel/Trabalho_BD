@@ -67,4 +67,14 @@ class EnfermeiroService:
     def delete_enfermeiro(self, corem: str):
         if not self.enfermeiro_repo.find_by(corem):
             raise ValueError(f"Enfermeiro com COREM {corem} não encontrado.")
-        return self.enfermeiro_repo.delete(corem)
+        result = self.enfermeiro_repo.delete(corem)
+
+        # Tentativa de remover usuário associado (fallback caso trigger do DB não exista)
+        try:
+            if self.usuario_repo:
+                self.usuario_repo.delete_by_referencia(corem, role='enfermeiro')
+        except Exception:
+            # Não falhar a operação principal por conta da remoção do usuário
+            pass
+
+        return result

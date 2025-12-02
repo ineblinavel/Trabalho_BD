@@ -1,14 +1,14 @@
 SET NAMES utf8mb4;
 
 INSERT INTO Medicos (crm, nome_medico, cpf, salario) VALUES
-('52341', 'Dr. Lionel Messi', '123.456.789-01', 22500.00),
-('58922', 'Dra. Marta Silva', '234.567.890-12', 19800.00),
-('61003', 'Dr. Cristiano Ronaldo', '345.678.901-23', 25000.00),
-('44201', 'Dra. Megan Rapinoe', '456.789.012-34', 16500.00),
-('55100', 'Dr. Neymar Júnior', '567.890.123-45', 18200.00),
-('67299', 'Dra. Alex Morgan', '678.901.234-56', 21000.00),
-('49881', 'Dr. Kylian Mbappé', '789.012.345-67', 17500.00),
-('53444', 'Dra. Formiga', '890.123.456-78', 23000.00);
+('52341', 'Dr. Lionel Messi', '846.932.810-77', 22500.00),
+('58922', 'Dra. Marta Silva', '777.932.040-50', 19800.00),
+('61003', 'Dr. Cristiano Ronaldo', '322.232.170-10', 25000.00),
+('44201', 'Dra. Megan Rapinoe', '256.487.810-59', 16500.00),
+('55100', 'Dr. Neymar Júnior', '805.778.880-13', 18200.00),
+('67299', 'Dra. Alex Morgan', '509.248.700-36', 21000.00),
+('49881', 'Dr. Kylian Mbappé', '835.351.050-21', 17500.00),
+('53444', 'Dra. Formiga', '203.633.860-76', 23000.00);
 
 INSERT INTO TelefoneMedico (crm_medico, numero_telefone) VALUES
 ('52341', '(61)99988-1001'),
@@ -21,11 +21,11 @@ INSERT INTO TelefoneMedico (crm_medico, numero_telefone) VALUES
 ('53444', '(61)98777-8008');
 
 INSERT INTO Enfermeiro (corem, cpf, nome_enfermeiro) VALUES
-('DF-1001', '111.222.333-44', 'Enf. Pep Guardiola'),
-('DF-1002', '222.333.444-55', 'Enf. Carlo Ancelotti'),
-('DF-1003', '333.444.555-66', 'Enf. Jürgen Klopp'),
-('DF-1004', '444.555.666-77', 'Enf. José Mourinho'),
-('DF-1005', '555.666.777-88', 'Enf. Sir Alex Ferguson');
+('DF-1001', '589.101.040-23', 'Enf. Pep Guardiola'),
+('DF-1002', '648.437.420-15', 'Enf. Carlo Ancelotti'),
+('DF-1003', '065.059.520-39', 'Enf. Jürgen Klopp'),
+('DF-1004', '240.336.690-00', 'Enf. José Mourinho'),
+('DF-1005', '392.163.520-94', 'Enf. Sir Alex Ferguson');
 
 INSERT INTO TelefoneEnfermeiro (corem_enfermeiro, numero_telefone) VALUES
 ('DF-1001', '(61)99111-0001'),
@@ -35,16 +35,16 @@ INSERT INTO TelefoneEnfermeiro (corem_enfermeiro, numero_telefone) VALUES
 ('DF-1005', '(61)99555-0005');
 
 INSERT INTO Paciente (cpf, data_nascimento, endereco, nome_paciente, foto) VALUES
-('001.001.001-01', '1984-12-30', 'SQS 308 Bloco F, Asa Sul', 'LeBron James', LOAD_FILE('/var/lib/mysql-files/lebron.jpg')),
-('002.002.002-02', '1963-02-17', 'SQN 212 Bloco B, Asa Norte', 'Michael Jordan', LOAD_FILE('/var/lib/mysql-files/jordan.jpg')),
-('003.003.003-03', '1988-03-14', 'SHIS QI 05 Conjunto 9, Lago Sul', 'Stephen Curry', LOAD_FILE('/var/lib/mysql-files/curry.jpg')),
-('004.004.004-04', '1978-08-23', 'Rua das Pitangueiras, Águas Claras', 'Kobe Bryant', LOAD_FILE('/var/lib/mysql-files/kobe.jpg')),
-('005.005.005-05', '1972-03-06', 'CCSW 04 Bloco A, Sudoeste', 'Shaquille ONeal', LOAD_FILE('/var/lib/mysql-files/shaq.jpg')),
-('006.006.006-06', '1988-07-29', 'QNM 18 Conjunto F, Ceilândia', 'Kevin Durant', LOAD_FILE('/var/lib/mysql-files/durant.jpg')),
-('007.007.007-07', '1994-12-06', 'SQS 105 Bloco J, Asa Sul', 'Giannis Antetokounmpo', LOAD_FILE('/var/lib/mysql-files/giannis.jpg')),
-('008.008.008-08', '1999-02-28', 'Condomínio Solar de Brasília, Jardim Botânico', 'Luka Dončić', LOAD_FILE('/var/lib/mysql-files/luka.jpg')),
-('009.009.009-09', '1959-08-14', 'Avenida Araucárias, Águas Claras', 'Magic Johnson', LOAD_FILE('/var/lib/mysql-files/magic.jpg')),
-('010.010.010-10', '1956-12-07', 'SHN Quadra 2, Asa Norte', 'Larry Bird', LOAD_FILE('/var/lib/mysql-files/bird.jpg'));
+('392.163.520-94', '1984-12-30', 'SQS 308 Bloco F, Asa Sul', 'LeBron James', LOAD_FILE('/var/lib/mysql-files/lebron.jpg')),
+('619.643.940-58', '1963-02-17', 'SQN 212 Bloco B, Asa Norte', 'Michael Jordan', LOAD_FILE('/var/lib/mysql-files/jordan.jpg')),
+('184.021.760-03', '1988-03-14', 'SHIS QI 05 Conjunto 9, Lago Sul', 'Stephen Curry', LOAD_FILE('/var/lib/mysql-files/curry.jpg')),
+('254.214.940-20', '1978-08-23', 'Rua das Pitangueiras, Águas Claras', 'Kobe Bryant', LOAD_FILE('/var/lib/mysql-files/kobe.jpg')),
+('133.281.290-22', '1972-03-06', 'CCSW 04 Bloco A, Sudoeste', 'Shaquille ONeal', LOAD_FILE('/var/lib/mysql-files/shaq.jpg')),
+('097.770.770-92', '1988-07-29', 'QNM 18 Conjunto F, Ceilândia', 'Kevin Durant', LOAD_FILE('/var/lib/mysql-files/durant.jpg')),
+('081.844.830-07', '1994-12-06', 'SQS 105 Bloco J, Asa Sul', 'Giannis Antetokounmpo', LOAD_FILE('/var/lib/mysql-files/giannis.jpg')),
+('155.272.720-30', '1999-02-28', 'Condomínio Solar de Brasília, Jardim Botânico', 'Luka Dončić', LOAD_FILE('/var/lib/mysql-files/luka.jpg')),
+('761.684.990-32', '1959-08-14', 'Avenida Araucárias, Águas Claras', 'Magic Johnson', LOAD_FILE('/var/lib/mysql-files/magic.jpg')),
+('517.776.090-11', '1956-12-07', 'SHN Quadra 2, Asa Norte', 'Larry Bird', LOAD_FILE('/var/lib/mysql-files/bird.jpg'));
 
 INSERT INTO TelefonePaciente (id_paciente, numero_telefone) VALUES
 (1, '(61)98888-1111'), (2, '(61)98888-2222'), (3, '(61)98888-3333'),
@@ -54,11 +54,11 @@ INSERT INTO TelefonePaciente (id_paciente, numero_telefone) VALUES
 
 
 INSERT INTO AgendaMedico (crm_medico, data, inicio_platao, fim_platao, duracao_slot_minutos) VALUES
-('52341', '2025-02-01', '08:00', '12:00', 30), 
-('58922', '2025-02-01', '14:00', '18:00', 20), 
+('52341', '2025-02-01', '08:00', '12:00', 30),
+('58922', '2025-02-01', '14:00', '18:00', 20),
 ('61003', '2025-02-02', '07:00', '19:00', 60),
-('44201', '2025-02-02', '08:00', '14:00', 15), 
-('55100', '2025-02-03', '10:00', '16:00', 45); 
+('44201', '2025-02-02', '08:00', '14:00', 15),
+('55100', '2025-02-03', '10:00', '16:00', 45);
 
 
 INSERT INTO Consulta (crm_medico, diagnostico, status, valor, data_hora_agendamento, id_paciente) VALUES
@@ -79,9 +79,9 @@ INSERT INTO TipoExame (nome_do_exame, descricao, preco) VALUES
 ('Ecocardiograma', 'Ultrassom do coração', 320.00);
 
 INSERT INTO Exame (status, crm_medico_responsavel, data_coleta, data_solicitacao, id_paciente, id_tipo_exame) VALUES
-('C', '52341', '2025-01-11', '2025-01-10', 1, 1), 
-('C', '61003', '2025-01-16', '2025-01-15', 3, 2), 
-('A', '55100', NULL, '2025-01-20', 5, 3), 
+('C', '52341', '2025-01-11', '2025-01-10', 1, 1),
+('C', '61003', '2025-01-16', '2025-01-15', 3, 2),
+('A', '55100', NULL, '2025-01-20', 5, 3),
 ('C', '49881', '2025-01-26', '2025-01-25', 7, 4),
 ('C', '58922', '2025-01-28', '2025-01-27', 2, 1),
 ('C', '67299', '2025-01-29', '2025-01-28', 6, 5);
@@ -114,7 +114,7 @@ INSERT INTO Internacao (id_paciente, crm_medico, corem_enfermeiro, id_quarto, da
 (3, '61003', 'DF-1002', 1, '2025-01-15', NULL, '2025-02-05'),
 (5, '55100', 'DF-1003', 2, '2025-01-20', '2025-01-25', '2025-01-25'),
 (7, '49881', 'DF-1004', 6, '2025-01-26', NULL, '2025-02-01'),
-(2, '58922', 'DF-1005', 4, '2025-01-12', '2025-01-14', '2025-01-14'); 
+(2, '58922', 'DF-1005', 4, '2025-01-12', '2025-01-14', '2025-01-14');
 
 INSERT INTO Fornecedor (cnpj, nome_empresa) VALUES
 ('00.123.456/0001-00', 'Eurofarma Distribuidora DF'),
@@ -152,7 +152,7 @@ INSERT INTO LogSalario (crm_medico, salario_antigo, salario_novo, data_alteracao
 ('44201', 15000.00, 16500.00, '2024-10-01 08:30:00'),
 ('53444', 21000.00, 23000.00, '2024-12-10 14:00:00');
 
-INSERT INTO Usuarios (username, password, role, referencia_id) VALUES 
+INSERT INTO Usuarios (username, password, role, referencia_id) VALUES
 ('admin', 'Adm@DF', 'admin', NULL),
 ('52341', 'Xy9A2b', 'medico', '52341'),
 ('58922', 'Kj8L1m', 'medico', '58922'),

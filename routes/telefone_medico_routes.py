@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from services.telefone_medico_service import TelefoneMedicoService
 
 def init_telefone_medico_routes(service: TelefoneMedicoService):
@@ -24,6 +24,12 @@ def init_telefone_medico_routes(service: TelefoneMedicoService):
     def create():
         data = request.get_json()
         try:
+            # Permitir apenas que o próprio médico (ou admin) cadastre seus telefones
+            caller = session.get('referencia_id')
+            role = session.get('role')
+            if role != 'admin' and caller != data.get('crm_medico'):
+                return jsonify({'error': 'Operação não autorizada'}), 403
+
             res = service.create(data['crm_medico'], data['numero_telefone'])
             return jsonify(res), 201
         except KeyError as e:
@@ -35,10 +41,27 @@ def init_telefone_medico_routes(service: TelefoneMedicoService):
     @bp.route('/<int:id_telefone>', methods=['PUT'])
     def update(id_telefone):
         data = request.get_json()
+        # Verifica se o telefone pertence ao usuário autenticado (ou admin)
+        registro = service.get_by_id(id_telefone)
+        if not registro:
+            return jsonify({'error': 'Registro não encontrado'}), 404
+        caller = session.get('referencia_id')
+        role = session.get('role')
+        if role != 'admin' and caller != registro.get('crm_medico'):
+            return jsonify({'error': 'Operação não autorizada'}), 403
+
         return jsonify(service.update(id_telefone, data.get('numero_telefone'))), 200
 
     @bp.route('/<int:id_telefone>', methods=['DELETE'])
     def delete(id_telefone):
+        registro = service.get_by_id(id_telefone)
+        if not registro:
+            return jsonify({'error': 'Registro não encontrado'}), 404
+        caller = session.get('referencia_id')
+        role = session.get('role')
+        if role != 'admin' and caller != registro.get('crm_medico'):
+            return jsonify({'error': 'Operação não autorizada'}), 403
+
         return jsonify(service.delete(id_telefone)), 200
 
     return bp

@@ -77,6 +77,20 @@
           <small class="text-muted">Histórico Clínico</small>
         </div>
       </a>
+
+      <a
+        class="list-group-item list-group-item-action d-flex align-items-center py-3"
+        id="list-personal-list"
+        data-bs-toggle="list"
+        href="#list-personal"
+        role="tab"
+      >
+        <i class="bi bi-person-lines-fill fs-5 me-3 text-secondary"></i>
+        <div>
+          <div class="fw-bold">Informações Pessoais</div>
+          <small class="text-muted">Telefones e contato</small>
+        </div>
+      </a>
     </div>
   </div>
 
@@ -208,26 +222,36 @@
                 data-bs-toggle="modal"
                 data-bs-target="#modalSolicitarExame"
               >
-                <i class="bi bi-file-earmark-plus me-2"></i> Solicitar Novo Exame
+                <i class="bi bi-file-earmark-plus me-2"></i> Solicitar Novo
+                Exame
               </button>
             </div>
 
             <!-- Search Bar -->
             <div class="mb-3">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" class="form-control border-start-0 bg-light" id="search-exames" placeholder="Buscar exames por paciente, tipo ou status...">
-                </div>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"
+                  ><i class="bi bi-search text-muted"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 bg-light"
+                  id="search-exames"
+                  placeholder="Buscar exames por paciente, tipo ou status..."
+                />
+              </div>
             </div>
 
             <!-- Lista de Exames -->
-            <div id="exames-container" class="text-center py-5 bg-light rounded border border-dashed">
-                <div class="spinner-border text-info" role="status">
-                    <span class="visually-hidden">Carregando...</span>
-                </div>
-                <p class="text-muted mt-3 mb-0">Carregando exames...</p>
+            <div
+              id="exames-container"
+              class="text-center py-5 bg-light rounded border border-dashed"
+            >
+              <div class="spinner-border text-info" role="status">
+                <span class="visually-hidden">Carregando...</span>
+              </div>
+              <p class="text-muted mt-3 mb-0">Carregando exames...</p>
             </div>
-
           </div>
         </div>
       </div>
@@ -265,6 +289,35 @@
                     <i class="bi bi-chevron-right fs-4"></i>
                   </div>
                 </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="list-personal" role="tabpanel">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Informações Pessoais</h5>
+            <p class="text-muted small">Gerencie seus telefones de contato.</p>
+
+            <div id="personal-info" data-crm="{{ session['referencia_id'] }}">
+              <div class="mb-3">
+                <label class="form-label">Telefones</label>
+                <ul class="list-group mb-3" id="lista-telefones-medico">
+                  <li class="list-group-item text-muted">Carregando...</li>
+                </ul>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="novo-telefone-medico"
+                    class="form-control"
+                    placeholder="(61)9xxxx-xxxx"
+                  />
+                  <button class="btn btn-primary" id="btn-add-telefone-medico">
+                    Adicionar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -554,79 +607,164 @@
         ></button>
       </div>
       <div class="modal-body">
-        
         <!-- Abas de Navegação do Modal -->
         <ul class="nav nav-tabs mb-3" id="plantaoTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="auto-tab" data-bs-toggle="tab" data-bs-target="#plantao-auto" type="button" role="tab">
-                    <i class="bi bi-lightning-charge me-1"></i> Rápido
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#plantao-manual" type="button" role="tab">
-                    <i class="bi bi-sliders me-1"></i> Manual
-                </button>
-            </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="auto-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#plantao-auto"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-lightning-charge me-1"></i> Rápido
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="manual-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#plantao-manual"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-sliders me-1"></i> Manual
+            </button>
+          </li>
         </ul>
 
         <div class="tab-content" id="plantaoTabsContent">
-            
-            <!-- MODO RÁPIDO (AUTOMÁTICO) -->
-            <div class="tab-pane fade show active" id="plantao-auto" role="tabpanel">
-                <div class="alert alert-info small mb-3">
-                    <i class="bi bi-info-circle me-1"></i> Selecione o início e a duração total. O sistema criará as agendas diárias automaticamente.
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted">Início do Plantão</label>
-                    <input type="datetime-local" class="form-control" id="auto-data-inicio" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted">Duração da Consulta (min)</label>
-                    <input type="number" class="form-control" id="auto-slot" value="30" min="10" step="5">
-                </div>
-
-                <label class="form-label fw-bold small text-muted mb-2">Duração Total do Plantão</label>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-between">
-                    <button type="button" class="btn btn-outline-primary flex-fill" onclick="criarPlantaoRapido(12)">12h</button>
-                    <button type="button" class="btn btn-outline-primary flex-fill" onclick="criarPlantaoRapido(24)">24h</button>
-                    <button type="button" class="btn btn-outline-primary flex-fill" onclick="criarPlantaoRapido(36)">36h</button>
-                    <button type="button" class="btn btn-outline-primary flex-fill" onclick="criarPlantaoRapido(48)">48h</button>
-                </div>
+          <!-- MODO RÁPIDO (AUTOMÁTICO) -->
+          <div
+            class="tab-pane fade show active"
+            id="plantao-auto"
+            role="tabpanel"
+          >
+            <div class="alert alert-info small mb-3">
+              <i class="bi bi-info-circle me-1"></i> Selecione o início e a
+              duração total. O sistema criará as agendas diárias
+              automaticamente.
             </div>
 
-            <!-- MODO MANUAL (ANTIGO) -->
-            <div class="tab-pane fade" id="plantao-manual" role="tabpanel">
-                <form id="form-agenda">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Data do Plantão</label>
-                        <input type="date" class="form-control" name="data" required />
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <label class="form-label fw-bold small text-muted">Início</label>
-                            <input type="time" class="form-control" name="inicio_platao" required />
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold small text-muted">Fim</label>
-                            <input type="time" class="form-control" name="fim_platao" required />
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Duração da Consulta (minutos)</label>
-                        <input type="number" class="form-control" name="duracao_slot_minutos" value="30" min="10" step="5" required />
-                        <div class="form-text small">Tempo médio de atendimento por paciente.</div>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-lg me-2"></i> Salvar Agenda
-                        </button>
-                    </div>
-                </form>
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-muted"
+                >Início do Plantão</label
+              >
+              <input
+                type="datetime-local"
+                class="form-control"
+                id="auto-data-inicio"
+                required
+              />
             </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-muted"
+                >Duração da Consulta (min)</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="auto-slot"
+                value="30"
+                min="10"
+                step="5"
+              />
+            </div>
+
+            <label class="form-label fw-bold small text-muted mb-2"
+              >Duração Total do Plantão</label
+            >
+            <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+              <button
+                type="button"
+                class="btn btn-outline-primary flex-fill"
+                onclick="criarPlantaoRapido(12)"
+              >
+                12h
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-primary flex-fill"
+                onclick="criarPlantaoRapido(24)"
+              >
+                24h
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-primary flex-fill"
+                onclick="criarPlantaoRapido(36)"
+              >
+                36h
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-primary flex-fill"
+                onclick="criarPlantaoRapido(48)"
+              >
+                48h
+              </button>
+            </div>
+          </div>
+
+          <!-- MODO MANUAL (ANTIGO) -->
+          <div class="tab-pane fade" id="plantao-manual" role="tabpanel">
+            <form id="form-agenda">
+              <div class="mb-3">
+                <label class="form-label fw-bold small text-muted"
+                  >Data do Plantão</label
+                >
+                <input type="date" class="form-control" name="data" required />
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <label class="form-label fw-bold small text-muted"
+                    >Início</label
+                  >
+                  <input
+                    type="time"
+                    class="form-control"
+                    name="inicio_platao"
+                    required
+                  />
+                </div>
+                <div class="col-6">
+                  <label class="form-label fw-bold small text-muted">Fim</label>
+                  <input
+                    type="time"
+                    class="form-control"
+                    name="fim_platao"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold small text-muted"
+                  >Duração da Consulta (minutos)</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  name="duracao_slot_minutos"
+                  value="30"
+                  min="10"
+                  step="5"
+                  required
+                />
+                <div class="form-text small">
+                  Tempo médio de atendimento por paciente.
+                </div>
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-lg me-2"></i> Salvar Agenda
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -638,26 +776,46 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Resultado do Exame</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-            <label class="form-label fw-bold small text-muted">Exame</label>
-            <p id="res-nome-exame" class="form-control-plaintext border-bottom pb-2"></p>
+          <label class="form-label fw-bold small text-muted">Exame</label>
+          <p
+            id="res-nome-exame"
+            class="form-control-plaintext border-bottom pb-2"
+          ></p>
         </div>
         <div class="mb-3">
-            <label class="form-label fw-bold small text-muted">Data do Resultado</label>
-            <p id="res-data" class="form-control-plaintext border-bottom pb-2"></p>
+          <label class="form-label fw-bold small text-muted"
+            >Data do Resultado</label
+          >
+          <p
+            id="res-data"
+            class="form-control-plaintext border-bottom pb-2"
+          ></p>
         </div>
         <div class="mb-3">
-            <label class="form-label fw-bold small text-muted">Laudo / Resultado</label>
-            <div id="res-texto" class="p-3 bg-light rounded border" style="white-space: pre-wrap;"></div>
+          <label class="form-label fw-bold small text-muted"
+            >Laudo / Resultado</label
+          >
+          <div
+            id="res-texto"
+            class="p-3 bg-light rounded border"
+            style="white-space: pre-wrap"
+          ></div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Fechar
+        </button>
         <button type="button" class="btn btn-primary" onclick="window.print()">
-            <i class="bi bi-printer me-2"></i> Imprimir
+          <i class="bi bi-printer me-2"></i> Imprimir
         </button>
       </div>
     </div>
@@ -670,21 +828,38 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Registrar Resultado</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <form id="form-resultado">
-          <input type="hidden" id="id_exame_resultado" name="id_exame">
+          <input type="hidden" id="id_exame_resultado" name="id_exame" />
           <div class="mb-3">
             <label class="form-label">Data do Resultado</label>
-            <input type="date" class="form-control" name="data_resultado" id="data_resultado" required>
+            <input
+              type="date"
+              class="form-control"
+              name="data_resultado"
+              id="data_resultado"
+              required
+            />
           </div>
           <div class="mb-3">
             <label class="form-label">Resultado Obtido</label>
-            <textarea class="form-control" name="resultado_obtido" rows="4" required></textarea>
+            <textarea
+              class="form-control"
+              name="resultado_obtido"
+              rows="4"
+              required
+            ></textarea>
           </div>
           <div class="d-grid">
-            <button type="submit" class="btn btn-success">Salvar Resultado</button>
+            <button type="submit" class="btn btn-success">
+              Salvar Resultado
+            </button>
           </div>
         </form>
       </div>
