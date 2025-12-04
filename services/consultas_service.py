@@ -66,6 +66,10 @@ class ConsultasService:
         consulta = self.consulta_repo.get_by_id(id_consulta)
         if not consulta:
             raise ValueError(f"Consulta com ID {id_consulta} não encontrada.")
+        
+        if self.prescricao_repo:
+            consulta['prescricoes'] = self.prescricao_repo.find_by_consulta_with_details(id_consulta)
+            
         return consulta
 
     def update_consulta(self, id_consulta: int, status: str = None, data_hora: str = None, diagnostico: str = None):

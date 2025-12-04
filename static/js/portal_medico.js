@@ -312,8 +312,11 @@ function renderizarListaConsultas(lista, isFila) {
         `;
     } else {
       buttons += `
-            <button class="btn btn-sm btn-outline-secondary" disabled>
+            <button class="btn btn-sm btn-outline-secondary me-2" disabled>
                 <i class="bi bi-check2-all me-1"></i> Finalizado
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="abrirModalEditarPrescricao(${c.id_consulta})">
+                <i class="bi bi-pencil me-1"></i> Editar Prescrição
             </button>
           `;
       
@@ -1137,4 +1140,181 @@ async function editarTelefoneMedico(id, atual) {
   } catch (err) {
     alert("Erro ao editar: " + (err.message || JSON.stringify(err)));
   }
+}
+
+/* ================== EDIÇÃO DE PRESCRIÇÃO ================== */
+
+let listaEdicaoPrescricao = [];
+let idConsultaEdicao = null;
+
+async function abrirModalEditarPrescricao(idConsulta) {
+    idConsultaEdicao = idConsulta;
+    listaEdicaoPrescricao = [];
+    
+    const modalEl = document.getElementById('modalEditarPrescricao');
+    const modal = new bootstrap.Modal(modalEl);
+    
+    // Limpa UI
+    document.querySelector('#tabela-edicao-prescricao tbody').innerHTML = '<tr><td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm text-primary"></div> Carregando...</td></tr>';
+    
+    modal.show();
+    
+    try {
+        // Carrega consulta com prescrições
+        const consulta = await API.get(`/consultas/${idConsulta}`);
+        
+        if (consulta.prescricoes) {
+            listaEdicaoPrescricao = consulta.prescricoes.map(p => ({
+                id_prescricao: p.id_prescricao,
+                id_medicamento: p.id_medicamento,
+                nome: p.nome_comercial,
+                quantidade_prescrita: p.quantidade_prescrita,
+                frequencia_uso: p.frequencia_uso,
+                dosagem: p.dosagem,
+                is_deleted: false,
+                is_new: false,
+                is_updated: false
+            }));
+        }
+        
+        renderizarTabelaEdicaoPrescricao();
+        await carregarMedicamentosEdicaoSelect();
+        
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao carregar prescrições: ' + error.message);
+        modal.hide();
+    }
+}
+
+async function carregarMedicamentosEdicaoSelect() {
+    const select = document.getElementById('edit-presc-medicamento');
+    if (!select || select.options.length > 1) return;
+
+    try {
+        const meds = await API.get('/medicamentos/');
+        select.innerHTML = '<option value="" disabled selected>Selecione...</option>';
+        meds.forEach(m => {
+            select.innerHTML += `<option value="${m.id_medicamento}">${m.nome_comercial} (${m.fabricante || 'Genérico'})</option>`;
+        });
+    } catch (e) {
+        console.error('Erro ao carregar medicamentos', e);
+        select.innerHTML = '<option disabled>Erro ao carregar lista</option>';
+    }
+}
+
+function adicionarItemEdicaoPrescricao() {
+    const select = document.getElementById('edit-presc-medicamento');
+    const idMed = select.value;
+    const nomeMed = select.options[select.selectedIndex]?.text;
+    const qtd = document.getElementById('edit-presc-qtd').value;
+    const uso = document.getElementById('edit-presc-uso').value;
+
+    if (!idMed) return alert('Selecione um medicamento.');
+    if (qtd <= 0) return alert('Quantidade inválida.');
+    if (!uso) return alert('Informe a dosagem/frequência.');
+
+    listaEdicaoPrescricao.push({
+        id_medicamento: parseInt(idMed),
+        nome: nomeMed,
+        quantidade_prescrita: parseInt(qtd),
+        frequencia_uso: uso,
+        dosagem: uso,
+        is_new: true,
+        is_deleted: false
+    });
+
+    renderizarTabelaEdicaoPrescricao();
+
+    select.value = "";
+    document.getElementById('edit-presc-qtd').value = 1;
+    document.getElementById('edit-presc-uso').value = "";
+    select.focus();
+}
+
+function removerItemEdicaoPrescricao(index) {
+    const item = listaEdicaoPrescricao[index];
+    if (item.is_new) {
+        listaEdicaoPrescricao.splice(index, 1);
+    } else {
+        item.is_deleted = true;
+    }
+    renderizarTabelaEdicaoPrescricao();
+}
+
+function renderizarTabelaEdicaoPrescricao() {
+    const tbody = document.querySelector('#tabela-edicao-prescricao tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    
+    const itensAtivos = listaEdicaoPrescricao.filter(i => !i.is_deleted);
+
+    if (itensAtivos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted small">Nenhum medicamento prescrito.</td></tr>';
+        return;
+    }
+    
+    listaEdicaoPrescricao.forEach((item, index) => {
+        if (item.is_deleted) return;
+        
+        tbody.innerHTML += `
+            <tr>
+                <td><small>${item.nome}</small> ${item.is_new ? '<span class="badge bg-success">Novo</span>' : ''}</td>
+                <td>
+                    <span class="badge bg-light text-dark border me-1">${item.quantidade_prescrita} un</span>
+                    <small>${item.frequencia_uso}</small>
+                </td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-link text-danger p-0" onclick="removerItemEdicaoPrescricao(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+async function salvarEdicaoPrescricao() {
+    if (!idConsultaEdicao) return;
+    
+    const btnSalvar = document.getElementById('btn-salvar-edicao');
+    const textoOriginal = btnSalvar.innerHTML;
+    btnSalvar.disabled = true;
+    btnSalvar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Salvando...';
+    
+    try {
+        // Processa as mudanças
+        for (const item of listaEdicaoPrescricao) {
+            if (item.is_deleted) {
+                if (!item.is_new) {
+                    await API.delete(`/prescricoes/${item.id_prescricao}`);
+                }
+            } else if (item.is_new) {
+                await API.post('/prescricoes/', {
+                    id_consulta: parseInt(idConsultaEdicao),
+                    id_medicamento: item.id_medicamento,
+                    quantidade_prescrita: item.quantidade_prescrita,
+                    dosagem: item.dosagem,
+                    frequencia_uso: item.frequencia_uso
+                });
+            }
+        }
+        
+        alert('Prescrição atualizada com sucesso!');
+        const modalEl = document.getElementById('modalEditarPrescricao');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+        
+        // Recarrega a lista
+        const crm = document.getElementById('medico-data').dataset.crm;
+        carregarConsultas(crm);
+        
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao salvar alterações: ' + error.message);
+    } finally {
+        btnSalvar.disabled = false;
+        btnSalvar.innerHTML = textoOriginal;
+    }
 }

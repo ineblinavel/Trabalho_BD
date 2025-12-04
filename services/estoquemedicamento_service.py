@@ -98,5 +98,30 @@ class EstoqueMedicamentoService:
 
             # Reusa o método consumir_estoque que já existe (ele faz o UPDATE)
             self.consumir_estoque(lote['id_estoque_medicamento'], qtd_para_tirar)
-
             restante -= qtd_para_tirar
+
+    def repor_por_medicamento(self, id_medicamento: int, quantidade_total: int):
+        if quantidade_total <= 0:
+            raise ValueError("A quantidade a ser reposta deve ser maior que zero.")
+
+        # 1. Busca todos os lotes (mesmo zerados)
+        lotes = self.estoque_repo.find_by(id_medicamento, key="id_medicamento")
+        
+        if not lotes:
+             # Se não houver lotes, não dá para repor.
+             raise ValueError(f"Não há lotes cadastrados para o medicamento ID {id_medicamento} para devolução.")
+
+        # Garante que é lista
+        if isinstance(lotes, dict):
+            lotes = [lotes]
+
+        # Ordena por data de validade decrescente (para devolver para o lote que vence mais tarde)
+        # Assumindo que 'data_validade' é string YYYY-MM-DD ou date object
+        # Se data_validade for None ou inválida, pode dar erro, mas o repo valida.
+        lotes.sort(key=lambda x: str(x['data_validade']), reverse=True)
+        
+        # Devolve para o primeiro lote encontrado (o mais novo)
+        lote_alvo = lotes[0]
+        nova_quantidade = lote_alvo['quantidade'] + quantidade_total
+        
+        return self.estoque_repo.update(lote_alvo['id_estoque_medicamento'], quantidade=nova_quantidade)

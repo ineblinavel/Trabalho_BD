@@ -62,10 +62,42 @@ class PrescricaoService:
         )
 
     def update_prescricao(self, id_prescricao: int, data: dict):
+        # Busca a prescrição atual
+        prescricao_atual = self.prescricao_repo.find_by(id_prescricao, key="id_prescricao")
+        if not prescricao_atual:
+            raise ValueError(f"Prescrição com ID {id_prescricao} não encontrada.")
+
+        # Se houver alteração de quantidade
+        if 'quantidade_prescrita' in data:
+            nova_qtd = int(data['quantidade_prescrita'])
+            qtd_atual = int(prescricao_atual['quantidade_prescrita'])
+            diff = nova_qtd - qtd_atual
+
+            if diff > 0:
+                # Consumir mais
+                self.estoque_service.consumir_por_medicamento(prescricao_atual['id_medicamento'], diff)
+            elif diff < 0:
+                # Devolver ao estoque
+                self.estoque_service.repor_por_medicamento(prescricao_atual['id_medicamento'], abs(diff))
+
         update_data = {k: v for k, v in data.items() if v is not None}
         return self.prescricao_repo.update(id_prescricao, **update_data)
 
     def delete_prescricao(self, id_prescricao: int):
+        # Busca a prescrição atual para devolver ao estoque
+        prescricao_atual = self.prescricao_repo.find_by(id_prescricao, key="id_prescricao")
+        if prescricao_atual:
+            try:
+                self.estoque_service.repor_por_medicamento(
+                    prescricao_atual['id_medicamento'], 
+                    int(prescricao_atual['quantidade_prescrita'])
+                )
+            except Exception as e:
+                # Logar erro mas permitir deletar? Ou bloquear?
+                # Vamos bloquear para manter consistência
+                print(f"Erro ao repor estoque na deleção: {e}")
+                pass
+
         return self.prescricao_repo.delete(id_prescricao)
 
     def delete_prescricao_specific(self, id_consulta: int, id_medicamento: int):

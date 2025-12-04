@@ -134,7 +134,7 @@ class PrescricaoRepository:
         query = """
             SELECT p.*, m.nome_comercial, m.fabricante
             FROM Prescricao p
-            JOIN Medicamentos m ON p.id_medicamento = m.id_medicamento
+            JOIN Medicamento m ON p.id_medicamento = m.id_medicamento
             WHERE p.id_consulta = %s
         """
         return self.db.fetch_all(query, (id_consulta,))
